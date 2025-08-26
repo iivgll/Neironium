@@ -1,0 +1,395 @@
+'use client';
+import React, { useState, useContext } from 'react';
+import {
+  Box,
+  Flex,
+  Icon,
+  Text,
+  IconButton,
+  VStack,
+  HStack,
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  useDisclosure,
+  Tooltip,
+} from '@chakra-ui/react';
+import { SidebarContext } from '@/contexts/SidebarContext';
+import { IRoute } from '@/types/navigation';
+import { usePathname } from 'next/navigation';
+import NextLink from 'next/link';
+import { 
+  MdAdd, 
+  MdSearch, 
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdMoreHoriz,
+  MdClose,
+  MdMenu
+} from 'react-icons/md';
+import { IoMenuOutline } from 'react-icons/io5';
+
+interface NeuroniumSidebarProps {
+  routes: IRoute[];
+  chats?: Array<{
+    id: string;
+    title: string;
+    date?: string;
+  }>;
+}
+
+export default function NeuroniumSidebar({ routes, chats = [] }: NeuroniumSidebarProps) {
+  const { isCollapsed, setIsCollapsed } = useContext(SidebarContext);
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const pathname = usePathname();
+
+  // Dark theme colors only
+  const bgColor = '#1e1e1e'; // neuronium.background.primary
+  const borderColor = '#343434'; // neuronium.border.primary
+  const textPrimary = '#ffffff'; // neuronium.text.primary
+  const textSecondary = '#8a8b8c'; // neuronium.text.secondary
+  const hoverBg = 'rgba(255, 255, 255, 0.05)'; // neuronium.background.hover
+  const activeBg = 'rgba(255, 255, 255, 0.1)'; // neuronium.background.active
+  const accentColor = '#8854f3'; // neuronium.accent.violet
+
+  const sidebarWidth = isCollapsed ? '68px' : '300px';
+
+  return (
+    <Box
+      display={{ base: 'none', lg: 'block' }}
+      position="fixed"
+      left="0"
+      top="0"
+      h="100vh"
+      w={sidebarWidth}
+      bg={bgColor}
+      borderRight="1px solid"
+      borderColor={borderColor}
+      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+      zIndex={100}
+      boxShadow="11px 7px 40px 0px rgba(0,0,0,0.2)"
+    >
+      <Flex direction="column" h="100%" p="20px">
+        {/* Header */}
+        <Flex
+          align="center"
+          justify="space-between"
+          mb="20px"
+          minH="36px"
+        >
+          {!isCollapsed ? (
+            <>
+              <Flex align="center">
+                <Box
+                  w="36px"
+                  h="36px"
+                  borderRadius="4px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  mr="12px"
+                >
+                  <Text
+                    fontSize="24px"
+                    fontWeight="bold"
+                    color="white"
+                    fontFamily="'Gantari', sans-serif"
+                  >
+                    Nr
+                  </Text>
+                </Box>
+              </Flex>
+              <IconButton
+                aria-label="Collapse sidebar"
+                icon={<MdKeyboardArrowLeft />}
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsCollapsed?.(!isCollapsed)}
+                color={textPrimary}
+                _hover={{ bg: hoverBg }}
+              />
+            </>
+          ) : (
+            <IconButton
+              aria-label="Expand sidebar"
+              icon={<MdKeyboardArrowRight />}
+              size="sm"
+              variant="ghost"
+              onClick={() => setIsCollapsed?.(!isCollapsed)}
+              color={textPrimary}
+              _hover={{ bg: hoverBg }}
+              mx="auto"
+            />
+          )}
+        </Flex>
+
+        {/* Action Buttons */}
+        <VStack spacing="8px" mb="24px">
+          <Button
+            w="100%"
+            h="50px"
+            bg="transparent"
+            color={textPrimary}
+            _hover={{ bg: hoverBg }}
+            justifyContent={isCollapsed ? 'center' : 'flex-start'}
+            px={isCollapsed ? '0' : '12px'}
+            borderRadius="100px"
+            leftIcon={!isCollapsed ? <MdAdd size={24} /> : undefined}
+          >
+            {isCollapsed ? (
+              <MdAdd size={24} />
+            ) : (
+              <Text fontSize="16px" fontWeight="600">
+                Новый чат
+              </Text>
+            )}
+          </Button>
+          
+          <Button
+            w="100%"
+            h="50px"
+            bg="transparent"
+            color={textPrimary}
+            _hover={{ bg: hoverBg }}
+            justifyContent={isCollapsed ? 'center' : 'flex-start'}
+            px={isCollapsed ? '0' : '12px'}
+            borderRadius="100px"
+            leftIcon={!isCollapsed ? <MdSearch size={24} /> : undefined}
+          >
+            {isCollapsed ? (
+              <MdSearch size={24} />
+            ) : (
+              <Text fontSize="16px" fontWeight="600">
+                Поиск в чатах
+              </Text>
+            )}
+          </Button>
+        </VStack>
+
+        {/* Chats Section */}
+        {!isCollapsed && (
+          <Box flex="1" overflowY="auto">
+            <Text
+              fontSize="12px"
+              fontWeight="400"
+              color={textSecondary}
+              textTransform="uppercase"
+              letterSpacing="0.4px"
+              mb="16px"
+            >
+              чаты
+            </Text>
+            
+            <VStack spacing="8px" align="stretch">
+              {/* Example chat items */}
+              <Flex
+                h="40px"
+                px="10px"
+                py="7px"
+                bg={activeBg}
+                borderRadius="10px"
+                align="center"
+                justify="space-between"
+                cursor="pointer"
+                _hover={{ bg: hoverBg }}
+              >
+                <Text
+                  fontSize="16px"
+                  color={textPrimary}
+                  noOfLines={1}
+                  flex="1"
+                >
+                  Создание статей для Хабра
+                </Text>
+                <HStack spacing="4px">
+                  <Icon as={MdMoreHoriz} w="16px" h="16px" color={textSecondary} />
+                  <Icon as={MdClose} w="16px" h="16px" color={textSecondary} />
+                </HStack>
+              </Flex>
+              
+              {[1, 2, 3, 4].map((i) => (
+                <Flex
+                  key={i}
+                  h="40px"
+                  px="10px"
+                  py="7px"
+                  align="center"
+                  cursor="pointer"
+                  _hover={{ bg: hoverBg }}
+                  borderRadius="10px"
+                >
+                  <Text fontSize="16px" color={textPrimary}>
+                    Название
+                  </Text>
+                </Flex>
+              ))}
+            </VStack>
+          </Box>
+        )}
+      </Flex>
+    </Box>
+  );
+}
+
+// Mobile Responsive Sidebar
+export function NeuroniumSidebarResponsive({ routes, chats = [] }: NeuroniumSidebarProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const pathname = usePathname();
+  
+  // Dark theme colors only
+  const bgColor = '#1e1e1e'; // neuronium.background.primary
+  const borderColor = '#343434'; // neuronium.border.primary
+  const textPrimary = '#ffffff'; // neuronium.text.primary
+  const textSecondary = '#8a8b8c'; // neuronium.text.secondary
+  const hoverBg = 'rgba(255, 255, 255, 0.05)'; // neuronium.background.hover
+  const activeBg = 'rgba(255, 255, 255, 0.1)'; // neuronium.background.active
+  const accentColor = '#8854f3'; // neuronium.accent.violet
+  const menuColor = '#ffffff'; // Always white for dark theme
+
+  return (
+    <>
+      <Flex display={{ base: 'flex', lg: 'none' }} alignItems="center">
+        <IconButton
+          aria-label="Open menu"
+          icon={<IoMenuOutline />}
+          onClick={onOpen}
+          variant="ghost"
+          color={menuColor}
+          size="md"
+        />
+      </Flex>
+      
+      <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
+        <DrawerOverlay />
+        <DrawerContent
+          bg={bgColor}
+          maxW="300px"
+          borderRight="1px solid"
+          borderColor={borderColor}
+        >
+          <DrawerCloseButton color={textPrimary} />
+          <DrawerBody p="20px">
+            {/* Header */}
+            <Flex align="center" mb="20px">
+              <Box
+                w="36px"
+                h="36px"
+                borderRadius="4px"
+                bg={accentColor}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                mr="12px"
+              >
+                <Text
+                  fontSize="24px"
+                  fontWeight="bold"
+                  color="white"
+                  fontFamily="'Gantari', sans-serif"
+                >
+                  Nr
+                </Text>
+              </Box>
+            </Flex>
+
+            {/* Action Buttons */}
+            <VStack spacing="8px" mb="24px">
+              <Button
+                w="100%"
+                h="50px"
+                bg="transparent"
+                color={textPrimary}
+                _hover={{ bg: hoverBg }}
+                justifyContent="flex-start"
+                px="12px"
+                borderRadius="100px"
+                leftIcon={<MdAdd size={24} />}
+              >
+                <Text fontSize="16px" fontWeight="600">
+                  Новый чат
+                </Text>
+              </Button>
+              
+              <Button
+                w="100%"
+                h="50px"
+                bg="transparent"
+                color={textPrimary}
+                _hover={{ bg: hoverBg }}
+                justifyContent="flex-start"
+                px="12px"
+                borderRadius="100px"
+                leftIcon={<MdSearch size={24} />}
+              >
+                <Text fontSize="16px" fontWeight="600">
+                  Поиск в чатах
+                </Text>
+              </Button>
+            </VStack>
+
+            {/* Chats Section */}
+            <Box flex="1">
+              <Text
+                fontSize="12px"
+                fontWeight="400"
+                color={textSecondary}
+                textTransform="uppercase"
+                letterSpacing="0.4px"
+                mb="16px"
+              >
+                чаты
+              </Text>
+              
+              <VStack spacing="8px" align="stretch">
+                <Flex
+                  h="40px"
+                  px="10px"
+                  py="7px"
+                  bg={activeBg}
+                  borderRadius="10px"
+                  align="center"
+                  justify="space-between"
+                  cursor="pointer"
+                  _hover={{ bg: hoverBg }}
+                >
+                  <Text
+                    fontSize="16px"
+                    color={textPrimary}
+                    noOfLines={1}
+                    flex="1"
+                  >
+                    Создание статей для Хабра
+                  </Text>
+                  <HStack spacing="4px">
+                    <Icon as={MdMoreHoriz} w="16px" h="16px" color={textSecondary} />
+                    <Icon as={MdClose} w="16px" h="16px" color={textSecondary} />
+                  </HStack>
+                </Flex>
+                
+                {[1, 2, 3, 4].map((i) => (
+                  <Flex
+                    key={i}
+                    h="40px"
+                    px="10px"
+                    py="7px"
+                    align="center"
+                    cursor="pointer"
+                    _hover={{ bg: hoverBg }}
+                    borderRadius="10px"
+                  >
+                    <Text fontSize="16px" color={textPrimary}>
+                      Название
+                    </Text>
+                  </Flex>
+                ))}
+              </VStack>
+            </Box>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+}
