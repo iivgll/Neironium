@@ -11,7 +11,6 @@ import { SidebarContext } from '@/contexts/SidebarContext';
 import NeuroniumChatInput from '@/components/chat/NeuroniumChatInput';
 import NeuroniumNavbar from '@/components/navbar/NeuroniumNavbar';
 import MessageBoxChat from '@/components/MessageBox';
-import { ChatBody, OpenAIModel } from '@/types/types';
 import { MdAutoAwesome } from 'react-icons/md';
 
 interface Message {
@@ -23,7 +22,7 @@ interface Message {
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [model, setModel] = useState<OpenAIModel>('gpt-4o');
+  const [model, setModel] = useState<string>('gpt-4o');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Dark theme colors only
@@ -46,13 +45,6 @@ export default function Chat() {
   const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
 
-    const apiKey = localStorage.getItem('apiKey');
-    
-    if (!apiKey?.includes('sk-')) {
-      alert('Пожалуйста, введите API ключ');
-      return;
-    }
-
     // Add user message
     const userMessage: Message = {
       role: 'user',
@@ -63,69 +55,16 @@ export default function Chat() {
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
 
-    try {
-      const controller = new AbortController();
-      const body: ChatBody = {
-        inputCode: message,
-        model,
-        apiKey,
-      };
-
-      const response = await fetch('./api/chatAPI', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: controller.signal,
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        setIsLoading(false);
-        if (response.status === 429) {
-          alert('Слишком много запросов. Попробуйте позже.');
-        } else {
-          alert('Произошла ошибка. Проверьте API ключ.');
-        }
-        return;
-      }
-
-      const data = response.body;
-      if (!data) {
-        return;
-      }
-
-      const reader = data.getReader();
-      const decoder = new TextDecoder();
-      let done = false;
-      let assistantMessage = '';
-
-      // Create assistant message placeholder
+    // Simulate response - replace with your own API later
+    setTimeout(() => {
       const assistantMsg: Message = {
         role: 'assistant',
-        content: '',
+        content: 'Это демо-ответ. Подключите ваше собственное API для реальных ответов.',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, assistantMsg]);
-
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        const chunkValue = decoder.decode(value);
-        assistantMessage += chunkValue;
-        
-        setMessages(prev => {
-          const newMessages = [...prev];
-          newMessages[newMessages.length - 1].content = assistantMessage;
-          return newMessages;
-        });
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Произошла ошибка при отправке сообщения');
-    } finally {
       setIsLoading(false);
-    }
+    }, 1000);
   };
 
 

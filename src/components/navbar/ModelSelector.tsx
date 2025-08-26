@@ -12,23 +12,22 @@ import {
   HStack,
 } from '@chakra-ui/react';
 import { MdKeyboardArrowDown, MdCheck } from 'react-icons/md';
-import { OpenAIModel } from '@/types/types';
 
 interface ModelOption {
-  id: OpenAIModel;
+  id: string;
   name: string;
   description: string;
 }
 
 const models: ModelOption[] = [
   { id: 'gpt-4o', name: 'ChatGpt 5', description: 'Описание' },
-  { id: 'gpt-4o', name: 'ChatGpt 4', description: 'Описание' },
+  { id: 'gpt-4', name: 'ChatGpt 4', description: 'Описание' },
   { id: 'gpt-3.5-turbo', name: 'ChatGpt 3.5', description: 'Описание' },
 ];
 
 interface ModelSelectorProps {
-  selectedModel: OpenAIModel;
-  onModelChange: (model: OpenAIModel) => void;
+  selectedModel: string;
+  onModelChange: (model: string) => void;
 }
 
 export default function ModelSelector({ selectedModel, onModelChange }: ModelSelectorProps) {

@@ -8,14 +8,13 @@ import {
 } from '@chakra-ui/react';
 import { SidebarContext } from '@/contexts/SidebarContext';
 import ModelSelector from './ModelSelector';
-import { OpenAIModel } from '@/types/types';
 import { MdMenu } from 'react-icons/md';
 import { NeuroniumSidebarResponsive } from '@/components/sidebar/NeuroniumSidebar';
 import routes from '@/routes';
 
 interface NeuroniumNavbarProps {
-  model: OpenAIModel;
-  onModelChange: (model: OpenAIModel) => void;
+  model: string;
+  onModelChange: (model: string) => void;
 }
 
 export default function NeuroniumNavbar({ model, onModelChange }: NeuroniumNavbarProps) {
