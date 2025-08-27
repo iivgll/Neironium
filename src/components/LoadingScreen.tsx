@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
-import { Box, VStack, Text, Icon, keyframes } from '@chakra-ui/react';
+import { Box, VStack, Text, Icon } from '@chakra-ui/react';
+import { keyframes } from '@emotion/react';
 import { MdMessage } from 'react-icons/md';
 import { COLORS } from '@/theme/colors';
 
