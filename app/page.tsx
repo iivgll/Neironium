@@ -109,31 +109,6 @@ export default function Chat() {
               justify="center"
               textAlign="center"
             >
-            <Box
-              w="80px"
-              h="80px"
-              borderRadius="20px"
-              bgGradient={COLORS.GRADIENT_PRIMARY}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              mb="24px"
-              boxShadow="0 10px 40px rgba(136, 84, 243, 0.4)"
-              position="relative"
-              _before={{
-                content: '""',
-                position: 'absolute',
-                inset: '0',
-                borderRadius: '20px',
-                padding: '1px',
-                bgGradient: COLORS.GRADIENT_PRIMARY,
-                mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                maskComposite: 'subtract',
-              }}
-            >
-              <Icon as={MdAutoAwesome} w="40px" h="40px" color="white" />
-            </Box>
-            
             <div
               style={{
                 fontSize: '2.25rem',
@@ -147,15 +122,6 @@ export default function Chat() {
             >
               Привет, {displayName}
             </div>
-            
-            <Text
-              fontSize="lg"
-              color={COLORS.TEXT_SECONDARY}
-              mb="40px"
-              maxW="600px"
-            >
-              Я ваш персональный AI ассистент. Задайте любой вопрос или выберите одну из категорий ниже
-            </Text>
             </Flex>
           )}
 

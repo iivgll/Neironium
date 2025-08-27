@@ -23,12 +23,16 @@ interface TelegramProviderProps {
 }
 
 export function TelegramProvider({ children }: TelegramProviderProps) {
-  // Initialize with loading state
+  // Initialize states
   const [user, setUser] = useState<TelegramWebAppUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Show loading initially
+  const [isLoading, setIsLoading] = useState(false); // Start with false to avoid hydration issues
   const [isTelegramEnvironment, setIsTelegramEnvironment] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    setIsLoading(true); // Set loading after mount
+    
     const isDevelopment = process.env.NODE_ENV === 'development';
     console.log('🔍 TelegramContext: Checking environment...');
     console.log('isDevelopment:', isDevelopment);
