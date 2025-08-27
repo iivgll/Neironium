@@ -1,11 +1,17 @@
 'use client';
+import React from 'react';
 import Card from '@/components/card/Card';
-const ReactMarkdown = require('react-markdown').default || require('react-markdown');
+import { COLORS } from '@/theme/colors';
 
-export default function MessageBox(props: { output: string }) {
-  const { output } = props;
-  // Dark theme only - always white text
-  const textColor = '#ffffff'; // neuronium.text.primary
+// Use require for react-markdown to avoid ESM/CJS issues
+const ReactMarkdown = require('react-markdown');
+
+interface MessageBoxProps {
+  output: string;
+}
+
+const MessageBox = React.memo<MessageBoxProps>(({ output }) => {
+  const textColor = COLORS.TEXT_PRIMARY;
   
   return (
     <Card
@@ -22,5 +28,9 @@ export default function MessageBox(props: { output: string }) {
         {output ? output : ''}
       </ReactMarkdown>
     </Card>
-  )
-}
+  );
+});
+
+MessageBox.displayName = 'MessageBox';
+
+export default MessageBox;

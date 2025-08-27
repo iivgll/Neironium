@@ -22,7 +22,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   useEffect(() => {
     const initialKey = localStorage.getItem('apiKey');
-    console.log(initialKey);
     if (initialKey?.includes('sk-') && apiKey !== initialKey) {
       setApiKey(initialKey);
     }
@@ -34,11 +33,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AppWrappers>
           <SidebarContext.Provider value={{ 
             toggleSidebar, 
-            setToggleSidebar, 
+            setToggleSidebar,
+            sidebarWidth: 300,
             isCollapsed, 
             setIsCollapsed 
           }}>
-            {/* <ChakraProvider theme={theme}> */}
             {pathname?.includes('register') || pathname?.includes('sign-in') ? (
               children
             ) : (
@@ -56,8 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   {children}
                 </Box>
               </Box>
-          )}
-          {/* </ChakraProvider> */}
+            )}
           </SidebarContext.Provider>
         </AppWrappers>
       </body>
