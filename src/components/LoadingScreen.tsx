@@ -1,8 +1,7 @@
 'use client';
 import React from 'react';
-import { Box, VStack, Text, Icon } from '@chakra-ui/react';
+import { Box, VStack, Text } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
-import { MdMessage } from 'react-icons/md';
 import { COLORS } from '@/theme/colors';
 
 const spin = keyframes`
@@ -42,7 +41,7 @@ export function LoadingScreen() {
           <Box
             w="120px"
             h="120px"
-            borderRadius="50%"
+            borderRadius="20px"
             bgGradient={COLORS.GRADIENT_PRIMARY}
             display="flex"
             alignItems="center"
@@ -60,18 +59,22 @@ export function LoadingScreen() {
               transform="translate(-50%, -50%)"
               w="100%"
               h="100%"
-              borderRadius="50%"
+              borderRadius="20px"
               bg="rgba(255, 255, 255, 0.1)"
               filter="blur(20px)"
             />
             
-            <Icon 
-              as={MdMessage} 
-              w="50px" 
-              h="50px" 
+            {/* NR Logo Text */}
+            <Text
+              fontSize="48px"
+              fontWeight="bold"
               color="white"
+              fontFamily="'Gantari', sans-serif"
+              letterSpacing="-2px"
               zIndex={1}
-            />
+            >
+              Nr
+            </Text>
           </Box>
           
           {/* Rotating ring */}
@@ -81,7 +84,7 @@ export function LoadingScreen() {
             left="-10px"
             right="-10px"
             bottom="-10px"
-            borderRadius="50%"
+            borderRadius="24px"
             border="2px solid transparent"
             borderTopColor={COLORS.ACCENT_VIOLET}
             animation={`${spin} 1.5s linear infinite`}
@@ -101,7 +104,7 @@ export function LoadingScreen() {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            Neuronium AI
+            Neuronium
           </Text>
           
           <Text
