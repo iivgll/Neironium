@@ -1,26 +1,23 @@
 'use client';
-import React, { useRef, useContext, useCallback } from 'react';
+import React, { useRef, useCallback } from 'react';
 import {
   Box,
   Flex,
   Text,
   VStack,
   Icon,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
 } from '@chakra-ui/react';
-import { SidebarContext } from '@/contexts/SidebarContext';
 import NeuroniumChatInput from '@/components/chat/NeuroniumChatInput';
 import NeuroniumNavbar from '@/components/navbar/NeuroniumNavbar';
 import MessageBoxChat from '@/components/MessageBox';
 import { MdAutoAwesome } from 'react-icons/md';
 import { useChat } from '@/hooks/useChat';
 import { COLORS } from '@/theme/colors';
+import { useTelegram } from '@/hooks/useTelegram';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { displayName } = useTelegram();
   
   const handleError = useCallback((error: Error) => {
     console.error('Chat error:', error);
@@ -140,7 +137,7 @@ export default function Chat() {
                 fontWeight: 700,
               }}
             >
-              Привет, Andre
+              Привет, {displayName}
             </div>
             
             <Text

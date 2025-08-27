@@ -1,7 +1,7 @@
 'use client';
 import React, { ReactNode } from 'react';
 import type { AppProps } from 'next/app';
-import { ChakraProvider, Box, useDisclosure } from '@chakra-ui/react';
+import { ChakraProvider, Box } from '@chakra-ui/react';
 import theme from '@/theme/theme';
 import routes from '@/routes';
 import NeuroniumSidebar, { NeuroniumSidebarResponsive } from '@/components/sidebar/NeuroniumSidebar';
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const [apiKey, setApiKey] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [toggleSidebar, setToggleSidebar] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
   useEffect(() => {
     const initialKey = localStorage.getItem('apiKey');
     if (initialKey?.includes('sk-') && apiKey !== initialKey) {
@@ -29,6 +29,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
   return (
     <html lang="en" style={{ height: '100%' }}>
+      <head>
+        <title>Neuronium AI</title>
+        <meta name="description" content="AI ассистент" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+      </head>
       <body id={'root'} style={{ height: '100%', overflow: 'hidden' }}>
         <AppWrappers>
           <SidebarContext.Provider value={{ 
