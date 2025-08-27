@@ -17,7 +17,15 @@ import { useTelegram } from '@/hooks/useTelegram';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { displayName } = useTelegram();
+  const { displayName, user, isTelegramEnvironment } = useTelegram();
+  
+  // Log Telegram data for debugging
+  React.useEffect(() => {
+    console.log('🏠 HomePage - Telegram data:');
+    console.log('displayName:', displayName);
+    console.log('user:', user);
+    console.log('isTelegramEnvironment:', isTelegramEnvironment);
+  }, [displayName, user, isTelegramEnvironment]);
   
   const handleError = useCallback((error: Error) => {
     console.error('Chat error:', error);
