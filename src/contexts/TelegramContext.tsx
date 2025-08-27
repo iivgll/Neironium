@@ -10,10 +10,10 @@ interface TelegramContextType {
 }
 
 const defaultTelegramContext: TelegramContextType = {
-  user: MOCK_TELEGRAM_USER, // Start with mock data to avoid loading
-  isLoading: false, // No loading by default
+  user: null,
+  isLoading: true,
   isTelegramEnvironment: false,
-  displayName: 'Разработчик',
+  displayName: 'Гость',
 };
 
 const TelegramContext = createContext<TelegramContextType>(defaultTelegramContext);
@@ -23,9 +23,9 @@ interface TelegramProviderProps {
 }
 
 export function TelegramProvider({ children }: TelegramProviderProps) {
-  // Initialize with mock data for development
+  // Initialize with loading state
   const [user, setUser] = useState<TelegramWebAppUser | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // Don't block on load
+  const [isLoading, setIsLoading] = useState(true); // Show loading initially
   const [isTelegramEnvironment, setIsTelegramEnvironment] = useState(false);
 
   useEffect(() => {
@@ -33,20 +33,27 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
     console.log('🔍 TelegramContext: Checking environment...');
     console.log('isDevelopment:', isDevelopment);
     
-    // Load Telegram script asynchronously if not already loaded
-    if (typeof window !== 'undefined' && !window.Telegram && !isDevelopment) {
-      const script = document.createElement('script');
-      script.src = 'https://telegram.org/js/telegram-web-app.js';
-      script.async = true;
-      script.onload = () => {
-        console.log('📲 Telegram WebApp script loaded dynamically');
+    // Add a small delay to show the loading screen
+    const initTimer = setTimeout(() => {
+      // Load Telegram script asynchronously if not already loaded
+      if (typeof window !== 'undefined' && !window.Telegram && !isDevelopment) {
+        const script = document.createElement('script');
+        script.src = 'https://telegram.org/js/telegram-web-app.js';
+        script.async = true;
+        script.onload = () => {
+          console.log('📲 Telegram WebApp script loaded dynamically');
+          checkTelegramEnvironment();
+        };
+        script.onerror = () => {
+          console.error('❌ Failed to load Telegram WebApp script');
+          setIsLoading(false);
+        };
+        document.head.appendChild(script);
+      } else {
+        // Check immediately if already loaded or in development
         checkTelegramEnvironment();
-      };
-      document.head.appendChild(script);
-    } else {
-      // Check immediately if already loaded or in development
-      checkTelegramEnvironment();
-    }
+      }
+    }, 300); // Small delay to ensure smooth loading animation
     
     function checkTelegramEnvironment() {
       console.log('window.Telegram:', window.Telegram);
@@ -71,14 +78,22 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         setIsTelegramEnvironment(true);
         setUser(telegramWebApp.initDataUnsafe.user);
         telegramWebApp.ready();
+        
+        // Small delay before hiding loading for smoother transition
+        setTimeout(() => setIsLoading(false), 500);
       } else if (isDevelopment) {
         console.log('🚧 Development mode - using mock data');
         console.log('Mock user:', MOCK_TELEGRAM_USER);
         setUser(MOCK_TELEGRAM_USER);
+        // Add delay in dev to see loading animation
+        setTimeout(() => setIsLoading(false), 1000);
       } else {
         console.log('⚠️ Not in Telegram environment and not in development');
+        setIsLoading(false);
       }
     }
+    
+    return () => clearTimeout(initTimer);
   }, []);
 
   // Generate display name based on user data
