@@ -33,22 +33,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <title>Neuronium AI</title>
         <meta name="description" content="AI ассистент" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <script 
-          src="https://telegram.org/js/telegram-web-app.js"
-          dangerouslySetInnerHTML={{ __html: `
-            window.addEventListener('load', function() {
-              console.log('📲 Telegram WebApp script loaded');
-              console.log('window.Telegram:', window.Telegram);
-              if (window.Telegram && window.Telegram.WebApp) {
-                console.log('✅ Telegram.WebApp is available');
-                console.log('Platform:', window.Telegram.WebApp.platform);
-                console.log('Version:', window.Telegram.WebApp.version);
-              } else {
-                console.log('❌ Telegram.WebApp is NOT available');
-              }
-            });
-          ` }}
-        />
       </head>
       <body id={'root'} style={{ height: '100%', overflow: 'hidden' }}>
         <AppWrappers>

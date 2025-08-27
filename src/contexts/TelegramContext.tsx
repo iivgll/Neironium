@@ -24,21 +24,33 @@ interface TelegramProviderProps {
 
 export function TelegramProvider({ children }: TelegramProviderProps) {
   // Initialize with mock data for development
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  
-  const [user, setUser] = useState<TelegramWebAppUser | null>(
-    isDevelopment ? MOCK_TELEGRAM_USER : null
-  );
+  const [user, setUser] = useState<TelegramWebAppUser | null>(null);
   const [isLoading, setIsLoading] = useState(false); // Don't block on load
   const [isTelegramEnvironment, setIsTelegramEnvironment] = useState(false);
 
   useEffect(() => {
+    const isDevelopment = process.env.NODE_ENV === 'development';
     console.log('🔍 TelegramContext: Checking environment...');
     console.log('isDevelopment:', isDevelopment);
-    console.log('window.Telegram:', window.Telegram);
     
-    // Check Telegram in all environments for debugging
-    if (typeof window !== 'undefined') {
+    // Load Telegram script asynchronously if not already loaded
+    if (typeof window !== 'undefined' && !window.Telegram && !isDevelopment) {
+      const script = document.createElement('script');
+      script.src = 'https://telegram.org/js/telegram-web-app.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('📲 Telegram WebApp script loaded dynamically');
+        checkTelegramEnvironment();
+      };
+      document.head.appendChild(script);
+    } else {
+      // Check immediately if already loaded or in development
+      checkTelegramEnvironment();
+    }
+    
+    function checkTelegramEnvironment() {
+      console.log('window.Telegram:', window.Telegram);
+      
       const telegramWebApp = window.Telegram?.WebApp;
       
       console.log('📱 Telegram WebApp object:', telegramWebApp);
@@ -62,12 +74,12 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
       } else if (isDevelopment) {
         console.log('🚧 Development mode - using mock data');
         console.log('Mock user:', MOCK_TELEGRAM_USER);
-        // Already set in initial state
+        setUser(MOCK_TELEGRAM_USER);
       } else {
         console.log('⚠️ Not in Telegram environment and not in development');
       }
     }
-  }, [isDevelopment]);
+  }, []);
 
   // Generate display name based on user data
   const displayName = useMemo(() => {
