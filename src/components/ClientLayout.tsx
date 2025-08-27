@@ -15,7 +15,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [toggleSidebar, setToggleSidebar] = useState(false);
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -23,13 +23,15 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   // Return minimal layout during SSR
   if (!mounted) {
     return (
-      <SidebarContext.Provider value={{ 
-        toggleSidebar, 
-        setToggleSidebar,
-        sidebarWidth: 300,
-        isCollapsed, 
-        setIsCollapsed 
-      }}>
+      <SidebarContext.Provider
+        value={{
+          toggleSidebar,
+          setToggleSidebar,
+          sidebarWidth: 300,
+          isCollapsed,
+          setIsCollapsed,
+        }}
+      >
         <Box h="100vh" overflow="hidden" position="relative">
           {children}
         </Box>
@@ -37,16 +39,19 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     );
   }
 
-  const isAuthPage = pathname?.includes('register') || pathname?.includes('sign-in');
+  const isAuthPage =
+    pathname?.includes('register') || pathname?.includes('sign-in');
 
   return (
-    <SidebarContext.Provider value={{ 
-      toggleSidebar, 
-      setToggleSidebar,
-      sidebarWidth: 300,
-      isCollapsed, 
-      setIsCollapsed 
-    }}>
+    <SidebarContext.Provider
+      value={{
+        toggleSidebar,
+        setToggleSidebar,
+        sidebarWidth: 300,
+        isCollapsed,
+        setIsCollapsed,
+      }}
+    >
       {isAuthPage ? (
         children
       ) : (

@@ -1,9 +1,5 @@
 import React, { memo } from 'react';
-import {
-  Flex,
-  Button,
-  Icon,
-} from '@chakra-ui/react';
+import { Flex, Button, Icon } from '@chakra-ui/react';
 import { useQuickActions, QuickAction } from '@/hooks/useQuickActions';
 import { COLORS } from '@/theme/colors';
 
@@ -19,19 +15,15 @@ const QuickActionsPanel = memo<QuickActionsPanelProps>(({ onActionSelect }) => {
   };
 
   return (
-    <Flex
-      flexWrap="wrap"
-      gap="6px"
-      mt="12px"
-      justify="center"
-      align="center"
-    >
+    <Flex flexWrap="wrap" gap="6px" mt="12px" justify="center" align="center">
       {quickActions.map((action) => (
         <Button
           key={action.id}
           size="xs"
           variant="ghost"
-          leftIcon={<Icon as={action.icon} color={action.color} boxSize="14px" />}
+          leftIcon={
+            <Icon as={action.icon} color={action.color} boxSize="14px" />
+          }
           onClick={() => handleActionClick(action)}
           px="12px"
           py="4px"

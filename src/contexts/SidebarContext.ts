@@ -17,4 +17,6 @@ const defaultSidebarContext: SidebarContextType = {
   setIsCollapsed: () => {},
 };
 
-export const SidebarContext = createContext<SidebarContextType>(defaultSidebarContext);
+export const SidebarContext = createContext<SidebarContextType>(
+  defaultSidebarContext,
+);

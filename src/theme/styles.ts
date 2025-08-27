@@ -41,7 +41,7 @@ export const globalStyles = {
         personalGoals: '#AF52DE',
         development: '#00C7BE',
         relationships: '#FF2D55',
-      }
+      },
     },
     // Legacy colors for compatibility
     brand: {
@@ -116,7 +116,8 @@ export const globalStyles = {
       body: {
         overflowX: 'hidden',
         bg: 'linear-gradient(180deg, #151515 0%, #1a1a1a 100%)', // Dark gradient background
-        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+        fontFamily:
+          'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
         color: '#ffffff', // Force white text always
         minHeight: '100vh',
       },
@@ -124,7 +125,8 @@ export const globalStyles = {
         color: '#ffffff', // Force white input text always
       },
       html: {
-        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+        fontFamily:
+          'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
         bg: '#151515', // Force dark background always
       },
       '#root': {

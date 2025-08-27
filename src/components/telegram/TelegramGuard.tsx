@@ -1,13 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Flex,
-  Text,
-  VStack,
-  Icon,
-  Button,
-} from '@chakra-ui/react';
+import { Box, Flex, Text, VStack, Icon, Button } from '@chakra-ui/react';
 import { MdWarning, MdMessage } from 'react-icons/md';
 import { COLORS } from '@/theme/colors';
 
@@ -22,7 +15,7 @@ export function TelegramGuard({ children }: TelegramGuardProps) {
   useEffect(() => {
     // Quick check without blocking
     const checkTelegram = () => {
-      const hasTelegram = !!(window.Telegram?.WebApp?.initDataUnsafe?.user);
+      const hasTelegram = !!window.Telegram?.WebApp?.initDataUnsafe?.user;
       setIsTelegramEnvironment(hasTelegram);
       setIsChecked(true);
     };
@@ -59,12 +52,7 @@ export function TelegramGuard({ children }: TelegramGuardProps) {
       p="20px"
       zIndex={9999}
     >
-      <VStack
-        spacing="32px"
-        textAlign="center"
-        maxW="400px"
-        w="100%"
-      >
+      <VStack spacing="32px" textAlign="center" maxW="400px" w="100%">
         <Box
           w="80px"
           h="80px"
@@ -92,11 +80,7 @@ export function TelegramGuard({ children }: TelegramGuardProps) {
           >
             Доступ ограничен
           </Text>
-          <Text
-            fontSize="lg"
-            color={COLORS.TEXT_SECONDARY}
-            lineHeight="1.5"
-          >
+          <Text fontSize="lg" color={COLORS.TEXT_SECONDARY} lineHeight="1.5">
             Это приложение работает только внутри Telegram Mini Apps
           </Text>
         </VStack>
@@ -154,11 +138,7 @@ export function TelegramGuard({ children }: TelegramGuardProps) {
           Открыть в Telegram
         </Button>
 
-        <Text
-          color={COLORS.TEXT_TERTIARY}
-          fontSize="xs"
-          textAlign="center"
-        >
+        <Text color={COLORS.TEXT_TERTIARY} fontSize="xs" textAlign="center">
           Neuronium AI работает эксклюзивно в экосистеме Telegram
         </Text>
       </VStack>

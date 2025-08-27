@@ -22,9 +22,7 @@ import { MdInfoOutline } from 'react-icons/md';
 import NavLink from '../link/NavLink';
 import routes from '@/routes';
 
-export default function HeaderLinks(props: {
-  secondary: boolean;
-}) {
+export default function HeaderLinks(props: { secondary: boolean }) {
   const { secondary } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   // Chakra Color Mode

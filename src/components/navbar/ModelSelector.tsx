@@ -30,7 +30,10 @@ interface ModelSelectorProps {
   onModelChange: (model: string) => void;
 }
 
-export default function ModelSelector({ selectedModel, onModelChange }: ModelSelectorProps) {
+export default function ModelSelector({
+  selectedModel,
+  onModelChange,
+}: ModelSelectorProps) {
   // Dark theme colors only
   const bgColor = '#343434'; // neuronium.background.secondary
   const borderColor = '#343434'; // neuronium.border.primary
@@ -40,7 +43,7 @@ export default function ModelSelector({ selectedModel, onModelChange }: ModelSel
   const hoverBg = 'rgba(255, 255, 255, 0.05)'; // neuronium.background.hover
   const activeColor = '#8854f3'; // neuronium.accent.violet
 
-  const currentModel = models.find(m => m.id === selectedModel) || models[0];
+  const currentModel = models.find((m) => m.id === selectedModel) || models[0];
 
   return (
     <Menu>
@@ -62,7 +65,7 @@ export default function ModelSelector({ selectedModel, onModelChange }: ModelSel
           <Text>{currentModel.name}</Text>
         </HStack>
       </MenuButton>
-      
+
       <MenuList
         bg={menuBg}
         borderColor={borderColor}
@@ -84,28 +87,15 @@ export default function ModelSelector({ selectedModel, onModelChange }: ModelSel
             <Box flex="1">
               <HStack justify="space-between" w="100%">
                 <Box>
-                  <Text 
-                    color={textColor} 
-                    fontWeight="500"
-                    fontSize="14px"
-                  >
+                  <Text color={textColor} fontWeight="500" fontSize="14px">
                     {model.name}
                   </Text>
-                  <Text 
-                    color={textSecondary} 
-                    fontSize="12px"
-                    mt="2px"
-                  >
+                  <Text color={textSecondary} fontSize="12px" mt="2px">
                     {model.description}
                   </Text>
                 </Box>
                 {currentModel.name === model.name && (
-                  <Icon 
-                    as={MdCheck} 
-                    color={activeColor} 
-                    w="20px" 
-                    h="20px"
-                  />
+                  <Icon as={MdCheck} color={activeColor} w="20px" h="20px" />
                 )}
               </HStack>
             </Box>

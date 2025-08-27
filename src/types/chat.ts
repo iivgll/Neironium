@@ -24,7 +24,7 @@ export interface ChatState {
   error?: ChatError | null;
 }
 
-export type ChatEventType = 
+export type ChatEventType =
   | 'message_sent'
   | 'message_received'
   | 'error_occurred'

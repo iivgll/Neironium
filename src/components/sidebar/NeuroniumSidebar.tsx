@@ -21,14 +21,14 @@ import { SidebarContext } from '@/contexts/SidebarContext';
 import { IRoute } from '@/types/navigation';
 import { usePathname } from 'next/navigation';
 import NextLink from 'next/link';
-import { 
-  MdAdd, 
-  MdSearch, 
+import {
+  MdAdd,
+  MdSearch,
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
   MdMoreHoriz,
   MdClose,
-  MdMenu
+  MdMenu,
 } from 'react-icons/md';
 import { IoMenuOutline } from 'react-icons/io5';
 
@@ -41,7 +41,10 @@ interface NeuroniumSidebarProps {
   }>;
 }
 
-export default function NeuroniumSidebar({ routes, chats = [] }: NeuroniumSidebarProps) {
+export default function NeuroniumSidebar({
+  routes,
+  chats = [],
+}: NeuroniumSidebarProps) {
   const { isCollapsed, setIsCollapsed } = useContext(SidebarContext);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const pathname = usePathname();
@@ -74,12 +77,7 @@ export default function NeuroniumSidebar({ routes, chats = [] }: NeuroniumSideba
     >
       <Flex direction="column" h="100%" p="20px">
         {/* Header */}
-        <Flex
-          align="center"
-          justify="space-between"
-          mb="20px"
-          minH="36px"
-        >
+        <Flex align="center" justify="space-between" mb="20px" minH="36px">
           {!isCollapsed ? (
             <>
               <Flex align="center">
@@ -147,7 +145,7 @@ export default function NeuroniumSidebar({ routes, chats = [] }: NeuroniumSideba
               </Text>
             )}
           </Button>
-          
+
           <Button
             w="100%"
             h="50px"
@@ -182,7 +180,7 @@ export default function NeuroniumSidebar({ routes, chats = [] }: NeuroniumSideba
             >
               чаты
             </Text>
-            
+
             <VStack spacing="8px" align="stretch">
               {/* Example chat items */}
               <Flex
@@ -205,11 +203,16 @@ export default function NeuroniumSidebar({ routes, chats = [] }: NeuroniumSideba
                   Создание статей для Хабра
                 </Text>
                 <HStack spacing="4px">
-                  <Icon as={MdMoreHoriz} w="16px" h="16px" color={textSecondary} />
+                  <Icon
+                    as={MdMoreHoriz}
+                    w="16px"
+                    h="16px"
+                    color={textSecondary}
+                  />
                   <Icon as={MdClose} w="16px" h="16px" color={textSecondary} />
                 </HStack>
               </Flex>
-              
+
               {[1, 2, 3, 4].map((i) => (
                 <Flex
                   key={i}
@@ -235,10 +238,13 @@ export default function NeuroniumSidebar({ routes, chats = [] }: NeuroniumSideba
 }
 
 // Mobile Responsive Sidebar
-export function NeuroniumSidebarResponsive({ routes, chats = [] }: NeuroniumSidebarProps) {
+export function NeuroniumSidebarResponsive({
+  routes,
+  chats = [],
+}: NeuroniumSidebarProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const pathname = usePathname();
-  
+
   // Dark theme colors only
   const bgColor = '#1e1e1e'; // neuronium.background.primary
   const borderColor = '#343434'; // neuronium.border.primary
@@ -261,7 +267,7 @@ export function NeuroniumSidebarResponsive({ routes, chats = [] }: NeuroniumSide
           size="md"
         />
       </Flex>
-      
+
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
         <DrawerContent
@@ -312,7 +318,7 @@ export function NeuroniumSidebarResponsive({ routes, chats = [] }: NeuroniumSide
                   Новый чат
                 </Text>
               </Button>
-              
+
               <Button
                 w="100%"
                 h="50px"
@@ -342,7 +348,7 @@ export function NeuroniumSidebarResponsive({ routes, chats = [] }: NeuroniumSide
               >
                 чаты
               </Text>
-              
+
               <VStack spacing="8px" align="stretch">
                 <Flex
                   h="40px"
@@ -364,11 +370,21 @@ export function NeuroniumSidebarResponsive({ routes, chats = [] }: NeuroniumSide
                     Создание статей для Хабра
                   </Text>
                   <HStack spacing="4px">
-                    <Icon as={MdMoreHoriz} w="16px" h="16px" color={textSecondary} />
-                    <Icon as={MdClose} w="16px" h="16px" color={textSecondary} />
+                    <Icon
+                      as={MdMoreHoriz}
+                      w="16px"
+                      h="16px"
+                      color={textSecondary}
+                    />
+                    <Icon
+                      as={MdClose}
+                      w="16px"
+                      h="16px"
+                      color={textSecondary}
+                    />
                   </HStack>
                 </Flex>
-                
+
                 {[1, 2, 3, 4].map((i) => (
                   <Flex
                     key={i}

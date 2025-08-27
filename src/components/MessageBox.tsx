@@ -10,7 +10,7 @@ interface MessageBoxProps {
 
 const MessageBox = React.memo<MessageBoxProps>(({ output }) => {
   const textColor = COLORS.TEXT_PRIMARY;
-  
+
   return (
     <Card
       display={output ? 'flex' : 'none'}

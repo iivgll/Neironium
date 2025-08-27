@@ -1,11 +1,6 @@
 'use client';
 import React, { useContext } from 'react';
-import {
-  Box,
-  Flex,
-  HStack,
-  IconButton,
-} from '@chakra-ui/react';
+import { Box, Flex, HStack, IconButton } from '@chakra-ui/react';
 import { SidebarContext } from '@/contexts/SidebarContext';
 import ModelSelector from './ModelSelector';
 import { MdMenu } from 'react-icons/md';
@@ -17,9 +12,12 @@ interface NeuroniumNavbarProps {
   onModelChange: (model: string) => void;
 }
 
-export default function NeuroniumNavbar({ model, onModelChange }: NeuroniumNavbarProps) {
+export default function NeuroniumNavbar({
+  model,
+  onModelChange,
+}: NeuroniumNavbarProps) {
   const { isCollapsed } = useContext(SidebarContext);
-  
+
   // Dark theme colors only
   const bgColor = 'transparent'; // Transparent background for navbar
   const borderColor = '#343434'; // neuronium.border.primary
@@ -50,12 +48,9 @@ export default function NeuroniumNavbar({ model, onModelChange }: NeuroniumNavba
           <Box display={{ base: 'block', lg: 'none' }}>
             <NeuroniumSidebarResponsive routes={routes} />
           </Box>
-          
+
           {/* Model Selector */}
-          <ModelSelector 
-            selectedModel={model}
-            onModelChange={onModelChange}
-          />
+          <ModelSelector selectedModel={model} onModelChange={onModelChange} />
         </HStack>
 
         <HStack spacing="16px">

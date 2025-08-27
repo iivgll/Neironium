@@ -1,13 +1,6 @@
 'use client';
 import React, { Component, ReactNode, ErrorInfo } from 'react';
-import {
-  Box,
-  Text,
-  Button,
-  VStack,
-  Heading,
-  Icon,
-} from '@chakra-ui/react';
+import { Box, Text, Button, VStack, Heading, Icon } from '@chakra-ui/react';
 import { MdError } from 'react-icons/md';
 import { COLORS } from '@/theme/colors';
 
@@ -33,7 +26,9 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('ErrorBoundary caught an error:', error, errorInfo);
+    }
     this.props.onError?.(error, errorInfo);
   }
 
@@ -59,26 +54,15 @@ class ErrorBoundary extends Component<Props, State> {
           border={`1px solid ${COLORS.BORDER_SECONDARY}`}
         >
           <VStack spacing="6" textAlign="center" maxW="md">
-            <Icon
-              as={MdError}
-              w="16"
-              h="16"
-              color={COLORS.ERROR}
-            />
-            
-            <Heading
-              size="lg"
-              color={COLORS.TEXT_PRIMARY}
-            >
+            <Icon as={MdError} w="16" h="16" color={COLORS.ERROR} />
+
+            <Heading size="lg" color={COLORS.TEXT_PRIMARY}>
               Something went wrong
             </Heading>
-            
-            <Text
-              color={COLORS.TEXT_SECONDARY}
-              fontSize="md"
-              lineHeight="1.6"
-            >
-              We encountered an unexpected error. Please try refreshing the page or contact support if the problem persists.
+
+            <Text color={COLORS.TEXT_SECONDARY} fontSize="md" lineHeight="1.6">
+              We encountered an unexpected error. Please try refreshing the page
+              or contact support if the problem persists.
             </Text>
 
             {process.env.NODE_ENV === 'development' && this.state.error && (
@@ -98,7 +82,7 @@ class ErrorBoundary extends Component<Props, State> {
                 {this.state.error.stack && `\n${this.state.error.stack}`}
               </Box>
             )}
-            
+
             <Button
               onClick={this.handleReset}
               bg={COLORS.ACCENT_VIOLET}

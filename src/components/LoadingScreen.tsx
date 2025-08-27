@@ -63,10 +63,7 @@ export function LoadingScreen() {
               Nr
             </Text>
           </Box>
-          <Text
-            color={COLORS.TEXT_SECONDARY}
-            fontSize="lg"
-          >
+          <Text color={COLORS.TEXT_SECONDARY} fontSize="lg">
             Инициализация...
           </Text>
         </VStack>
@@ -117,7 +114,7 @@ export function LoadingScreen() {
               bg="rgba(255, 255, 255, 0.1)"
               filter="blur(20px)"
             />
-            
+
             {/* NR Logo Text */}
             <Text
               fontSize="48px"
@@ -141,7 +138,7 @@ export function LoadingScreen() {
           >
             Инициализация...
           </Text>
-          
+
           {/* Progress dots */}
           <Box display="flex" gap="8px" mt="16px">
             {[0, 1, 2].map((i) => (
@@ -154,7 +151,7 @@ export function LoadingScreen() {
                 opacity={0.3}
                 animation={`${pulse} 1.5s ease-in-out infinite`}
                 style={{
-                  animationDelay: `${i * 0.2}s`
+                  animationDelay: `${i * 0.2}s`,
                 }}
               />
             ))}

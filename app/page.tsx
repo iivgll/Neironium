@@ -1,14 +1,10 @@
 'use client';
 import React, { useRef, useCallback } from 'react';
-import {
-  Box,
-  Flex,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { Box, Flex, Text, VStack } from '@chakra-ui/react';
 import NeuroniumChatInput from '@/components/chat/NeuroniumChatInput';
 import NeuroniumNavbar from '@/components/navbar/NeuroniumNavbar';
 import MessageBoxChat from '@/components/MessageBox';
+import UserMessage from '@/components/UserMessage';
 import { useChat } from '@/hooks/useChat';
 import { COLORS } from '@/theme/colors';
 import { useTelegram } from '@/contexts/TelegramContext';
@@ -16,24 +12,20 @@ import { useTelegram } from '@/contexts/TelegramContext';
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { displayName, user, isTelegramEnvironment } = useTelegram();
-  
+
   // Initialize Telegram data
   React.useEffect(() => {
     // Telegram data initialized
   }, [displayName, user, isTelegramEnvironment]);
-  
+
   const handleError = useCallback((error: Error) => {
     console.error('Chat error:', error);
     // Handle error display here if needed
   }, []);
 
-  const {
-    messages,
-    isLoading,
-    model,
-    setModel,
-    sendMessage,
-  } = useChat({ onError: handleError });
+  const { messages, isLoading, model, setModel, sendMessage } = useChat({
+    onError: handleError,
+  });
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -43,7 +35,6 @@ export default function Chat() {
   React.useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
-
 
   return (
     <Box
@@ -58,10 +49,7 @@ export default function Chat() {
       display="flex"
       flexDirection="column"
     >
-      <NeuroniumNavbar 
-        model={model}
-        onModelChange={setModel}
-      />
+      <NeuroniumNavbar model={model} onModelChange={setModel} />
       <Box
         flex="1"
         display="flex"
@@ -104,54 +92,40 @@ export default function Chat() {
               justify="center"
               textAlign="center"
             >
-            <div
-              style={{
-                fontSize: '2.25rem',
-                marginBottom: '12px',
-                backgroundImage: COLORS.GRADIENT_PRIMARY,
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                fontWeight: 700,
-              }}
-            >
-              Привет, {displayName}
-            </div>
+              <div
+                style={{
+                  fontSize: '2.25rem',
+                  marginBottom: '12px',
+                  backgroundImage: COLORS.GRADIENT_PRIMARY,
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  fontWeight: 700,
+                }}
+              >
+                Привет, {displayName}
+              </div>
             </Flex>
           )}
 
           {/* Messages Area */}
           {messages.length > 0 && (
-            <VStack
-              spacing="16px"
-              py="20px"
-              w="100%"
-            >
-              {messages.map((message, index) => (
-                <Flex
-                  key={index}
-                  w="100%"
-                  justify={message.role === 'user' ? 'flex-end' : 'flex-start'}
-                >
-                  {message.role === 'assistant' ? (
+            <VStack spacing="16px" py="20px" w="100%">
+              {messages.map((message, index) =>
+                message.role === 'assistant' ? (
+                  <Flex key={index} w="100%" justify="flex-start">
                     <Box maxW="70%">
                       <MessageBoxChat output={message.content} />
                     </Box>
-                  ) : (
-                    <Box
-                      maxW="70%"
-                      bg={COLORS.ACCENT_VIOLET}
-                      color="white"
-                      px="20px"
-                      py="12px"
-                      borderRadius="16px"
-                      boxShadow="0 4px 12px rgba(136, 84, 243, 0.2)"
-                    >
-                      <Text>{message.content}</Text>
-                    </Box>
-                  )}
-                </Flex>
-              ))}
+                  </Flex>
+                ) : (
+                  <UserMessage
+                    key={index}
+                    content={message.content}
+                    maxWidth="70%"
+                  />
+                ),
+              )}
               <div ref={messagesEndRef} />
             </VStack>
           )}
@@ -171,14 +145,15 @@ export default function Chat() {
           backdropFilter="blur(10px)"
           zIndex={10}
         >
-          <Box
-            maxW="1200px"
-            mx="auto"
-          >
+          <Box maxW="1200px" mx="auto">
             <NeuroniumChatInput
               onSend={sendMessage}
               isLoading={isLoading}
-              placeholder={messages.length === 0 ? 'Спроси любой вопрос' : 'Продолжить разговор...'}
+              placeholder={
+                messages.length === 0
+                  ? 'Спроси любой вопрос'
+                  : 'Продолжить разговор...'
+              }
             />
           </Box>
         </Box>

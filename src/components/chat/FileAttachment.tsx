@@ -1,7 +1,12 @@
 'use client';
 import React from 'react';
 import { Box, Flex, Text, IconButton, Image } from '@chakra-ui/react';
-import { MdClose, MdInsertDriveFile, MdPictureAsPdf, MdImage } from 'react-icons/md';
+import {
+  MdClose,
+  MdInsertDriveFile,
+  MdPictureAsPdf,
+  MdImage,
+} from 'react-icons/md';
 import { FaFileWord, FaFileExcel, FaFilePowerpoint } from 'react-icons/fa';
 import { AttachedFile, formatFileSize } from '@/types/file';
 import { COLORS } from '@/theme/colors';
@@ -14,8 +19,10 @@ interface FileAttachmentProps {
 const getFileIcon = (type: string) => {
   if (type.includes('pdf')) return MdPictureAsPdf;
   if (type.includes('word') || type.includes('document')) return FaFileWord;
-  if (type.includes('excel') || type.includes('spreadsheet')) return FaFileExcel;
-  if (type.includes('powerpoint') || type.includes('presentation')) return FaFilePowerpoint;
+  if (type.includes('excel') || type.includes('spreadsheet'))
+    return FaFileExcel;
+  if (type.includes('powerpoint') || type.includes('presentation'))
+    return FaFilePowerpoint;
   if (type.startsWith('image/')) return MdImage;
   return MdInsertDriveFile;
 };
@@ -23,7 +30,7 @@ const getFileIcon = (type: string) => {
 export function FileAttachment({ file, onRemove }: FileAttachmentProps) {
   const Icon = getFileIcon(file.type);
   const isImage = file.type.startsWith('image/');
-  
+
   return (
     <Box
       position="relative"
@@ -54,12 +61,7 @@ export function FileAttachment({ file, onRemove }: FileAttachmentProps) {
             bg="rgba(0, 0, 0, 0.7)"
             p="4px"
           >
-            <Text
-              fontSize="10px"
-              color="white"
-              noOfLines={1}
-              title={file.name}
-            >
+            <Text fontSize="10px" color="white" noOfLines={1} title={file.name}>
               {file.name}
             </Text>
           </Box>
@@ -88,16 +90,12 @@ export function FileAttachment({ file, onRemove }: FileAttachmentProps) {
           >
             {file.name}
           </Text>
-          <Text
-            fontSize="10px"
-            color={COLORS.TEXT_TERTIARY}
-            mt="2px"
-          >
+          <Text fontSize="10px" color={COLORS.TEXT_TERTIARY} mt="2px">
             {formatFileSize(file.size)}
           </Text>
         </Flex>
       )}
-      
+
       <IconButton
         aria-label="Remove file"
         icon={<MdClose />}

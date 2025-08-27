@@ -8,7 +8,7 @@ interface UseAutoResizeOptions {
 export const useAutoResize = (
   ref: RefObject<HTMLTextAreaElement>,
   value: string,
-  options: UseAutoResizeOptions = {}
+  options: UseAutoResizeOptions = {},
 ) => {
   const { minHeight = 48, maxHeight = 360 } = options;
 
@@ -21,13 +21,13 @@ export const useAutoResize = (
       element.style.height = `${minHeight}px`;
       return;
     }
-    
+
     // Reset to min height first to calculate proper scrollHeight
     element.style.height = `${minHeight}px`;
-    
+
     // Then calculate actual needed height
     const scrollHeight = element.scrollHeight;
-    
+
     // Only expand if content requires it
     if (scrollHeight > minHeight) {
       const newHeight = Math.min(scrollHeight, maxHeight);
