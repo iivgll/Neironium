@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, VStack, Text } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import { COLORS } from '@/theme/colors';
@@ -21,6 +21,60 @@ const fadeIn = keyframes`
 `;
 
 export function LoadingScreen() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // На сервере показываем простой плейсхолдер без анимаций
+  if (!mounted) {
+    return (
+      <Box
+        position="fixed"
+        top="0"
+        left="0"
+        right="0"
+        bottom="0"
+        bg={COLORS.BG_PRIMARY}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        zIndex={10000}
+      >
+        <VStack spacing="32px">
+          <Box
+            w="120px"
+            h="120px"
+            borderRadius="20px"
+            bgGradient={COLORS.GRADIENT_PRIMARY}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            boxShadow="0 8px 32px rgba(136, 84, 243, 0.4)"
+          >
+            <Text
+              fontSize="48px"
+              fontWeight="bold"
+              color="white"
+              fontFamily="'Gantari', sans-serif"
+              letterSpacing="-2px"
+            >
+              Nr
+            </Text>
+          </Box>
+          <Text
+            color={COLORS.TEXT_SECONDARY}
+            fontSize="lg"
+          >
+            Инициализация...
+          </Text>
+        </VStack>
+      </Box>
+    );
+  }
+
+  // После монтирования показываем версию с анимациями
   return (
     <Box
       position="fixed"
@@ -76,37 +130,10 @@ export function LoadingScreen() {
               Nr
             </Text>
           </Box>
-          
-          {/* Rotating ring */}
-          <Box
-            position="absolute"
-            top="-10px"
-            left="-10px"
-            right="-10px"
-            bottom="-10px"
-            borderRadius="24px"
-            border="2px solid transparent"
-            borderTopColor={COLORS.ACCENT_VIOLET}
-            animation={`${spin} 1.5s linear infinite`}
-          />
         </Box>
 
         {/* Text content */}
         <VStack spacing="12px">
-          <Text
-            fontSize="2xl"
-            fontWeight="bold"
-            color={COLORS.TEXT_PRIMARY}
-            backgroundImage={COLORS.GRADIENT_PRIMARY}
-            backgroundClip="text"
-            sx={{
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            Neuronium
-          </Text>
-          
           <Text
             color={COLORS.TEXT_SECONDARY}
             fontSize="lg"

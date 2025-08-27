@@ -13,7 +13,9 @@ interface InputActionsProps {
   showDeepSearch: boolean;
   onToggleDeepSearch: () => void;
   onSend: () => void;
+  onAttach: () => void;
   hasMessage: boolean;
+  hasAttachments: boolean;
   isLoading: boolean;
 }
 
@@ -21,7 +23,9 @@ const InputActions = memo<InputActionsProps>(({
   showDeepSearch,
   onToggleDeepSearch,
   onSend,
+  onAttach,
   hasMessage,
+  hasAttachments,
   isLoading,
 }) => {
   const iconColor = COLORS.TEXT_SECONDARY;
@@ -49,6 +53,7 @@ const InputActions = memo<InputActionsProps>(({
             variant="ghost"
             size="sm"
             color={iconColor}
+            onClick={onAttach}
             _hover={{ 
               bg: actionBg,
               color: iconHoverColor,
@@ -119,8 +124,8 @@ const InputActions = memo<InputActionsProps>(({
           />
         </Tooltip>
 
-        {/* Send Button - Only visible when there's text */}
-        {hasMessage && (
+        {/* Send Button - Only visible when there's text or attachments */}
+        {(hasMessage || hasAttachments) && (
           <Tooltip label="Отправить" placement="top" hasArrow>
             <IconButton
               aria-label="Send message"
@@ -130,7 +135,7 @@ const InputActions = memo<InputActionsProps>(({
               bg={COLORS.ACCENT_VIOLET}
               color="white"
               onClick={onSend}
-              isDisabled={!hasMessage || isLoading}
+              isDisabled={(!hasMessage && !hasAttachments) || isLoading}
               isLoading={isLoading}
               _hover={{
                 bg: COLORS.ACCENT_VIOLET_HOVER,

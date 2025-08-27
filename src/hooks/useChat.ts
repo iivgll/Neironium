@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Message } from '@/types/chat';
+import { AttachedFile } from '@/types/file';
 
 export interface UseChatOptions {
   onError?: (error: Error) => void;
@@ -10,13 +11,19 @@ export const useChat = (options: UseChatOptions = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [model, setModel] = useState<string>('gpt-4o');
 
-  const sendMessage = useCallback(async (message: string) => {
-    if (!message.trim()) return;
+  const sendMessage = useCallback(async (message: string, attachedFiles?: AttachedFile[]) => {
+    if (!message.trim() && (!attachedFiles || attachedFiles.length === 0)) return;
 
     // Add user message
+    let displayContent = message;
+    if (attachedFiles && attachedFiles.length > 0) {
+      const filesList = attachedFiles.map(f => f.name).join(', ');
+      displayContent = message ? `${message}\n\n📎 Прикрепленные файлы: ${filesList}` : `📎 Прикрепленные файлы: ${filesList}`;
+    }
+    
     const userMessage: Message = {
       role: 'user',
-      content: message,
+      content: displayContent,
       timestamp: new Date(),
     };
     
@@ -25,12 +32,17 @@ export const useChat = (options: UseChatOptions = {}) => {
 
     try {
       // TODO: Replace with actual API integration
-      // Simulate response for now
+      // For now, simulate response with acknowledgment of files if attached
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      let responseContent = 'Это демо-ответ. Подключите ваше собственное API для реальных ответов.';
+      if (attachedFiles && attachedFiles.length > 0) {
+        responseContent = `Я вижу, что вы прикрепили ${attachedFiles.length} файл(ов). ${responseContent}`;
+      }
       
       const assistantMsg: Message = {
         role: 'assistant',
-        content: 'Это демо-ответ. Подключите ваше собственное API для реальных ответов.',
+        content: responseContent,
         timestamp: new Date(),
       };
       

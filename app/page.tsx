@@ -5,26 +5,21 @@ import {
   Flex,
   Text,
   VStack,
-  Icon,
 } from '@chakra-ui/react';
 import NeuroniumChatInput from '@/components/chat/NeuroniumChatInput';
 import NeuroniumNavbar from '@/components/navbar/NeuroniumNavbar';
 import MessageBoxChat from '@/components/MessageBox';
-import { MdAutoAwesome } from 'react-icons/md';
 import { useChat } from '@/hooks/useChat';
 import { COLORS } from '@/theme/colors';
-import { useTelegram } from '@/hooks/useTelegram';
+import { useTelegram } from '@/contexts/TelegramContext';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { displayName, user, isTelegramEnvironment } = useTelegram();
   
-  // Log Telegram data for debugging
+  // Initialize Telegram data
   React.useEffect(() => {
-    console.log('🏠 HomePage - Telegram data:');
-    console.log('displayName:', displayName);
-    console.log('user:', user);
-    console.log('isTelegramEnvironment:', isTelegramEnvironment);
+    // Telegram data initialized
   }, [displayName, user, isTelegramEnvironment]);
   
   const handleError = useCallback((error: Error) => {
@@ -138,22 +133,23 @@ export default function Chat() {
                   w="100%"
                   justify={message.role === 'user' ? 'flex-end' : 'flex-start'}
                 >
-                  <Box
-                    maxW="70%"
-                    bg={message.role === 'user' ? COLORS.ACCENT_VIOLET : COLORS.BG_SECONDARY}
-                    color={message.role === 'user' ? 'white' : COLORS.TEXT_PRIMARY}
-                    px="20px"
-                    py="12px"
-                    borderRadius="16px"
-                    boxShadow={message.role === 'user' ? '0 4px 12px rgba(136, 84, 243, 0.2)' : '0 2px 8px rgba(0, 0, 0, 0.2)'}
-                    border={message.role === 'user' ? 'none' : `1px solid ${COLORS.BORDER_SECONDARY}`}
-                  >
-                    {message.role === 'assistant' ? (
+                  {message.role === 'assistant' ? (
+                    <Box maxW="70%">
                       <MessageBoxChat output={message.content} />
-                    ) : (
+                    </Box>
+                  ) : (
+                    <Box
+                      maxW="70%"
+                      bg={COLORS.ACCENT_VIOLET}
+                      color="white"
+                      px="20px"
+                      py="12px"
+                      borderRadius="16px"
+                      boxShadow="0 4px 12px rgba(136, 84, 243, 0.2)"
+                    >
                       <Text>{message.content}</Text>
-                    )}
-                  </Box>
+                    </Box>
+                  )}
                 </Flex>
               ))}
               <div ref={messagesEndRef} />

@@ -5,14 +5,17 @@ import {
   Flex,
   Textarea,
   Button,
+  HStack,
 } from '@chakra-ui/react';
 import { useAutoResize } from '@/hooks/useAutoResize';
 import InputActions from './InputActions';
 import QuickActionsPanel from './QuickActionsPanel';
+import { FileAttachment } from './FileAttachment';
+import { AttachedFile, MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from '@/types/file';
 import { COLORS } from '@/theme/colors';
 
 interface NeuroniumChatInputProps {
-  onSend: (message: string) => void;
+  onSend: (message: string, attachedFiles?: AttachedFile[]) => void;
   isLoading?: boolean;
   placeholder?: string;
   variant?: 'default' | 'compact';
@@ -26,7 +29,9 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(({
 }) => {
   const [message, setMessage] = useState('');
   const [showDeepSearch, setShowDeepSearch] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Use custom hook for auto-resize functionality
   const minHeight = variant === 'compact' ? 40 : 48;
@@ -34,12 +39,13 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(({
   const { resetHeight } = useAutoResize(textareaRef, message, { minHeight, maxHeight });
 
   const handleSend = useCallback(() => {
-    if (message.trim() && !isLoading) {
-      onSend(message.trim());
+    if ((message.trim() || attachedFiles.length > 0) && !isLoading) {
+      onSend(message.trim(), attachedFiles);
       setMessage('');
+      setAttachedFiles([]);
       resetHeight();
     }
-  }, [message, isLoading, onSend, resetHeight]);
+  }, [message, attachedFiles, isLoading, onSend, resetHeight]);
 
   const handleKeyPress = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
     // Send on Enter, new line on Shift+Enter
@@ -60,6 +66,67 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(({
 
   const handleToggleDeepSearch = useCallback(() => {
     setShowDeepSearch(prev => !prev);
+  }, []);
+
+  const handleFileSelect = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newFiles: AttachedFile[] = [];
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      // Check file size
+      if (file.size > MAX_FILE_SIZE) {
+        console.error(`File ${file.name} is too large. Max size is 25MB`);
+        continue;
+      }
+      
+      // Check file type
+      const isAllowed = Object.keys(ALLOWED_FILE_TYPES).includes(file.type);
+      if (!isAllowed) {
+        console.error(`File type ${file.type} is not allowed`);
+        continue;
+      }
+      
+      const attachedFile: AttachedFile = {
+        id: `${Date.now()}-${i}`,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        file: file,
+      };
+      
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          setAttachedFiles(prev => prev.map(f => 
+            f.id === attachedFile.id ? { ...f, preview: result } : f
+          ));
+        };
+        reader.readAsDataURL(file);
+      }
+      
+      newFiles.push(attachedFile);
+    }
+    
+    setAttachedFiles(prev => [...prev, ...newFiles]);
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, []);
+  
+  const handleRemoveFile = useCallback((id: string) => {
+    setAttachedFiles(prev => prev.filter(f => f.id !== id));
+  }, []);
+  
+  const handleAttachClick = useCallback(() => {
+    fileInputRef.current?.click();
   }, []);
 
   // Render compact version if specified
@@ -96,14 +163,14 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(({
           _disabled={{ opacity: 0.6 }}
         />
         
-        {message.trim().length > 0 && (
+        {(message.trim().length > 0 || attachedFiles.length > 0) && (
           <Button
             aria-label="Send message"
             bg={COLORS.ACCENT_VIOLET}
             color="white"
             size="sm"
             onClick={handleSend}
-            isDisabled={!message.trim() || isLoading}
+            isDisabled={(!message.trim() && attachedFiles.length === 0) || isLoading}
             isLoading={isLoading}
             borderRadius="8px"
             _hover={{
@@ -121,6 +188,46 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(({
 
   return (
     <Box w="100%">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept={Object.values(ALLOWED_FILE_TYPES).join(',')}
+        onChange={handleFileSelect}
+        style={{ display: 'none' }}
+      />
+      
+      {/* Attached Files */}
+      {attachedFiles.length > 0 && (
+        <HStack
+          spacing="12px"
+          mb="12px"
+          overflowX="auto"
+          pb="8px"
+          css={{
+            '&::-webkit-scrollbar': {
+              height: '4px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: COLORS.TEXT_SECONDARY,
+              borderRadius: '2px',
+            },
+          }}
+        >
+          {attachedFiles.map(file => (
+            <FileAttachment
+              key={file.id}
+              file={file}
+              onRemove={handleRemoveFile}
+            />
+          ))}
+        </HStack>
+      )}
+      
       {/* Main Input Container */}
       <Box
         position="relative"
@@ -199,7 +306,9 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(({
             showDeepSearch={showDeepSearch}
             onToggleDeepSearch={handleToggleDeepSearch}
             onSend={handleSend}
+            onAttach={handleAttachClick}
             hasMessage={message.trim().length > 0}
+            hasAttachments={attachedFiles.length > 0}
             isLoading={isLoading}
           />
         </Box>

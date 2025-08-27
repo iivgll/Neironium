@@ -73,3 +73,15 @@ This is a **Horizon AI Template** - a ChatGPT AI admin template built with Next.
 - Active route detection utilities in `src/utils/navigation.tsx`
 
 This template is designed as a foundation for building AI-powered chat applications with a professional admin interface.
+
+## Important Rules for Claude
+
+**Git Operations:**
+- NEVER commit, push, or perform ANY git operations unless explicitly requested by the User
+- Wait for explicit permission before using git commands
+- This includes: git add, git commit, git push, git pull, git merge, etc.
+
+**File Creation:**
+- NEVER create files unless absolutely necessary
+- ALWAYS prefer editing existing files
+- NEVER proactively create documentation files (*.md) or README files unless explicitly requested

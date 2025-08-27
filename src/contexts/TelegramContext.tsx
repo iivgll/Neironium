@@ -34,8 +34,6 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
     setIsLoading(true); // Set loading after mount
     
     const isDevelopment = process.env.NODE_ENV === 'development';
-    console.log('🔍 TelegramContext: Checking environment...');
-    console.log('isDevelopment:', isDevelopment);
     
     // Add a small delay to show the loading screen
     const initTimer = setTimeout(() => {
@@ -45,7 +43,6 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         script.src = 'https://telegram.org/js/telegram-web-app.js';
         script.async = true;
         script.onload = () => {
-          console.log('📲 Telegram WebApp script loaded dynamically');
           checkTelegramEnvironment();
         };
         script.onerror = () => {
@@ -60,25 +57,9 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
     }, 300); // Small delay to ensure smooth loading animation
     
     function checkTelegramEnvironment() {
-      console.log('window.Telegram:', window.Telegram);
-      
       const telegramWebApp = window.Telegram?.WebApp;
       
-      console.log('📱 Telegram WebApp object:', telegramWebApp);
-      console.log('📊 InitData:', telegramWebApp?.initData);
-      console.log('📊 InitDataUnsafe:', telegramWebApp?.initDataUnsafe);
-      console.log('👤 User data:', telegramWebApp?.initDataUnsafe?.user);
-      
       if (telegramWebApp && telegramWebApp.initDataUnsafe?.user) {
-        console.log('✅ Telegram user detected!');
-        console.log('User details:', {
-          id: telegramWebApp.initDataUnsafe.user.id,
-          first_name: telegramWebApp.initDataUnsafe.user.first_name,
-          last_name: telegramWebApp.initDataUnsafe.user.last_name,
-          username: telegramWebApp.initDataUnsafe.user.username,
-          language_code: telegramWebApp.initDataUnsafe.user.language_code,
-        });
-        
         setIsTelegramEnvironment(true);
         setUser(telegramWebApp.initDataUnsafe.user);
         telegramWebApp.ready();
@@ -86,13 +67,10 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         // Small delay before hiding loading for smoother transition
         setTimeout(() => setIsLoading(false), 500);
       } else if (isDevelopment) {
-        console.log('🚧 Development mode - using mock data');
-        console.log('Mock user:', MOCK_TELEGRAM_USER);
         setUser(MOCK_TELEGRAM_USER);
         // Add delay in dev to see loading animation
         setTimeout(() => setIsLoading(false), 1000);
       } else {
-        console.log('⚠️ Not in Telegram environment and not in development');
         setIsLoading(false);
       }
     }
