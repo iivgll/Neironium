@@ -97,6 +97,7 @@ export interface MockTelegramUser {
   last_name?: string;
   username?: string;
   language_code: string;
+  photo_url?: string;
 }
 
 export const MOCK_TELEGRAM_USER: MockTelegramUser = {
@@ -105,4 +106,5 @@ export const MOCK_TELEGRAM_USER: MockTelegramUser = {
   last_name: 'Тестовый',
   username: 'dev_user',
   language_code: 'ru',
+  photo_url: 'https://i.pravatar.cc/300?img=3',
 };

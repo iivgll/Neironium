@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, VStack, Text } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import { COLORS } from '@/theme/colors';
+import { MOCK_TELEGRAM_USER } from '@/types/telegram';
 
 const spin = keyframes`
   0% { transform: rotate(0deg); }
@@ -25,6 +26,15 @@ export function LoadingScreen() {
 
   useEffect(() => {
     setMounted(true);
+    
+    // Предзагрузка аватарки пользователя
+    if (MOCK_TELEGRAM_USER.photo_url) {
+      const img = new Image();
+      img.src = MOCK_TELEGRAM_USER.photo_url;
+    }
+    
+    // Предзагрузка аватарки ассистента (логотип Nr)
+    // Если у вас есть отдельное изображение для ассистента, добавьте здесь
   }, []);
 
   // На сервере показываем простой плейсхолдер без анимаций
