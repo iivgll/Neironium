@@ -3,7 +3,6 @@ import React, { useContext } from 'react';
 import { Box, Flex, HStack, IconButton } from '@chakra-ui/react';
 import { SidebarContext } from '@/contexts/SidebarContext';
 import ModelSelector from './ModelSelector';
-import { MdMenu } from 'react-icons/md';
 import { NeuroniumSidebarResponsive } from '@/components/sidebar/NeuroniumSidebar';
 import routes from '@/routes';
 
@@ -20,8 +19,6 @@ export default function NeuroniumNavbar({
 
   // Dark theme colors only
   const bgColor = 'transparent'; // Transparent background for navbar
-  const borderColor = '#343434'; // neuronium.border.primary
-  const textColor = '#ffffff'; // neuronium.text.primary
 
   return (
     <Box
@@ -31,8 +28,6 @@ export default function NeuroniumNavbar({
       left={{ base: 0, lg: isCollapsed ? '68px' : '300px' }}
       h="60px"
       bg={bgColor}
-      borderBottom="1px solid"
-      borderColor={borderColor}
       zIndex={99}
       transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
       backdropFilter="blur(10px)"
@@ -51,10 +46,6 @@ export default function NeuroniumNavbar({
 
           {/* Model Selector */}
           <ModelSelector selectedModel={model} onModelChange={onModelChange} />
-        </HStack>
-
-        <HStack spacing="16px">
-          {/* Additional navbar items can go here */}
         </HStack>
       </Flex>
     </Box>

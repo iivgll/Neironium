@@ -24,13 +24,12 @@ import NextLink from 'next/link';
 import {
   MdAdd,
   MdSearch,
-  MdKeyboardArrowLeft,
-  MdKeyboardArrowRight,
   MdMoreHoriz,
   MdClose,
   MdMenu,
 } from 'react-icons/md';
 import { IoMenuOutline } from 'react-icons/io5';
+import Image from 'next/image';
 
 interface NeuroniumSidebarProps {
   routes: IRoute[];
@@ -66,18 +65,23 @@ export default function NeuroniumSidebar({
       position="fixed"
       left="0"
       top="0"
-      h="100vh"
+      h={isCollapsed ? '60px' : '100vh'}
       w={sidebarWidth}
-      bg={bgColor}
-      borderRight="1px solid"
+      bg={isCollapsed ? 'transparent' : bgColor}
+      borderRight={isCollapsed ? 'none' : '1px solid'}
       borderColor={borderColor}
       transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
       zIndex={100}
-      boxShadow="11px 7px 40px 0px rgba(0,0,0,0.2)"
+      boxShadow={isCollapsed ? 'none' : '11px 7px 40px 0px rgba(0,0,0,0.2)'}
     >
-      <Flex direction="column" h="100%" p="20px">
+      <Flex 
+        direction="column" 
+        h="100%" 
+        p={isCollapsed ? '12px' : '20px'}
+        justify={isCollapsed ? 'center' : 'flex-start'}
+      >
         {/* Header */}
-        <Flex align="center" justify="space-between" mb="20px" minH="36px">
+        <Flex align="center" justify="space-between" mb={isCollapsed ? '0' : '20px'} minH="36px">
           {!isCollapsed ? (
             <>
               <Flex align="center">
@@ -102,7 +106,14 @@ export default function NeuroniumSidebar({
               </Flex>
               <IconButton
                 aria-label="Collapse sidebar"
-                icon={<MdKeyboardArrowLeft />}
+                icon={
+                  <Image 
+                    src="/icons/button.svg" 
+                    alt="Close sidebar" 
+                    width={24} 
+                    height={24}
+                  />
+                }
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsCollapsed?.(!isCollapsed)}
@@ -111,61 +122,100 @@ export default function NeuroniumSidebar({
               />
             </>
           ) : (
-            <IconButton
-              aria-label="Expand sidebar"
-              icon={<MdKeyboardArrowRight />}
-              size="sm"
-              variant="ghost"
-              onClick={() => setIsCollapsed?.(!isCollapsed)}
-              color={textPrimary}
-              _hover={{ bg: hoverBg }}
-              mx="auto"
-            />
+            <HStack spacing="8px" justify="center">
+              <Tooltip label="Развернуть меню" placement="right">
+                <IconButton
+                  aria-label="Expand sidebar"
+                  icon={
+                    <Image 
+                      src="/icons/cancel_button.svg" 
+                      alt="Open sidebar" 
+                      width={40} 
+                      height={40}
+                    />
+                  }
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setIsCollapsed?.(!isCollapsed)}
+                  color={textPrimary}
+                  _hover={{ bg: hoverBg }}
+                  bg={bgColor}
+                  borderRadius="8px"
+                  boxShadow="2px 2px 8px rgba(0,0,0,0.1)"
+                />
+              </Tooltip>
+              
+              <Tooltip label="Создать новый чат" placement="right">
+                <IconButton
+                  aria-label="New chat"
+                  icon={
+                    <Image 
+                      src="/icons/edit.svg" 
+                      alt="New chat" 
+                      width={22} 
+                      height={22}
+                    />
+                  }
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    // Здесь можно добавить логику создания нового чата
+                    console.log('Create new chat');
+                  }}
+                  color={textPrimary}
+                  _hover={{ bg: hoverBg }}
+                  bg={bgColor}
+                  borderRadius="8px"
+                  boxShadow="2px 2px 8px rgba(0,0,0,0.1)"
+                />
+              </Tooltip>
+            </HStack>
           )}
         </Flex>
 
-        {/* Action Buttons */}
-        <VStack spacing="8px" mb="24px">
-          <Button
-            w="100%"
-            h="50px"
-            bg="transparent"
-            color={textPrimary}
-            _hover={{ bg: hoverBg }}
-            justifyContent={isCollapsed ? 'center' : 'flex-start'}
-            px={isCollapsed ? '0' : '12px'}
-            borderRadius="100px"
-            leftIcon={!isCollapsed ? <MdAdd size={24} /> : undefined}
-          >
-            {isCollapsed ? (
-              <MdAdd size={24} />
-            ) : (
+        {/* Action Buttons - скрыть в collapsed состоянии */}
+        {!isCollapsed && (
+          <VStack spacing="8px" mb="24px">
+            <Button
+              w="100%"
+              h="50px"
+              bg="transparent"
+              color={textPrimary}
+              _hover={{ bg: hoverBg }}
+              justifyContent="flex-start"
+              px="12px"
+              borderRadius="100px"
+              leftIcon={
+                <Image 
+                  src="/icons/edit.svg" 
+                  alt="New chat" 
+                  width={24} 
+                  height={24}
+                />
+              }
+            >
               <Text fontSize="16px" fontWeight="600">
                 Новый чат
               </Text>
-            )}
-          </Button>
+            </Button>
 
-          <Button
-            w="100%"
-            h="50px"
-            bg="transparent"
-            color={textPrimary}
-            _hover={{ bg: hoverBg }}
-            justifyContent={isCollapsed ? 'center' : 'flex-start'}
-            px={isCollapsed ? '0' : '12px'}
-            borderRadius="100px"
-            leftIcon={!isCollapsed ? <MdSearch size={24} /> : undefined}
-          >
-            {isCollapsed ? (
-              <MdSearch size={24} />
-            ) : (
+            <Button
+              w="100%"
+              h="50px"
+              bg="transparent"
+              color={textPrimary}
+              _hover={{ bg: hoverBg }}
+              justifyContent="flex-start"
+              px="12px"
+              borderRadius="100px"
+              leftIcon={<MdSearch size={24} />}
+            >
               <Text fontSize="16px" fontWeight="600">
                 Поиск в чатах
               </Text>
-            )}
-          </Button>
-        </VStack>
+            </Button>
+          </VStack>
+        )}
 
         {/* Chats Section */}
         {!isCollapsed && (

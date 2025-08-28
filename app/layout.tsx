@@ -5,7 +5,13 @@ import ClientLayout from '@/components/ClientLayout';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" style={{ height: '100%' }}>
+    <html 
+      lang="en" 
+      style={{
+        '--tg-viewport-height': '100vh',
+        '--tg-viewport-stable-height': '100vh'
+      } as React.CSSProperties}
+    >
       <head>
         <title>Neuronium AI</title>
         <meta name="description" content="AI ассистент" />
@@ -19,7 +25,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           async
         ></script>
       </head>
-      <body id={'root'} style={{ height: '100%', overflow: 'hidden' }}>
+      <body id={'root'}>
         <AppWrappers>
           <ClientLayout>{children}</ClientLayout>
         </AppWrappers>
