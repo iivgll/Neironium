@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import '@/styles/App.css';
 import AppWrappers from './AppWrappers';
-import ClientLayout from '@/components/ClientLayout';
+import ClientLayout from '@/components/layout/ClientLayout';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

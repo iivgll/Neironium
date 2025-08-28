@@ -3,8 +3,8 @@ import React, { ReactNode } from 'react';
 import '@/styles/App.css';
 import { ChakraProvider } from '@chakra-ui/react';
 import { TelegramProvider, useTelegram } from '@/contexts/TelegramContext';
-import { LoadingScreen } from '@/components/LoadingScreen';
-import { UnauthorizedScreen } from '@/components/UnauthorizedScreen';
+import { LoadingScreen } from '@/components/screens/LoadingScreen';
+import { UnauthorizedScreen } from '@/components/screens/UnauthorizedScreen';
 import theme from '@/theme/theme';
 
 function AppContent({ children }: { children: ReactNode }) {

@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
-import UserAvatar from '@/components/UserAvatar';
+import UserAvatar from '@/components/user/UserAvatar';
 import { COLORS } from '@/theme/colors';
 
 interface UserMessageProps {

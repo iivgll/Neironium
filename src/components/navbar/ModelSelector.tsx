@@ -41,7 +41,7 @@ export default function ModelSelector({
   const textSecondary = '#8a8b8c'; // neuronium.text.secondary
   const menuBg = '#2a2a2a'; // neuronium.background.tertiary
   const hoverBg = 'rgba(255, 255, 255, 0.05)'; // neuronium.background.hover
-  const activeColor = '#8854f3'; // neuronium.accent.violet
+  const activeColor = '#fafafaff'; // neuronium.accent.violet
 
   const currentModel = models.find((m) => m.id === selectedModel) || models[0];
 

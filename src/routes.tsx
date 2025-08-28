@@ -6,10 +6,10 @@ import {
   MdLayers,
   MdAutoAwesome,
   MdOutlineManageAccounts,
+  MdBarChart,
 } from 'react-icons/md';
 import { IoMdPerson } from 'react-icons/io';
 import { LuHistory } from 'react-icons/lu';
-import { RoundedChart } from '@/components/icons/Icons';
 
 // Auth Imports
 import { IRoute } from './types/navigation';
@@ -119,7 +119,7 @@ const routes: IRoute[] = [
     name: 'Usage',
     disabled: true,
     path: '/usage',
-    icon: <Icon as={RoundedChart} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
     invisible: true,
     collapse: false,
   },
@@ -127,7 +127,7 @@ const routes: IRoute[] = [
     name: 'My plan',
     disabled: true,
     path: '/my-plan',
-    icon: <Icon as={RoundedChart} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
     invisible: true,
     collapse: false,
   },
