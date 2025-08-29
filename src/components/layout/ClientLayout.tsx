@@ -1,7 +1,6 @@
 'use client';
 import React, { ReactNode, useState, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
-import routes from '@/routes';
 import NeuroniumSidebar from '@/components/sidebar/NeuroniumSidebar';
 import { SidebarContext } from '@/contexts/SidebarContext';
 import { usePathname } from 'next/navigation';
@@ -63,7 +62,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         children
       ) : (
         <Box h="100vh" overflow="hidden" position="relative">
-          <NeuroniumSidebar routes={routes} />
+          <NeuroniumSidebar />
           <Box
             position="absolute"
             top="0"

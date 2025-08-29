@@ -36,3 +36,27 @@ export interface ChatEvent {
   payload?: unknown;
   timestamp: Date;
 }
+
+// Sidebar and Project types
+export interface Chat {
+  id: string;
+  title: string;
+  isActive?: boolean;
+  lastMessage?: string;
+  date?: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  chats: Chat[];
+  isExpanded: boolean;
+}
+
+export interface ChatResult {
+  id: string;
+  title: string;
+  lastMessage: string;
+  date: string;
+  tags?: string[];
+}

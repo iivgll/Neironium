@@ -82,6 +82,27 @@ This is a **Horizon AI Template** - a ChatGPT AI admin template built with Next.
 
 This template is designed as a foundation for building AI-powered chat applications with a professional admin interface.
 
+**Project Management:**
+
+- Chat management system with project organization
+- Modal-based UI for chat actions (rename, copy, delete, move to project)
+- Project creation and management functionality
+- Responsive design supporting both desktop and mobile layouts
+
+**Modal System Architecture:**
+
+- `src/components/modals/` - Chat and project management modals
+- `src/components/tooltips/` - Context-sensitive tooltips and dropdowns
+- Z-index hierarchy: Backdrop (1500) → Modal content (1501) → Tooltips/Dropdowns (1502+)
+- Mobile-first responsive design with different UX patterns for desktop/mobile
+
+**Chat Features:**
+
+- Chat search functionality with real-time filtering
+- Project-based chat organization
+- Context menu actions (rename, move to project, copy, delete)
+- Sidebar navigation with collapsible chat lists
+
 ## Important Rules for Claude
 
 **Git Operations:**
@@ -95,3 +116,19 @@ This template is designed as a foundation for building AI-powered chat applicati
 - NEVER create files unless absolutely necessary
 - ALWAYS prefer editing existing files
 - NEVER proactively create documentation files (\*.md) or README files unless explicitly requested
+
+**Modal and Z-index Management:**
+
+- ALWAYS check z-index hierarchy when working with modals and tooltips
+- Standard z-index hierarchy: Backdrop (1500) → Modal content (1501) → Tooltips/Dropdowns (1502+)
+- ALWAYS add `pointerEvents="all"` for interactive elements in modals
+- TEST interactivity immediately after making changes to modal components
+- When elements are not clickable, first check z-index stacking and pointer events
+- Use browser dev tools or Playwright to identify element interception issues
+
+**Responsive Design Rules:**
+
+- Use Chakra UI array syntax for responsive values: `maxW={["90vw", "680px"]}`
+- Mobile-first approach: mobile values first, then desktop
+- Different UX patterns for mobile vs desktop are acceptable and expected
+- Always test both breakpoints when making responsive changes

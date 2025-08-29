@@ -4,7 +4,6 @@ import { Box, Flex, HStack, IconButton } from '@chakra-ui/react';
 import { SidebarContext } from '@/contexts/SidebarContext';
 import ModelSelector from './ModelSelector';
 import { NeuroniumSidebarResponsive } from '@/components/sidebar/NeuroniumSidebar';
-import routes from '@/routes';
 
 interface NeuroniumNavbarProps {
   model: string;
@@ -41,7 +40,7 @@ export default function NeuroniumNavbar({
         <HStack spacing="16px">
           {/* Mobile menu button */}
           <Box display={{ base: 'block', lg: 'none' }}>
-            <NeuroniumSidebarResponsive routes={routes} />
+            <NeuroniumSidebarResponsive />
           </Box>
 
           {/* Model Selector */}

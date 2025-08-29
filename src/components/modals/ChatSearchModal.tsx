@@ -15,73 +15,99 @@ import {
   Flex,
   Divider,
 } from '@chakra-ui/react';
-import { MdSearch, MdClose } from 'react-icons/md';
+// Removed unused imports - using SVG icons instead
 import Image from 'next/image';
 import { COLORS } from '@/theme/colors';
+import { ChatResult } from '@/types/chat';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useChats } from '@/hooks/useChats';
+import { useProjects } from '@/hooks/useProjects';
 
 interface ChatSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface ChatResult {
-  id: string;
-  title: string;
-  lastMessage: string;
-  date: string;
-  tags?: string[];
-}
+// ChatResult interface moved to types/chat.ts
 
-// Примеры данных для демонстрации
-const mockChatResults: ChatResult[] = [
-  {
-    id: '1',
-    title: 'Создание статей для Хабра',
-    lastMessage: 'Как лучше структурировать статью о машинном обучении?',
-    date: '2 часа назад',
-    tags: ['Разработка', 'AI'],
-  },
-  {
-    id: '2',
-    title: 'Планирование проекта',
-    lastMessage: 'Нужно определить основные этапы разработки',
-    date: 'Вчера',
-    tags: ['Планирование'],
-  },
-  {
-    id: '3',
-    title: 'Дизайн системы',
-    lastMessage: 'Обсуждение цветовой палитры и компонентов',
-    date: '3 дня назад',
-    tags: ['Дизайн', 'UI/UX'],
-  },
-];
+// Helper function to convert Chat to ChatResult
+const convertChatToResult = (chat: any, source: string): ChatResult => ({
+  id: chat.id,
+  title: chat.title,
+  lastMessage: 'Последнее сообщение не загружено',
+  date: 'Сегодня',
+  tags: [source],
+});
 
 export default function ChatSearchModal({
   isOpen,
   onClose,
 }: ChatSearchModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredResults, setFilteredResults] =
-    useState<ChatResult[]>(mockChatResults);
+  const [filteredResults, setFilteredResults] = useState<ChatResult[]>([]);
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (query.trim() === '') {
-      setFilteredResults(mockChatResults);
-    } else {
-      const filtered = mockChatResults.filter(
-        (chat) =>
-          chat.title.toLowerCase().includes(query.toLowerCase()) ||
-          chat.lastMessage.toLowerCase().includes(query.toLowerCase()),
-      );
-      setFilteredResults(filtered);
+  // Get data from hooks
+  const { chatsList, setActiveChat } = useChats();
+  const { projects, setActiveChatInProjects } = useProjects();
+
+  // Debounce search query by 300ms for better performance
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  // Memoize all available chat results
+  const allChatResults = React.useMemo(() => {
+    const results: ChatResult[] = [];
+
+    // Add regular chats
+    chatsList.forEach((chat) => {
+      results.push(convertChatToResult(chat, 'Чаты'));
+    });
+
+    // Add chats from projects
+    projects.forEach((project) => {
+      project.chats.forEach((chat) => {
+        results.push(convertChatToResult(chat, `Проект: ${project.name}`));
+      });
+    });
+
+    return results;
+  }, [chatsList, projects]);
+
+  // Handle search with debounced value and error handling
+  React.useEffect(() => {
+    try {
+      if (debouncedSearchQuery.trim() === '') {
+        setFilteredResults(allChatResults);
+      } else {
+        const query = debouncedSearchQuery.toLowerCase().trim();
+        const filtered = allChatResults.filter(
+          (chat) =>
+            chat.title.toLowerCase().includes(query) ||
+            chat.lastMessage.toLowerCase().includes(query),
+        );
+        setFilteredResults(filtered);
+      }
+    } catch (error) {
+      console.error('Error filtering chat results:', error);
+      setFilteredResults([]);
     }
-  };
+  }, [debouncedSearchQuery, allChatResults]);
 
   const handleChatSelect = (chatId: string) => {
-    console.log('Selected chat:', chatId);
-    onClose();
+    try {
+      // Try to set active chat in regular chats first
+      const regularChat = chatsList.find((chat) => chat.id === chatId);
+      if (regularChat) {
+        setActiveChat(chatId);
+        onClose();
+        return;
+      }
+
+      // If not found in regular chats, try projects
+      setActiveChatInProjects(chatId);
+      onClose();
+    } catch (error) {
+      console.error('Error selecting chat:', error);
+    }
   };
 
   return (
@@ -122,7 +148,7 @@ export default function ChatSearchModal({
               <Input
                 placeholder="Поиск по чатам..."
                 value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 bg={COLORS.BG_SECONDARY}
                 border="1px solid"
                 borderColor={COLORS.BORDER_PRIMARY}
