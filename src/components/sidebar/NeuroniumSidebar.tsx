@@ -20,10 +20,9 @@ import {
 import { SidebarContext } from '@/contexts/SidebarContext';
 import { IRoute } from '@/types/navigation';
 import { usePathname } from 'next/navigation';
-import NextLink from 'next/link';
 import { MdMoreHoriz, MdClose } from 'react-icons/md';
-import { IoMenuOutline } from 'react-icons/io5';
 import Image from 'next/image';
+import ChatSearchModal from '../modals/ChatSearchModal';
 
 interface NeuroniumSidebarProps {
   routes: IRoute[];
@@ -39,7 +38,11 @@ export default function NeuroniumSidebar({
   chats = [],
 }: NeuroniumSidebarProps) {
   const { isCollapsed, setIsCollapsed } = useContext(SidebarContext);
-  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const {
+    isOpen: isSearchModalOpen,
+    onOpen: onSearchModalOpen,
+    onClose: onSearchModalClose,
+  } = useDisclosure();
 
   // Dark theme colors only
   const bgColor = '#1e1e1e'; // neuronium.background.primary
@@ -208,11 +211,12 @@ export default function NeuroniumSidebar({
               leftIcon={
                 <Image
                   src="icons/magnifer.svg"
-                  alt="New chat"
+                  alt="Search"
                   width={24}
                   height={24}
                 />
               }
+              onClick={onSearchModalOpen}
             >
               <Text fontSize="16px" fontWeight="600">
                 Поиск в чатах
@@ -287,17 +291,24 @@ export default function NeuroniumSidebar({
           </Box>
         )}
       </Flex>
+
+      {/* Chat Search Modal */}
+      <ChatSearchModal
+        isOpen={isSearchModalOpen}
+        onClose={onSearchModalClose}
+      />
     </Box>
   );
 }
 
 // Mobile Responsive Sidebar
-export function NeuroniumSidebarResponsive({
-  routes,
-  chats = [],
-}: NeuroniumSidebarProps) {
+export function NeuroniumSidebarResponsive({}: NeuroniumSidebarProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const pathname = usePathname();
+  const {
+    isOpen: isSearchModalOpen,
+    onOpen: onSearchModalOpen,
+    onClose: onSearchModalClose,
+  } = useDisclosure();
 
   // Dark theme colors only
   const bgColor = '#1e1e1e'; // neuronium.background.primary
@@ -306,7 +317,6 @@ export function NeuroniumSidebarResponsive({
   const textSecondary = '#8a8b8c'; // neuronium.text.secondary
   const hoverBg = 'rgba(255, 255, 255, 0.05)'; // neuronium.background.hover
   const activeBg = 'rgba(255, 255, 255, 0.1)'; // neuronium.background.active
-  const accentColor = '#8854f3'; // neuronium.accent.violet
   const menuColor = '#ffffff'; // Always white for dark theme
 
   return (
@@ -417,6 +427,7 @@ export function NeuroniumSidebarResponsive({
                     height={24}
                   />
                 }
+                onClick={onSearchModalOpen}
               >
                 <Text fontSize="16px" fontWeight="600">
                   Поиск в чатах
@@ -494,6 +505,12 @@ export function NeuroniumSidebarResponsive({
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+
+      {/* Chat Search Modal */}
+      <ChatSearchModal
+        isOpen={isSearchModalOpen}
+        onClose={onSearchModalClose}
+      />
     </>
   );
 }
