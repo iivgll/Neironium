@@ -29,6 +29,44 @@ export default function ProjectTooltip({
 }: ProjectTooltipProps) {
   const { getAssetPath } = useAssetPath();
   
+  // Memoize project items for performance
+  const projectItems = useMemo(
+    () =>
+      projects.map((project) => (
+        <Flex
+          key={project.id}
+          px="10px"
+          py="6px"
+          align="center"
+          cursor="pointer"
+          borderRadius="5px"
+          _hover={{ bg: 'rgba(255, 255, 255, 0.05)' }}
+          onClick={() => {
+            if (chatId && onMoveToProject) {
+              onMoveToProject(chatId, project.id);
+            }
+            onClose();
+          }}
+        >
+          <Image
+            src={getAssetPath("/icons/folder.svg")}
+            alt="Project"
+            width={16}
+            height={16}
+          />
+          <Text
+            ml="5px"
+            fontSize="12px"
+            color={COLORS.TEXT_PRIMARY}
+            letterSpacing="0.24px"
+          >
+            {project.name}
+          </Text>
+        </Flex>
+      )),
+    [projects, chatId, onMoveToProject, getAssetPath, onClose],
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -106,42 +144,7 @@ export default function ProjectTooltip({
             <Divider borderColor="#343434" my="4px" />
 
             {/* Existing Projects - memoized for performance */}
-            {useMemo(
-              () =>
-                projects.map((project) => (
-                  <Flex
-                    key={project.id}
-                    px="10px"
-                    py="6px"
-                    align="center"
-                    cursor="pointer"
-                    borderRadius="5px"
-                    _hover={{ bg: 'rgba(255, 255, 255, 0.05)' }}
-                    onClick={() => {
-                      if (chatId && onMoveToProject) {
-                        onMoveToProject(chatId, project.id);
-                      }
-                      onClose();
-                    }}
-                  >
-                    <Image
-                      src={getAssetPath("/icons/folder.svg")}
-                      alt="Project"
-                      width={16}
-                      height={16}
-                    />
-                    <Text
-                      ml="5px"
-                      fontSize="12px"
-                      color={COLORS.TEXT_PRIMARY}
-                      letterSpacing="0.24px"
-                    >
-                      {project.name}
-                    </Text>
-                  </Flex>
-                )),
-              [projects, chatId, onMoveToProject],
-            )}
+            {projectItems}
           </VStack>
         </Box>
       </Box>

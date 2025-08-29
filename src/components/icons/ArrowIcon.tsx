@@ -18,17 +18,21 @@ export const ArrowIcon: React.FC<ArrowIconProps> = ({
     left: 90,
   };
 
+  // Convert color to string for SVG stroke
+  const strokeColor = typeof color === 'string' ? color : '#8a8b8c';
+
   return (
     <Icon
       viewBox="0 0 16 16"
       fill="none"
       transform={`rotate(${rotationMap[direction]}deg)`}
       transition="transform 0.2s"
+      color={color} // Pass color to Icon for Chakra theming
       {...props}
     >
       <path
         d="M4 6L8 10L12 6"
-        stroke={color}
+        stroke={strokeColor}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
