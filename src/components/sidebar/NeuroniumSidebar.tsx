@@ -28,12 +28,14 @@ import { useChats } from '@/hooks/useChats';
 import { useProjects } from '@/hooks/useProjects';
 import { useSidebarState } from '@/hooks/useSidebarState';
 import { ArrowIcon } from '../icons/ArrowIcon';
+import { useAssetPath } from '@/hooks/useAssetPath';
 import { ActionButton } from './ActionButton';
 import { ChatItem } from './ChatItem';
 
 
 export default function NeuroniumSidebar( ) {
   const { isCollapsed, setIsCollapsed } = useContext(SidebarContext);
+  const { getAssetPath } = useAssetPath();
 
   // Modal states
   const {
@@ -251,7 +253,7 @@ export default function NeuroniumSidebar( ) {
                 aria-label="Collapse sidebar"
                 icon={
                   <Image
-                    src="/icons/button.svg"
+                    src={getAssetPath("/icons/button.svg")}
                     alt="Close sidebar"
                     width={24}
                     height={24}
@@ -271,7 +273,7 @@ export default function NeuroniumSidebar( ) {
                   aria-label="Expand sidebar"
                   icon={
                     <Image
-                      src="/icons/cancel_button.svg"
+                      src={getAssetPath("/icons/cancel_button.svg")}
                       alt="Open sidebar"
                       width={40}
                       height={40}
@@ -292,7 +294,7 @@ export default function NeuroniumSidebar( ) {
                   aria-label="New chat"
                   icon={
                     <Image
-                      src="/icons/edit.svg"
+                      src={getAssetPath("/icons/edit.svg")}
                       alt="New chat"
                       width={22}
                       height={22}
@@ -366,7 +368,7 @@ export default function NeuroniumSidebar( ) {
                         onClick={() => toggleProjectExpansion(project.id)}
                       >
                         <Image
-                          src="/icons/folder.svg"
+                          src={getAssetPath("/icons/folder.svg")}
                           alt="Project"
                           width={16}
                           height={16}
@@ -599,6 +601,7 @@ export default function NeuroniumSidebar( ) {
 
 // Mobile Responsive Sidebar
 export function NeuroniumSidebarResponsive() {
+  const { getAssetPath } = useAssetPath();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isSearchModalOpen,
@@ -767,7 +770,7 @@ export function NeuroniumSidebarResponsive() {
           aria-label="Open menu"
           icon={
             <Image
-              src="/icons/cancel_button.svg"
+              src={getAssetPath("/icons/cancel_button.svg")}
               alt="Open sidebar"
               width={24}
               height={24}
@@ -796,7 +799,7 @@ export function NeuroniumSidebarResponsive() {
             as={IconButton}
             icon={
               <Image
-                src="/icons/button.svg"
+                src={getAssetPath("/icons/button.svg")}
                 alt="Close sidebar"
                 width={24}
                 height={24}
@@ -882,7 +885,7 @@ export function NeuroniumSidebarResponsive() {
                           onClick={() => toggleProjectExpansion(project.id)}
                         >
                           <Image
-                            src="/icons/folder.svg"
+                            src={getAssetPath("/icons/folder.svg")}
                             alt="Project"
                             width={16}
                             height={16}

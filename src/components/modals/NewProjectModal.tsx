@@ -17,6 +17,7 @@ import { MdClose } from 'react-icons/md';
 import Image from 'next/image';
 import { COLORS } from '@/theme/colors';
 import { validateProjectName, sanitizeString } from '@/utils/validation';
+import { useAssetPath } from '@/hooks/useAssetPath';
 
 interface NewProjectModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export default function NewProjectModal({
 }: NewProjectModalProps) {
   const [projectName, setProjectName] = useState('');
   const [validationError, setValidationError] = useState<string>('');
+  const { getAssetPath } = useAssetPath();
 
   // Memoize validation to avoid duplicate calculations
   const validation = React.useMemo(
@@ -191,7 +193,7 @@ export default function NewProjectModal({
               <Box bg="rgba(255,255,255,0.05)" borderRadius="20px" p="20px">
                 <Flex align="flex-start" gap="10px">
                   <Image
-                    src="/icons/idea.svg"
+                    src={getAssetPath("/icons/idea.svg")}
                     alt="Info"
                     width={24}
                     height={24}

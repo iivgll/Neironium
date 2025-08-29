@@ -4,6 +4,7 @@ import { Box, Flex, Text, VStack, Divider } from '@chakra-ui/react';
 import Image from 'next/image';
 import { COLORS } from '@/theme/colors';
 import { Project } from '@/types/chat';
+import { useAssetPath } from '@/hooks/useAssetPath';
 
 interface ProjectTooltipProps {
   isOpen: boolean;
@@ -26,6 +27,8 @@ export default function ProjectTooltip({
   onMoveToProject,
   onCreateProjectAndMove,
 }: ProjectTooltipProps) {
+  const { getAssetPath } = useAssetPath();
+  
   if (!isOpen) return null;
 
   return (
@@ -85,7 +88,7 @@ export default function ProjectTooltip({
               }}
             >
               <Image
-                src="/icons/folder-add.svg"
+                src={getAssetPath("/icons/folder-add.svg")}
                 alt="New project"
                 width={16}
                 height={16}
@@ -122,7 +125,7 @@ export default function ProjectTooltip({
                     }}
                   >
                     <Image
-                      src="/icons/folder.svg"
+                      src={getAssetPath("/icons/folder.svg")}
                       alt="Project"
                       width={16}
                       height={16}

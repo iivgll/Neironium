@@ -17,6 +17,7 @@ import {
   MdArrowRightAlt,
 } from 'react-icons/md';
 import { COLORS } from '@/theme/colors';
+import { useAssetPath } from '@/hooks/useAssetPath';
 
 interface InputActionsProps {
   showDeepSearch: boolean;
@@ -38,6 +39,7 @@ const InputActions = memo<InputActionsProps>(
     hasAttachments,
     isLoading,
   }) => {
+    const { getAssetPath } = useAssetPath();
     const iconColor = COLORS.TEXT_SECONDARY;
     const iconHoverColor = COLORS.TEXT_PRIMARY;
     const actionBg = COLORS.BG_HOVER;
@@ -57,7 +59,7 @@ const InputActions = memo<InputActionsProps>(
           <Tooltip label="Прикрепить файл" placement="top" hasArrow>
             <IconButton
               aria-label="Attach file"
-              icon={<Image src="/icons/pin.svg" alt="pin" w="20px" h="20px" />}
+              icon={<Image src={getAssetPath("/icons/pin.svg")} alt="pin" w="20px" h="20px" />}
               variant="ghost"
               size="sm"
               color={iconColor}
@@ -92,7 +94,7 @@ const InputActions = memo<InputActionsProps>(
               bg={showDeepSearch ? deepSearchActiveBg : 'transparent'}
               color={showDeepSearch ? 'white' : iconColor}
               leftIcon={
-                <Image src="/icons/magnifer.svg" alt="send" w="20px" h="20px" />
+                <Image src={getAssetPath("/icons/magnifer.svg")} alt="send" w="20px" h="20px" />
               }
               onClick={onToggleDeepSearch}
               fontSize="14px"

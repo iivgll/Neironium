@@ -22,6 +22,7 @@ import { ChatResult } from '@/types/chat';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useChats } from '@/hooks/useChats';
 import { useProjects } from '@/hooks/useProjects';
+import { useAssetPath } from '@/hooks/useAssetPath';
 
 interface ChatSearchModalProps {
   isOpen: boolean;
@@ -45,6 +46,7 @@ export default function ChatSearchModal({
 }: ChatSearchModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredResults, setFilteredResults] = useState<ChatResult[]>([]);
+  const { getAssetPath } = useAssetPath();
 
   // Get data from hooks
   const { chatsList, setActiveChat } = useChats();
@@ -173,7 +175,7 @@ export default function ChatSearchModal({
                 pointerEvents="none"
               >
                 <Image
-                  src="/icons/magnifer.svg"
+                  src={getAssetPath("/icons/magnifer.svg")}
                   alt="search"
                   width={20}
                   height={20}
@@ -203,7 +205,7 @@ export default function ChatSearchModal({
                       onClick={() => handleChatSelect(chat.id)}
                     >
                       <Image
-                        src="/icons/chat.svg"
+                        src={getAssetPath("/icons/chat.svg")}
                         alt="chat"
                         width={20}
                         height={20}

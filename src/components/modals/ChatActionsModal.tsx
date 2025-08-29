@@ -20,6 +20,7 @@ import { Project } from '@/types/chat';
 import ProjectTooltip from '../tooltips/ProjectTooltip';
 import { ArrowIcon } from '../icons/ArrowIcon';
 import { useEffect } from 'react';
+import { useAssetPath } from '@/hooks/useAssetPath';
 
 interface ChatActionsModalProps {
   isOpen: boolean;
@@ -56,6 +57,7 @@ export default function ChatActionsModal({
 }: ChatActionsModalProps) {
   const [showProjectTooltip, setShowProjectTooltip] = useState(false);
   const isMobile = useBreakpointValue({ base: true, lg: false });
+  const { getAssetPath } = useAssetPath();
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -173,7 +175,7 @@ export default function ChatActionsModal({
                   }}
                 >
                   <Image
-                    src="/icons/edit-2.svg"
+                    src={getAssetPath("/icons/edit-2.svg")}
                     alt="Rename"
                     width={20}
                     height={20}
@@ -219,7 +221,7 @@ export default function ChatActionsModal({
                   >
                     <Flex align="center">
                       <Image
-                        src="/icons/folder.svg"
+                        src={getAssetPath("/icons/folder.svg")}
                         alt="Add to project"
                         width={20}
                         height={20}
@@ -261,7 +263,7 @@ export default function ChatActionsModal({
                         onClick={handleNewProject}
                       >
                         <Image
-                          src="/icons/folder-add.svg"
+                          src={getAssetPath("/icons/folder-add.svg")}
                           alt="New project"
                           width={16}
                           height={16}
@@ -296,7 +298,7 @@ export default function ChatActionsModal({
                           }}
                         >
                           <Image
-                            src="/icons/folder.svg"
+                            src={getAssetPath("/icons/folder.svg")}
                             alt="Project"
                             width={16}
                             height={16}
@@ -344,7 +346,7 @@ export default function ChatActionsModal({
                   }}
                 >
                   <Image
-                    src="/icons/copy.svg"
+                    src={getAssetPath("/icons/copy.svg")}
                     alt="Copy"
                     width={20}
                     height={20}
@@ -376,7 +378,7 @@ export default function ChatActionsModal({
                   }}
                 >
                   <Image
-                    src="/icons/trash.svg"
+                    src={getAssetPath("/icons/trash.svg")}
                     alt="Delete"
                     width={20}
                     height={20}
@@ -442,7 +444,7 @@ export default function ChatActionsModal({
               }}
             >
               <Image
-                src="/icons/edit-2.svg"
+                src={getAssetPath("/icons/edit-2.svg")}
                 alt="Rename"
                 width={16}
                 height={16}
@@ -477,7 +479,7 @@ export default function ChatActionsModal({
             >
               <Flex align="center">
                 <Image
-                  src="/icons/folder.svg"
+                  src={getAssetPath("/icons/folder.svg")}
                   alt="Add to project"
                   width={16}
                   height={16}
@@ -512,7 +514,7 @@ export default function ChatActionsModal({
                 onClose();
               }}
             >
-              <Image src="/icons/copy.svg" alt="Copy" width={16} height={16} />
+              <Image src={getAssetPath("/icons/copy.svg")} alt="Copy" width={16} height={16} />
               <Text
                 ml="5px"
                 fontSize="12px"
@@ -539,7 +541,7 @@ export default function ChatActionsModal({
               }}
             >
               <Image
-                src="/icons/trash.svg"
+                src={getAssetPath("/icons/trash.svg")}
                 alt="Delete"
                 width={16}
                 height={16}
