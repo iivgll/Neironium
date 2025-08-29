@@ -21,13 +21,7 @@ import { SidebarContext } from '@/contexts/SidebarContext';
 import { IRoute } from '@/types/navigation';
 import { usePathname } from 'next/navigation';
 import NextLink from 'next/link';
-import {
-  MdAdd,
-  MdSearch,
-  MdMoreHoriz,
-  MdClose,
-  MdMenu,
-} from 'react-icons/md';
+import { MdMoreHoriz, MdClose } from 'react-icons/md';
 import { IoMenuOutline } from 'react-icons/io5';
 import Image from 'next/image';
 
@@ -46,7 +40,6 @@ export default function NeuroniumSidebar({
 }: NeuroniumSidebarProps) {
   const { isCollapsed, setIsCollapsed } = useContext(SidebarContext);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
-  const pathname = usePathname();
 
   // Dark theme colors only
   const bgColor = '#1e1e1e'; // neuronium.background.primary
@@ -55,7 +48,6 @@ export default function NeuroniumSidebar({
   const textSecondary = '#8a8b8c'; // neuronium.text.secondary
   const hoverBg = 'rgba(255, 255, 255, 0.05)'; // neuronium.background.hover
   const activeBg = 'rgba(255, 255, 255, 0.1)'; // neuronium.background.active
-  const accentColor = '#8854f3'; // neuronium.accent.violet
 
   const sidebarWidth = isCollapsed ? '68px' : '300px';
 
@@ -74,14 +66,19 @@ export default function NeuroniumSidebar({
       zIndex={100}
       boxShadow={isCollapsed ? 'none' : '11px 7px 40px 0px rgba(0,0,0,0.2)'}
     >
-      <Flex 
-        direction="column" 
-        h="100%" 
+      <Flex
+        direction="column"
+        h="100%"
         p={isCollapsed ? '12px' : '20px'}
         justify={isCollapsed ? 'center' : 'flex-start'}
       >
         {/* Header */}
-        <Flex align="center" justify="space-between" mb={isCollapsed ? '0' : '20px'} minH="36px">
+        <Flex
+          align="center"
+          justify="space-between"
+          mb={isCollapsed ? '0' : '20px'}
+          minH="36px"
+        >
           {!isCollapsed ? (
             <>
               <Flex align="center">
@@ -107,10 +104,10 @@ export default function NeuroniumSidebar({
               <IconButton
                 aria-label="Collapse sidebar"
                 icon={
-                  <Image 
-                    src="/icons/button.svg" 
-                    alt="Close sidebar" 
-                    width={24} 
+                  <Image
+                    src="/icons/button.svg"
+                    alt="Close sidebar"
+                    width={24}
                     height={24}
                   />
                 }
@@ -127,10 +124,10 @@ export default function NeuroniumSidebar({
                 <IconButton
                   aria-label="Expand sidebar"
                   icon={
-                    <Image 
-                      src="/icons/cancel_button.svg" 
-                      alt="Open sidebar" 
-                      width={40} 
+                    <Image
+                      src="/icons/cancel_button.svg"
+                      alt="Open sidebar"
+                      width={40}
                       height={40}
                     />
                   }
@@ -144,15 +141,15 @@ export default function NeuroniumSidebar({
                   boxShadow="2px 2px 8px rgba(0,0,0,0.1)"
                 />
               </Tooltip>
-              
+
               <Tooltip label="Создать новый чат" placement="right">
                 <IconButton
                   aria-label="New chat"
                   icon={
-                    <Image 
-                      src="/icons/edit.svg" 
-                      alt="New chat" 
-                      width={22} 
+                    <Image
+                      src="/icons/edit.svg"
+                      alt="New chat"
+                      width={22}
                       height={22}
                     />
                   }
@@ -186,10 +183,10 @@ export default function NeuroniumSidebar({
               px="12px"
               borderRadius="100px"
               leftIcon={
-                <Image 
-                  src="/icons/edit.svg" 
-                  alt="New chat" 
-                  width={24} 
+                <Image
+                  src="/icons/edit.svg"
+                  alt="New chat"
+                  width={24}
                   height={24}
                 />
               }
@@ -208,7 +205,14 @@ export default function NeuroniumSidebar({
               justifyContent="flex-start"
               px="12px"
               borderRadius="100px"
-              leftIcon={<MdSearch size={24} />}
+              leftIcon={
+                <Image
+                  src="icons/magnifer.svg"
+                  alt="New chat"
+                  width={24}
+                  height={24}
+                />
+              }
             >
               <Text fontSize="16px" fontWeight="600">
                 Поиск в чатах
@@ -310,7 +314,14 @@ export function NeuroniumSidebarResponsive({
       <Flex display={{ base: 'flex', lg: 'none' }} alignItems="center">
         <IconButton
           aria-label="Open menu"
-          icon={<IoMenuOutline />}
+          icon={
+            <Image
+              src="/icons/cancel_button.svg"
+              alt="Close sidebar"
+              width={24}
+              height={24}
+            />
+          }
           onClick={onOpen}
           variant="ghost"
           color={menuColor}
@@ -326,7 +337,21 @@ export function NeuroniumSidebarResponsive({
           borderRight="1px solid"
           borderColor={borderColor}
         >
-          <DrawerCloseButton color={textPrimary} />
+          <DrawerCloseButton
+            color={textPrimary}
+            position="absolute"
+            top="20px"
+            right="20px"
+            as={IconButton}
+            icon={
+              <Image
+                src="/icons/button.svg"
+                alt="Close sidebar"
+                width={24}
+                height={24}
+              />
+            }
+          />
           <DrawerBody p="20px">
             {/* Header */}
             <Flex align="center" mb="20px">
@@ -334,7 +359,6 @@ export function NeuroniumSidebarResponsive({
                 w="36px"
                 h="36px"
                 borderRadius="4px"
-                bg={accentColor}
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -362,7 +386,14 @@ export function NeuroniumSidebarResponsive({
                 justifyContent="flex-start"
                 px="12px"
                 borderRadius="100px"
-                leftIcon={<MdAdd size={24} />}
+                leftIcon={
+                  <Image
+                    src="/icons/edit.svg"
+                    alt="New chat"
+                    width={24}
+                    height={24}
+                  />
+                }
               >
                 <Text fontSize="16px" fontWeight="600">
                   Новый чат
@@ -378,7 +409,14 @@ export function NeuroniumSidebarResponsive({
                 justifyContent="flex-start"
                 px="12px"
                 borderRadius="100px"
-                leftIcon={<MdSearch size={24} />}
+                leftIcon={
+                  <Image
+                    src="/icons/magnifer.svg"
+                    alt="Search"
+                    width={24}
+                    height={24}
+                  />
+                }
               >
                 <Text fontSize="16px" fontWeight="600">
                   Поиск в чатах

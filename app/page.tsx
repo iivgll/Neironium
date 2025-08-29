@@ -138,8 +138,6 @@ export default function Chat() {
           left="0"
           right="0"
           bg={COLORS.BG_PRIMARY}
-          borderTop="1px solid"
-          borderColor={COLORS.BORDER_PRIMARY}
           px={{ base: '16px', md: '32px' }}
           py="12px"
           backdropFilter="blur(10px)"

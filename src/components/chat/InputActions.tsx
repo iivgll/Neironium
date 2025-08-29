@@ -1,6 +1,21 @@
 import React, { memo } from 'react';
-import { Flex, HStack, IconButton, Button, Tooltip } from '@chakra-ui/react';
-import { MdAttachFile, MdMic, MdSend, MdSearch } from 'react-icons/md';
+import {
+  Flex,
+  HStack,
+  IconButton,
+  Button,
+  Tooltip,
+  Image,
+} from '@chakra-ui/react';
+import {
+  MdAttachFile,
+  MdMic,
+  MdSend,
+  MdSearch,
+  MdArrowBack,
+  MdArrowRight,
+  MdArrowRightAlt,
+} from 'react-icons/md';
 import { COLORS } from '@/theme/colors';
 
 interface InputActionsProps {
@@ -26,17 +41,15 @@ const InputActions = memo<InputActionsProps>(
     const iconColor = COLORS.TEXT_SECONDARY;
     const iconHoverColor = COLORS.TEXT_PRIMARY;
     const actionBg = COLORS.BG_HOVER;
-    const deepSearchActiveBg = COLORS.ACCENT_VIOLET;
+    const deepSearchActiveBg = 'rgba(255, 255, 255, 0.1)';
 
     return (
       <Flex
-        borderTop="1px solid"
-        borderColor={COLORS.BORDER_SECONDARY}
         px="12px"
         py="8px"
         align="center"
         justify="space-between"
-        bg={COLORS.BG_HOVER}
+        bg={COLORS.BG_SECONDARY}
       >
         {/* Left Side Actions */}
         <HStack spacing="8px">
@@ -44,7 +57,7 @@ const InputActions = memo<InputActionsProps>(
           <Tooltip label="Прикрепить файл" placement="top" hasArrow>
             <IconButton
               aria-label="Attach file"
-              icon={<MdAttachFile size={20} />}
+              icon={<Image src="/icons/pin.svg" alt="pin" w="20px" h="20px" />}
               variant="ghost"
               size="sm"
               color={iconColor}
@@ -78,7 +91,9 @@ const InputActions = memo<InputActionsProps>(
               variant={showDeepSearch ? 'solid' : 'ghost'}
               bg={showDeepSearch ? deepSearchActiveBg : 'transparent'}
               color={showDeepSearch ? 'white' : iconColor}
-              leftIcon={<MdSearch size={16} />}
+              leftIcon={
+                <Image src="/icons/magnifer.svg" alt="send" w="20px" h="20px" />
+              }
               onClick={onToggleDeepSearch}
               fontSize="14px"
               fontWeight="500"
@@ -107,7 +122,14 @@ const InputActions = memo<InputActionsProps>(
           <Tooltip label="Голосовой ввод" placement="top" hasArrow>
             <IconButton
               aria-label="Voice input"
-              icon={<MdMic size={20} />}
+              icon={
+                <Image
+                  src="icons/microphone.svg"
+                  alt="send"
+                  w="20px"
+                  h="20px"
+                />
+              }
               variant="ghost"
               size="sm"
               color={iconColor}
@@ -130,11 +152,16 @@ const InputActions = memo<InputActionsProps>(
             <Tooltip label="Отправить" placement="top" hasArrow>
               <IconButton
                 aria-label="Send message"
-                icon={<MdSend size={20} />}
+                icon={
+                  <Image
+                    src="icons/arrow_right.svg"
+                    alt="send"
+                    w="20px"
+                    h="20px"
+                  />
+                }
                 variant="solid"
                 size="sm"
-                bg={COLORS.ACCENT_VIOLET}
-                color="white"
                 onClick={onSend}
                 isDisabled={(!hasMessage && !hasAttachments) || isLoading}
                 isLoading={isLoading}
@@ -151,7 +178,6 @@ const InputActions = memo<InputActionsProps>(
                   cursor: 'not-allowed',
                   transform: 'scale(1)',
                 }}
-                borderRadius="8px"
                 minW="32px"
                 h="32px"
                 transition="all 0.2s"

@@ -5,12 +5,14 @@ import ClientLayout from '@/components/layout/ClientLayout';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html 
-      lang="en" 
-      style={{
-        '--tg-viewport-height': '100vh',
-        '--tg-viewport-stable-height': '100vh'
-      } as React.CSSProperties}
+    <html
+      lang="en"
+      style={
+        {
+          '--tg-viewport-height': '100vh',
+          '--tg-viewport-stable-height': '100vh',
+        } as React.CSSProperties
+      }
     >
       <head>
         <title>Neuronium AI</title>

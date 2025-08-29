@@ -26,13 +26,13 @@ export function LoadingScreen() {
 
   useEffect(() => {
     setMounted(true);
-    
+
     // Предзагрузка аватарки пользователя
     if (MOCK_TELEGRAM_USER.photo_url) {
       const img = new Image();
       img.src = MOCK_TELEGRAM_USER.photo_url;
     }
-    
+
     // Предзагрузка аватарки ассистента (логотип Nr)
     // Если у вас есть отдельное изображение для ассистента, добавьте здесь
   }, []);

@@ -18,28 +18,33 @@ This is a **Horizon AI Template** - a ChatGPT AI admin template built with Next.
 ### Key Architecture Components
 
 **Framework Stack:**
+
 - Next.js 15 with App Router (`app/` directory structure)
 - React 19 (RC version)
 - TypeScript 4.9.5
 - Chakra UI for component library and theming
 
 **API Integration:**
+
 - OpenAI API integration via streaming (`src/utils/chatStream.ts`)
 - Edge runtime API routes (`app/api/chatAPI/route.ts`)
 - Supports GPT-4o and GPT-3.5-turbo models
 
 **Layout System:**
+
 - Sidebar-based navigation (`src/components/sidebar/`)
 - Admin layout with navbar and footer
 - Route-based navigation system (`src/routes.tsx`)
 - Responsive design with mobile support
 
 **State Management:**
+
 - React Context for sidebar state (`src/contexts/SidebarContext.ts`)
 - localStorage for API key persistence
 - Component-level state for chat functionality
 
 **Chat Implementation:**
+
 - Streaming responses using Server-Sent Events
 - Real-time message display with markdown support
 - Model switching (GPT-4o/GPT-3.5) in UI
@@ -57,17 +62,20 @@ This is a **Horizon AI Template** - a ChatGPT AI admin template built with Next.
 
 **Path Aliases:** Uses `@/*` pointing to `src/*` (configured in `tsconfig.json`)
 
-**API Key Management:** 
+**API Key Management:**
+
 - Stored in localStorage with 'sk-' prefix validation
 - Fallback to `NEXT_PUBLIC_OPENAI_API_KEY` environment variable
 - Required for OpenAI API calls
 
-**Styling:** 
+**Styling:**
+
 - Chakra UI with custom theme extensions
 - Additional CSS files in `src/styles/`
 - Responsive design patterns throughout
 
 **Navigation:**
+
 - Route definitions in `src/routes.tsx` with icon mappings
 - Many routes marked as `disabled: true` (placeholder/premium features)
 - Active route detection utilities in `src/utils/navigation.tsx`
@@ -77,11 +85,13 @@ This template is designed as a foundation for building AI-powered chat applicati
 ## Important Rules for Claude
 
 **Git Operations:**
+
 - NEVER commit, push, or perform ANY git operations unless explicitly requested by the User
 - Wait for explicit permission before using git commands
 - This includes: git add, git commit, git push, git pull, git merge, etc.
 
 **File Creation:**
+
 - NEVER create files unless absolutely necessary
 - ALWAYS prefer editing existing files
-- NEVER proactively create documentation files (*.md) or README files unless explicitly requested
+- NEVER proactively create documentation files (\*.md) or README files unless explicitly requested

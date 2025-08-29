@@ -18,7 +18,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
 
   useEffect(() => {
     setMounted(true);
-    
+
     // Применить стили к html и body после монтирования
     if (typeof window !== 'undefined') {
       document.documentElement.style.height = '100%';
