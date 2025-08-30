@@ -1,10 +1,11 @@
 'use client';
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { Box, Flex, Text, VStack } from '@chakra-ui/react';
 import NeuroniumChatInput from '@/components/chat/NeuroniumChatInput';
 import NeuroniumNavbar from '@/components/navbar/NeuroniumNavbar';
 import MessageBoxChat from '@/components/messages/MessageBox';
 import UserMessage from '@/components/messages/UserMessage';
+import ThinkingProcess from '@/components/chat/ThinkingProcess';
 import { useChat } from '@/hooks/useChat';
 import { COLORS } from '@/theme/colors';
 import { useTelegram } from '@/contexts/TelegramContext';
@@ -12,6 +13,7 @@ import { useTelegram } from '@/contexts/TelegramContext';
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { displayName, user, isTelegramEnvironment } = useTelegram();
+  const [messageThinkingStates, setMessageThinkingStates] = useState<{[key: number]: boolean}>({});
 
   // Initialize Telegram data
   React.useEffect(() => {
@@ -23,9 +25,27 @@ export default function Chat() {
     // Handle error display here if needed
   }, []);
 
-  const { messages, isLoading, model, setModel, sendMessage } = useChat({
+  const { 
+    messages, 
+    isLoading, 
+    model, 
+    setModel, 
+    sendMessage, 
+    isThinking, 
+    showThinkingProcess, 
+    toggleThinkingProcess,
+    hasCompletedThinking,
+    streamingResponse
+  } = useChat({
     onError: handleError,
   });
+  
+  const toggleMessageThinking = useCallback((index: number) => {
+    setMessageThinkingStates(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  }, []);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -111,21 +131,61 @@ export default function Chat() {
           {/* Messages Area */}
           {messages.length > 0 && (
             <VStack spacing="16px" py="20px" w="100%">
-              {messages.map((message, index) =>
-                message.role === 'assistant' ? (
-                  <Flex key={index} w="100%" justify="flex-start">
-                    <Box maxW="70%">
-                      <MessageBoxChat output={message.content} />
-                    </Box>
-                  </Flex>
-                ) : (
-                  <UserMessage
-                    key={index}
-                    content={message.content}
-                    maxWidth="70%"
-                  />
-                ),
-              )}
+              {messages.map((message, index) => {
+                const isLastAssistantMessage = message.role === 'assistant' && 
+                  index === messages.length - 1;
+                
+                if (message.role === 'assistant') {
+                  const hasThinking = message.metadata?.hasThinkingProcess;
+                  const thinkingText = message.metadata?.thinkingText;
+                  // Для текущего сообщения используем глобальное состояние, для старых - локальное
+                  const isExpanded = isLastAssistantMessage && isThinking 
+                    ? showThinkingProcess 
+                    : (messageThinkingStates[index] ?? false);
+                  
+                  return (
+                    <React.Fragment key={index}>
+                      {/* Объединенный контейнер для размышления и ответа */}
+                      <Flex w="100%" justify="flex-start" direction="column" position="relative">
+                        <Box maxW="70%">
+                          {/* Показываем ThinkingProcess для всех сообщений с процессом размышления */}
+                          {hasThinking && (
+                            <ThinkingProcess
+                              isThinking={isLastAssistantMessage && isThinking}
+                              isExpanded={isExpanded}
+                              onToggle={() => {
+                                if (isLastAssistantMessage && isThinking) {
+                                  toggleThinkingProcess();
+                                } else {
+                                  toggleMessageThinking(index);
+                                }
+                              }}
+                              hasCompleted={!isLastAssistantMessage || !isThinking}
+                              thinkingText={thinkingText}
+                            />
+                          )}
+                          
+                          {/* Ответ ассистента - показываем только если есть контент */}
+                          {message.content && (
+                            <Box mt={hasThinking ? "-30px" : "0"}>
+                              <MessageBoxChat output={message.content} />
+                            </Box>
+                          )}
+                        </Box>
+                      </Flex>
+                    </React.Fragment>
+                  );
+                } else {
+                  return (
+                    <UserMessage
+                      key={index}
+                      content={message.content}
+                      maxWidth="70%"
+                    />
+                  );
+                }
+              })}
+              
               <div ref={messagesEndRef} />
             </VStack>
           )}

@@ -8,6 +8,9 @@ export interface Message {
     model?: string;
     tokens?: number;
     processingTime?: number;
+    thinkingText?: string;
+    hasThinkingProcess?: boolean;
+    thinkingExpanded?: boolean;
   };
 }
 
@@ -22,6 +25,8 @@ export interface ChatState {
   isLoading: boolean;
   model: string;
   error?: ChatError | null;
+  isThinking?: boolean;
+  showThinkingProcess?: boolean;
 }
 
 export type ChatEventType =
