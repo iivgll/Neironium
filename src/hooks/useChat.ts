@@ -63,7 +63,7 @@ export const useChat = (options: UseChatOptions = {}) => {
 4. Завершить практическими рекомендациями
 
 Ок, теперь я готов сформулировать исчерпывающий и полезный ответ...`;
-      
+
       // Сразу создаем временное сообщение ассистента с процессом размышления
       const thinkingMessage: Message = {
         role: 'assistant',
@@ -72,13 +72,13 @@ export const useChat = (options: UseChatOptions = {}) => {
         metadata: {
           hasThinkingProcess: true,
           thinkingText: thinkingText,
-          thinkingExpanded: showThinkingProcess
-        }
+          thinkingExpanded: showThinkingProcess,
+        },
       };
-      
+
       setMessages((prev) => [...prev, userMessage, thinkingMessage]);
       setIsLoading(true);
-      
+
       // Сбрасываем все состояния и сразу показываем размышление
       setIsThinking(true);
       setHasCompletedThinking(false);
@@ -87,11 +87,11 @@ export const useChat = (options: UseChatOptions = {}) => {
       try {
         // Simulate thinking process - показываем процесс размышления 3-4 секунды
         await new Promise((resolve) => setTimeout(resolve, 3500));
-        
+
         // Закрываем процесс размышления, но помечаем как завершенный
         setIsThinking(false);
         setHasCompletedThinking(true);
-        
+
         // Небольшая пауза перед показом ответа
         await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -118,7 +118,7 @@ export const useChat = (options: UseChatOptions = {}) => {
 3. **Многозадачность** - поддержка различных типов запросов
 
 Моя система размышления позволяет мне тщательно обдумывать каждый ответ перед его предоставлением.`;
-        
+
         if (attachedFiles && attachedFiles.length > 0) {
           responseContent = `📄 **Я вижу, что вы прикрепили ${attachedFiles.length} файл(ов).**\n\n${responseContent}`;
         }
@@ -130,7 +130,7 @@ export const useChat = (options: UseChatOptions = {}) => {
         for (let i = 0; i <= responseContent.length; i++) {
           const currentText = responseContent.slice(0, i);
           setStreamingResponse(currentText);
-          
+
           // Обновляем последнее сообщение
           setMessages((prev) => {
             const updatedMessages = [...prev];
@@ -142,13 +142,13 @@ export const useChat = (options: UseChatOptions = {}) => {
                   ...updatedMessages[updatedMessages.length - 1].metadata,
                   hasThinkingProcess: true,
                   thinkingText: thinkingText,
-                  thinkingExpanded: showThinkingProcess
-                }
+                  thinkingExpanded: showThinkingProcess,
+                },
               };
             }
             return updatedMessages;
           });
-          
+
           await new Promise((resolve) => setTimeout(resolve, 20)); // 20ms на символ
         }
 

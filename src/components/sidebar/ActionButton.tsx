@@ -18,7 +18,7 @@ interface ActionButtonProps {
 export const ActionButton = React.memo<ActionButtonProps>(
   ({ icon, iconAlt, label, onClick, theme }) => {
     const { getAssetPath } = useAssetPath();
-    
+
     return (
       <Button
         w="100%"
@@ -29,7 +29,14 @@ export const ActionButton = React.memo<ActionButtonProps>(
         justifyContent="flex-start"
         px="12px"
         borderRadius="100px"
-        leftIcon={<Image src={getAssetPath(icon)} alt={iconAlt} width={24} height={24} />}
+        leftIcon={
+          <Image
+            src={getAssetPath(icon)}
+            alt={iconAlt}
+            width={24}
+            height={24}
+          />
+        }
         onClick={onClick}
       >
         <Text fontSize="16px" fontWeight="600">

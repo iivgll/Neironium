@@ -45,7 +45,7 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
   const { getAssetPath } = useAssetPath();
   const [animationData, setAnimationData] = useState<object | null>(null);
   const [displayedThinkingText, setDisplayedThinkingText] = useState('');
-  
+
   // Используем переданный текст или дефолтный
   const textToDisplay = thinkingText || mockThinkingText;
 
@@ -84,7 +84,7 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
       let currentIndex = 0;
       let retryCount = 0;
       const maxRetries = 3;
-      
+
       const animateText = () => {
         const interval = setInterval(() => {
           if (currentIndex < textToDisplay.length) {
@@ -94,10 +94,13 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
             clearInterval(interval);
           }
         }, 30); // 30ms на символ для реалистичного эффекта печати
-        
+
         // Проверяем через 5 секунд, не зависла ли анимация
         const checkTimeout = setTimeout(() => {
-          if (currentIndex < textToDisplay.length / 2 && retryCount < maxRetries) {
+          if (
+            currentIndex < textToDisplay.length / 2 &&
+            retryCount < maxRetries
+          ) {
             clearInterval(interval);
             currentIndex = 0;
             retryCount++;
@@ -105,13 +108,13 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
             animateText(); // Перезапускаем анимацию
           }
         }, 5000);
-        
+
         return () => {
           clearInterval(interval);
           clearTimeout(checkTimeout);
         };
       };
-      
+
       return animateText();
     }
   }, [isThinking, hasCompleted, textToDisplay]); // Добавили textToDisplay в зависимости
@@ -121,18 +124,19 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
 
   return (
     <Box
-      px="22px"
-      py="16px"
+      px={{ base: '16px', md: '22px' }}
+      py={{ base: '12px', md: '16px' }}
       borderRadius="12px"
     >
       <Flex
         align="center"
-        gap="10px"
+        gap={{ base: '8px', md: '10px' }}
+        flexWrap={{ base: 'wrap', md: 'nowrap' }}
       >
         {/* Neuronium Avatar with Animation */}
         <Box
-          width="100px"
-          height="100px"
+          width={{ base: '60px', md: '100px' }}
+          height={{ base: '60px', md: '100px' }}
           borderRadius="8px"
           overflow="hidden"
           flexShrink={0}
@@ -146,9 +150,9 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
               play={isThinking || hasCompleted}
               loop={true}
               speed={1}
-              style={{ 
-                width: 100, 
-                height: 100,
+              style={{
+                width: '100%',
+                height: '100%',
               }}
             />
           ) : (
@@ -169,27 +173,56 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
           bg="rgba(255, 255, 255, 0.1)"
           color="white"
           borderRadius="100px"
-          px="10px"
-          py="7px"
-          h="32px"
-          fontSize="12px"
+          px={{ base: '12px', md: '10px' }}
+          py={{ base: '8px', md: '7px' }}
+          h={{ base: 'auto', md: '32px' }}
+          minH={{ base: '32px', md: '32px' }}
+          fontSize={{ base: '11px', md: '12px' }}
           fontWeight="400"
           letterSpacing="-0.132px"
+          whiteSpace={{ base: 'normal', md: 'nowrap' }}
+          textAlign="left"
           _hover={{
-            bg: "rgba(255, 255, 255, 0.15)",
+            bg: 'rgba(255, 255, 255, 0.15)',
           }}
           _active={{
-            bg: "rgba(255, 255, 255, 0.2)",
+            bg: 'rgba(255, 255, 255, 0.2)',
           }}
         >
-          <Text mr="5px">
-            {isExpanded ? "Скрыть процесс размышления" : "Показать процесс размышления"}
+          <Text
+            mr="5px"
+            fontSize={{ base: '11px', md: '12px' }}
+            display={{ base: 'block', md: 'inline' }}
+            lineHeight={{ base: '14px', md: 'normal' }}
+          >
+            {isExpanded ? (
+              <>
+                <Text as="span" display={{ base: 'block', md: 'inline' }}>
+                  Скрыть процесс
+                </Text>
+                <Text as="span" display={{ base: 'block', md: 'inline' }}>
+                  {' '}
+                  размышления
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text as="span" display={{ base: 'block', md: 'inline' }}>
+                  Показать процесс
+                </Text>
+                <Text as="span" display={{ base: 'block', md: 'inline' }}>
+                  {' '}
+                  размышления
+                </Text>
+              </>
+            )}
           </Text>
           <ChevronDownIcon
             w="16px"
             h="16px"
-            transform={isExpanded ? "rotate(180deg)" : "rotate(0deg)"}
+            transform={isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'}
             transition="transform 0.2s"
+            flexShrink={0}
           />
         </Button>
       </Flex>
@@ -213,8 +246,8 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
                 marginBottom: '12px',
                 opacity: 0.9,
                 '&:last-child': {
-                  marginBottom: 0
-                }
+                  marginBottom: 0,
+                },
               },
               '& h2': {
                 fontSize: '16px',
@@ -222,45 +255,45 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
                 fontWeight: '600',
                 marginTop: '16px',
                 marginBottom: '8px',
-                opacity: 0.95
+                opacity: 0.95,
               },
               '& strong': {
                 color: 'purple.300',
-                fontWeight: '600'
+                fontWeight: '600',
               },
               '& ul, & ol': {
                 paddingLeft: '20px',
-                marginBottom: '12px'
+                marginBottom: '12px',
               },
               '& li': {
                 fontSize: '14px',
                 color: 'white',
                 opacity: 0.9,
-                marginBottom: '4px'
+                marginBottom: '4px',
               },
               '& code': {
                 backgroundColor: 'rgba(139, 92, 246, 0.2)',
                 padding: '2px 6px',
                 borderRadius: '4px',
                 fontSize: '13px',
-                color: 'purple.200'
-              }
+                color: 'purple.200',
+              },
             }}
           >
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {displayedThinkingText}
             </ReactMarkdown>
             {isThinking && (
-              <Text 
-                as="span" 
-                color="purple.300" 
+              <Text
+                as="span"
+                color="purple.300"
                 fontSize="14px"
                 sx={{
                   animation: 'blink 1s infinite',
                   '@keyframes blink': {
                     '0%, 50%': { opacity: 1 },
-                    '51%, 100%': { opacity: 0 }
-                  }
+                    '51%, 100%': { opacity: 0 },
+                  },
                 }}
               >
                 |

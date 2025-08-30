@@ -175,7 +175,7 @@ export default function ChatSearchModal({
                 pointerEvents="none"
               >
                 <Image
-                  src={getAssetPath("/icons/magnifer.svg")}
+                  src={getAssetPath('/icons/magnifer.svg')}
                   alt="search"
                   width={20}
                   height={20}
@@ -205,7 +205,7 @@ export default function ChatSearchModal({
                       onClick={() => handleChatSelect(chat.id)}
                     >
                       <Image
-                        src={getAssetPath("/icons/chat.svg")}
+                        src={getAssetPath('/icons/chat.svg')}
                         alt="chat"
                         width={20}
                         height={20}

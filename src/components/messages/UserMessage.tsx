@@ -6,7 +6,7 @@ import { COLORS } from '@/theme/colors';
 
 interface UserMessageProps {
   content: string;
-  maxWidth?: string;
+  maxWidth?: string | { base: string; md: string };
 }
 
 const UserMessage = React.memo<UserMessageProps>(

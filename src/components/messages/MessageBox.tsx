@@ -29,8 +29,8 @@ const MessageBox = React.memo<MessageBoxProps>(({ output }) => {
             marginBottom: '16px',
             lineHeight: '1.6',
             '&:last-child': {
-              marginBottom: 0
-            }
+              marginBottom: 0,
+            },
           },
           '& h1': {
             fontSize: '24px',
@@ -38,39 +38,39 @@ const MessageBox = React.memo<MessageBoxProps>(({ output }) => {
             marginTop: '24px',
             marginBottom: '16px',
             '&:first-of-type': {
-              marginTop: 0
-            }
+              marginTop: 0,
+            },
           },
           '& h2': {
             fontSize: '20px',
             fontWeight: '600',
             marginTop: '20px',
-            marginBottom: '12px'
+            marginBottom: '12px',
           },
           '& h3': {
             fontSize: '18px',
             fontWeight: '600',
             marginTop: '16px',
-            marginBottom: '8px'
+            marginBottom: '8px',
           },
           '& strong': {
             fontWeight: '600',
-            color: COLORS.TEXT_PRIMARY
+            color: COLORS.TEXT_PRIMARY,
           },
           '& ul, & ol': {
             paddingLeft: '24px',
-            marginBottom: '16px'
+            marginBottom: '16px',
           },
           '& li': {
             marginBottom: '8px',
-            lineHeight: '1.6'
+            lineHeight: '1.6',
           },
           '& code': {
             backgroundColor: 'rgba(139, 92, 246, 0.1)',
             padding: '2px 6px',
             borderRadius: '4px',
             fontSize: '14px',
-            color: 'purple.300'
+            color: 'purple.300',
           },
           '& pre': {
             backgroundColor: 'rgba(0, 0, 0, 0.3)',
@@ -80,8 +80,8 @@ const MessageBox = React.memo<MessageBoxProps>(({ output }) => {
             marginBottom: '16px',
             '& code': {
               backgroundColor: 'transparent',
-              padding: 0
-            }
+              padding: 0,
+            },
           },
           '& blockquote': {
             borderLeft: '4px solid',
@@ -90,28 +90,28 @@ const MessageBox = React.memo<MessageBoxProps>(({ output }) => {
             marginLeft: 0,
             marginBottom: '16px',
             fontStyle: 'italic',
-            opacity: 0.9
+            opacity: 0.9,
           },
           '& img': {
             maxWidth: '100%',
             height: 'auto',
             borderRadius: '8px',
             marginTop: '16px',
-            marginBottom: '16px'
+            marginBottom: '16px',
           },
           '& a': {
             color: 'purple.400',
             textDecoration: 'underline',
             '&:hover': {
-              color: 'purple.300'
-            }
+              color: 'purple.300',
+            },
           },
           '& hr': {
             border: 'none',
             borderTop: '1px solid',
             borderTopColor: 'rgba(255, 255, 255, 0.1)',
             marginTop: '24px',
-            marginBottom: '24px'
+            marginBottom: '24px',
           },
           '& table': {
             width: '100%',
@@ -120,13 +120,13 @@ const MessageBox = React.memo<MessageBoxProps>(({ output }) => {
             '& th, & td': {
               border: '1px solid rgba(255, 255, 255, 0.1)',
               padding: '8px 12px',
-              textAlign: 'left'
+              textAlign: 'left',
             },
             '& th': {
               backgroundColor: 'rgba(139, 92, 246, 0.1)',
-              fontWeight: '600'
-            }
-          }
+              fontWeight: '600',
+            },
+          },
         }}
       >
         <ReactMarkdown remarkPlugins={[remarkGfm]}>

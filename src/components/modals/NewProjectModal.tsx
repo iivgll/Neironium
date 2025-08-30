@@ -193,7 +193,7 @@ export default function NewProjectModal({
               <Box bg="rgba(255,255,255,0.05)" borderRadius="20px" p="20px">
                 <Flex align="flex-start" gap="10px">
                   <Image
-                    src={getAssetPath("/icons/idea.svg")}
+                    src={getAssetPath('/icons/idea.svg')}
                     alt="Info"
                     width={24}
                     height={24}

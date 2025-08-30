@@ -28,7 +28,7 @@ export default function ProjectTooltip({
   onCreateProjectAndMove,
 }: ProjectTooltipProps) {
   const { getAssetPath } = useAssetPath();
-  
+
   // Memoize project items for performance
   const projectItems = useMemo(
     () =>
@@ -49,7 +49,7 @@ export default function ProjectTooltip({
           }}
         >
           <Image
-            src={getAssetPath("/icons/folder.svg")}
+            src={getAssetPath('/icons/folder.svg')}
             alt="Project"
             width={16}
             height={16}
@@ -126,7 +126,7 @@ export default function ProjectTooltip({
               }}
             >
               <Image
-                src={getAssetPath("/icons/folder-add.svg")}
+                src={getAssetPath('/icons/folder-add.svg')}
                 alt="New project"
                 width={16}
                 height={16}

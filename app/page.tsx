@@ -6,6 +6,7 @@ import NeuroniumNavbar from '@/components/navbar/NeuroniumNavbar';
 import MessageBoxChat from '@/components/messages/MessageBox';
 import UserMessage from '@/components/messages/UserMessage';
 import ThinkingProcess from '@/components/chat/ThinkingProcess';
+import MessageActions from '@/components/messages/MessageActions';
 import { useChat } from '@/hooks/useChat';
 import { COLORS } from '@/theme/colors';
 import { useTelegram } from '@/contexts/TelegramContext';
@@ -13,7 +14,9 @@ import { useTelegram } from '@/contexts/TelegramContext';
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { displayName, user, isTelegramEnvironment } = useTelegram();
-  const [messageThinkingStates, setMessageThinkingStates] = useState<{[key: number]: boolean}>({});
+  const [messageThinkingStates, setMessageThinkingStates] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   // Initialize Telegram data
   React.useEffect(() => {
@@ -25,25 +28,25 @@ export default function Chat() {
     // Handle error display here if needed
   }, []);
 
-  const { 
-    messages, 
-    isLoading, 
-    model, 
-    setModel, 
-    sendMessage, 
-    isThinking, 
-    showThinkingProcess, 
+  const {
+    messages,
+    isLoading,
+    model,
+    setModel,
+    sendMessage,
+    isThinking,
+    showThinkingProcess,
     toggleThinkingProcess,
     hasCompletedThinking,
-    streamingResponse
+    streamingResponse,
   } = useChat({
     onError: handleError,
   });
-  
+
   const toggleMessageThinking = useCallback((index: number) => {
-    setMessageThinkingStates(prev => ({
+    setMessageThinkingStates((prev) => ({
       ...prev,
-      [index]: !prev[index]
+      [index]: !prev[index],
     }));
   }, []);
 
@@ -130,24 +133,33 @@ export default function Chat() {
 
           {/* Messages Area */}
           {messages.length > 0 && (
-            <VStack spacing="16px" py="20px" w="100%">
+            <VStack spacing="16px" py="20px" pb="100px" w="100%">
               {messages.map((message, index) => {
-                const isLastAssistantMessage = message.role === 'assistant' && 
-                  index === messages.length - 1;
-                
+                const isLastAssistantMessage =
+                  message.role === 'assistant' && index === messages.length - 1;
+
                 if (message.role === 'assistant') {
                   const hasThinking = message.metadata?.hasThinkingProcess;
                   const thinkingText = message.metadata?.thinkingText;
                   // Для текущего сообщения используем глобальное состояние, для старых - локальное
-                  const isExpanded = isLastAssistantMessage && isThinking 
-                    ? showThinkingProcess 
-                    : (messageThinkingStates[index] ?? false);
-                  
+                  const isExpanded =
+                    isLastAssistantMessage && isThinking
+                      ? showThinkingProcess
+                      : (messageThinkingStates[index] ?? false);
+
                   return (
                     <React.Fragment key={index}>
                       {/* Объединенный контейнер для размышления и ответа */}
-                      <Flex w="100%" justify="flex-start" direction="column" position="relative">
-                        <Box maxW="70%">
+                      <Flex
+                        w="100%"
+                        justify="flex-start"
+                        direction="column"
+                        position="relative"
+                      >
+                        <Box
+                          maxW={{ base: '100%', md: '70%' }}
+                          width={{ base: '100%', md: 'auto' }}
+                        >
                           {/* Показываем ThinkingProcess для всех сообщений с процессом размышления */}
                           {hasThinking && (
                             <ThinkingProcess
@@ -160,16 +172,48 @@ export default function Chat() {
                                   toggleMessageThinking(index);
                                 }
                               }}
-                              hasCompleted={!isLastAssistantMessage || !isThinking}
+                              hasCompleted={
+                                !isLastAssistantMessage || !isThinking
+                              }
                               thinkingText={thinkingText}
                             />
                           )}
-                          
+
                           {/* Ответ ассистента - показываем только если есть контент */}
                           {message.content && (
-                            <Box mt={hasThinking ? "-30px" : "0"}>
-                              <MessageBoxChat output={message.content} />
-                            </Box>
+                            <>
+                              <Box
+                                mt={
+                                  hasThinking
+                                    ? { base: '-15px', md: '-30px' }
+                                    : '0'
+                                }
+                              >
+                                <MessageBoxChat output={message.content} />
+                              </Box>
+                              <Box pl={{ base: '16px', md: '22px' }}>
+                                <MessageActions
+                                  content={message.content}
+                                  isLastMessage={isLastAssistantMessage}
+                                  onRegenerate={
+                                    isLastAssistantMessage
+                                      ? () => {
+                                          // Перегенерация последнего сообщения
+                                          const lastUserMessage = messages
+                                            .slice(0, -1)
+                                            .reverse()
+                                            .find((m) => m.role === 'user');
+                                          if (lastUserMessage) {
+                                            sendMessage(
+                                              lastUserMessage.content,
+                                            );
+                                          }
+                                        }
+                                      : undefined
+                                  }
+                                />
+                              </Box>
+                            </>
                           )}
                         </Box>
                       </Flex>
@@ -180,12 +224,12 @@ export default function Chat() {
                     <UserMessage
                       key={index}
                       content={message.content}
-                      maxWidth="70%"
+                      maxWidth={{ base: '100%', md: '70%' }}
                     />
                   );
                 }
               })}
-              
+
               <div ref={messagesEndRef} />
             </VStack>
           )}

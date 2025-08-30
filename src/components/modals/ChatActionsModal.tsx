@@ -175,7 +175,7 @@ export default function ChatActionsModal({
                   }}
                 >
                   <Image
-                    src={getAssetPath("/icons/edit-2.svg")}
+                    src={getAssetPath('/icons/edit-2.svg')}
                     alt="Rename"
                     width={20}
                     height={20}
@@ -221,7 +221,7 @@ export default function ChatActionsModal({
                   >
                     <Flex align="center">
                       <Image
-                        src={getAssetPath("/icons/folder.svg")}
+                        src={getAssetPath('/icons/folder.svg')}
                         alt="Add to project"
                         width={20}
                         height={20}
@@ -263,7 +263,7 @@ export default function ChatActionsModal({
                         onClick={handleNewProject}
                       >
                         <Image
-                          src={getAssetPath("/icons/folder-add.svg")}
+                          src={getAssetPath('/icons/folder-add.svg')}
                           alt="New project"
                           width={16}
                           height={16}
@@ -298,7 +298,7 @@ export default function ChatActionsModal({
                           }}
                         >
                           <Image
-                            src={getAssetPath("/icons/folder.svg")}
+                            src={getAssetPath('/icons/folder.svg')}
                             alt="Project"
                             width={16}
                             height={16}
@@ -346,7 +346,7 @@ export default function ChatActionsModal({
                   }}
                 >
                   <Image
-                    src={getAssetPath("/icons/copy.svg")}
+                    src={getAssetPath('/icons/copy.svg')}
                     alt="Copy"
                     width={20}
                     height={20}
@@ -378,7 +378,7 @@ export default function ChatActionsModal({
                   }}
                 >
                   <Image
-                    src={getAssetPath("/icons/trash.svg")}
+                    src={getAssetPath('/icons/trash.svg')}
                     alt="Delete"
                     width={20}
                     height={20}
@@ -444,7 +444,7 @@ export default function ChatActionsModal({
               }}
             >
               <Image
-                src={getAssetPath("/icons/edit-2.svg")}
+                src={getAssetPath('/icons/edit-2.svg')}
                 alt="Rename"
                 width={16}
                 height={16}
@@ -479,7 +479,7 @@ export default function ChatActionsModal({
             >
               <Flex align="center">
                 <Image
-                  src={getAssetPath("/icons/folder.svg")}
+                  src={getAssetPath('/icons/folder.svg')}
                   alt="Add to project"
                   width={16}
                   height={16}
@@ -514,7 +514,12 @@ export default function ChatActionsModal({
                 onClose();
               }}
             >
-              <Image src={getAssetPath("/icons/copy.svg")} alt="Copy" width={16} height={16} />
+              <Image
+                src={getAssetPath('/icons/copy.svg')}
+                alt="Copy"
+                width={16}
+                height={16}
+              />
               <Text
                 ml="5px"
                 fontSize="12px"
@@ -541,7 +546,7 @@ export default function ChatActionsModal({
               }}
             >
               <Image
-                src={getAssetPath("/icons/trash.svg")}
+                src={getAssetPath('/icons/trash.svg')}
                 alt="Delete"
                 width={16}
                 height={16}
