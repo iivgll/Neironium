@@ -79,6 +79,9 @@ export interface TelegramWebApp {
   ready(): void;
   expand(): void;
   close(): void;
+  requestWriteAccess?(): void;
+  disableVerticalSwipes?(): void;
+  enableVerticalSwipes?(): void;
 }
 
 // Global Telegram object

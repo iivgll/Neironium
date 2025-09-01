@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -32,7 +32,27 @@ export default function NewProjectModal({
 }: NewProjectModalProps) {
   const [projectName, setProjectName] = useState('');
   const [validationError, setValidationError] = useState<string>('');
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { getAssetPath } = useAssetPath();
+
+  // Автофокус при открытии модального окна
+  useEffect(() => {
+    if (isOpen) {
+      // Задержка для корректной анимации открытия модального окна
+      const focusTimeout = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          // Для мобильных устройств - дополнительный клик для вызова клавиатуры
+          if ('ontouchstart' in window) {
+            inputRef.current.click();
+          }
+        }
+      }, 100);
+
+      return () => clearTimeout(focusTimeout);
+    }
+  }, [isOpen]);
 
   // Memoize validation to avoid duplicate calculations
   const validation = React.useMemo(
@@ -62,6 +82,11 @@ export default function NewProjectModal({
   const handleClose = () => {
     setProjectName('');
     setValidationError('');
+    setIsFocused(false);
+    // Убираем фокус с поля при закрытии
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
     onClose();
   };
 
@@ -138,16 +163,21 @@ export default function NewProjectModal({
                 </Text>
                 <Box position="relative">
                   <Input
+                    ref={inputRef}
                     value={projectName}
                     onChange={handleInputChange}
                     placeholder="Статья на Хабр"
                     isInvalid={!!validationError}
+                    autoFocus
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
                     bg="#1e1e1e"
                     border="1px solid white"
                     borderRadius="12px"
                     h="54px"
                     px="10px"
-                    color="#8c8c8c"
+                    color="white"
                     fontSize="16px"
                     letterSpacing="-0.4px"
                     _placeholder={{ color: '#8c8c8c' }}
@@ -156,13 +186,15 @@ export default function NewProjectModal({
                       borderColor: 'white',
                       boxShadow: 'none',
                     }}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !isCreateDisabled) {
                         handleCreate();
                       }
                     }}
                   />
-                  {/* Cursor Line */}
+                  {/* Cursor Line - показываем только когда поле пустое и не в фокусе */}
                   <Box
                     position="absolute"
                     left="10px"
@@ -171,13 +203,15 @@ export default function NewProjectModal({
                     w="2px"
                     h="16px"
                     bg="white"
-                    opacity={projectName ? 0 : 1}
+                    opacity={projectName || isFocused ? 0 : 1}
+                    pointerEvents="none"
                     sx={{
                       '@keyframes blink': {
                         '0%, 50%': { opacity: 1 },
                         '51%, 100%': { opacity: 0 },
                       },
-                      animation: projectName ? 'none' : 'blink 1s infinite',
+                      animation:
+                        projectName || isFocused ? 'none' : 'blink 1s infinite',
                     }}
                   />
                 </Box>

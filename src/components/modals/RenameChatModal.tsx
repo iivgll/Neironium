@@ -10,7 +10,6 @@ import {
   VStack,
   Text,
   Flex,
-  HStack,
   IconButton,
 } from '@chakra-ui/react';
 import { MdClose } from 'react-icons/md';
@@ -124,7 +123,7 @@ export default function RenameChatModal({
                   borderRadius="12px"
                   h="54px"
                   px="10px"
-                  color="#8c8c8c"
+                  color="white"
                   fontSize="16px"
                   letterSpacing="-0.4px"
                   _placeholder={{ color: '#8c8c8c' }}

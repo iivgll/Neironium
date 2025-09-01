@@ -1,0 +1,74 @@
+/* Стили для корректной работы с мобильной клавиатурой */
+
+/* Предотвращаем масштабирование при фокусе на input */
+input[type='text'],
+input[type='email'],
+input[type='number'],
+input[type='tel'],
+input[type='url'],
+input[type='search'],
+textarea,
+select {
+  font-size: 16px !important; /* Предотвращает zoom на iOS при фокусе */
+}
+
+/* Исправляем высоту viewport на мобильных */
+html {
+  height: -webkit-fill-available;
+}
+
+body {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow: hidden;
+}
+
+/* Для iOS Safari - предотвращаем отскок */
+.chat-container {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Фиксируем позиционирование для iOS */
+.fixed-bottom {
+  position: fixed;
+  position: -webkit-sticky;
+}
+
+/* Адаптация под safe area на iPhone X+ */
+.input-container {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Анимации для плавного появления клавиатуры */
+.keyboard-transition {
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Предотвращаем двойной тап для зума */
+* {
+  touch-action: manipulation;
+}
+
+/* Для Android - фиксируем viewport */
+@supports (height: 100dvh) {
+  body {
+    min-height: 100dvh;
+  }
+}
+
+/* Специальные стили для PWA */
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* Telegram Web App specific */
+.tg-viewport {
+  height: var(--tg-viewport-height, 100vh);
+  height: var(--tg-viewport-stable-height, 100vh);
+}

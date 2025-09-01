@@ -45,7 +45,6 @@ export default function ChatActionsModal({
   onClose,
   position,
   onRename,
-  onAddToProject,
   onCopy,
   onNewProject,
   onDeleteConfirm,
@@ -82,10 +81,6 @@ export default function ChatActionsModal({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-
-  const handleAddToProjectHover = () => {
-    setShowProjectTooltip(true);
-  };
 
   const handleNewProject = () => {
     setShowProjectTooltip(false);

@@ -64,8 +64,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
     <HStack
       spacing={{ base: 1, md: 2 }}
       mt={3}
-      opacity={0.7}
-      _hover={{ opacity: 1 }}
+      opacity={1}
       transition="opacity 0.2s"
     >
       <Tooltip label="Нравится" placement="top" hasArrow>
@@ -74,10 +73,12 @@ const MessageActions: React.FC<MessageActionsProps> = ({
           icon={<FiThumbsUp />}
           size="sm"
           variant="ghost"
-          color={liked === true ? 'green.400' : 'gray.400'}
+          color={liked === true ? 'green.400' : 'white'}
+          opacity={liked === true ? 1 : 0.6}
           _hover={{
             bg: 'rgba(255, 255, 255, 0.1)',
             color: liked === true ? 'green.300' : 'white',
+            opacity: 1,
           }}
           onClick={handleLike}
         />
@@ -89,10 +90,12 @@ const MessageActions: React.FC<MessageActionsProps> = ({
           icon={<FiThumbsDown />}
           size="sm"
           variant="ghost"
-          color={liked === false ? 'red.400' : 'gray.400'}
+          color={liked === false ? 'red.400' : 'white'}
+          opacity={liked === false ? 1 : 0.6}
           _hover={{
             bg: 'rgba(255, 255, 255, 0.1)',
             color: liked === false ? 'red.300' : 'white',
+            opacity: 1,
           }}
           onClick={handleDislike}
         />
@@ -108,10 +111,12 @@ const MessageActions: React.FC<MessageActionsProps> = ({
           icon={<CopyIcon />}
           size="sm"
           variant="ghost"
-          color={copied ? 'green.400' : 'gray.400'}
+          color={copied ? 'green.400' : 'white'}
+          opacity={copied ? 1 : 0.6}
           _hover={{
             bg: 'rgba(255, 255, 255, 0.1)',
             color: copied ? 'green.300' : 'white',
+            opacity: 1,
           }}
           onClick={handleCopy}
         />
@@ -124,10 +129,12 @@ const MessageActions: React.FC<MessageActionsProps> = ({
             icon={<RepeatIcon />}
             size="sm"
             variant="ghost"
-            color="gray.400"
+            color="white"
+            opacity={0.6}
             _hover={{
               bg: 'rgba(255, 255, 255, 0.1)',
               color: 'white',
+              opacity: 1,
             }}
             onClick={onRegenerate}
           />

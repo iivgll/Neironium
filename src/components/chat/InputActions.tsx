@@ -7,15 +7,6 @@ import {
   Tooltip,
   Image,
 } from '@chakra-ui/react';
-import {
-  MdAttachFile,
-  MdMic,
-  MdSend,
-  MdSearch,
-  MdArrowBack,
-  MdArrowRight,
-  MdArrowRightAlt,
-} from 'react-icons/md';
 import { COLORS } from '@/theme/colors';
 import { useAssetPath } from '@/hooks/useAssetPath';
 

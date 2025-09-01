@@ -5,11 +5,6 @@ import { keyframes } from '@emotion/react';
 import { COLORS } from '@/theme/colors';
 import { MOCK_TELEGRAM_USER } from '@/types/telegram';
 
-const spin = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-`;
-
 const pulse = keyframes`
   0% { opacity: 0.6; transform: scale(0.95); }
   50% { opacity: 1; transform: scale(1); }

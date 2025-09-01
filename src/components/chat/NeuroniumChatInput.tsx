@@ -6,9 +6,11 @@ import React, {
   ChangeEvent,
   useCallback,
   memo,
+  useEffect,
 } from 'react';
 import { Box, Flex, Textarea, Button, HStack } from '@chakra-ui/react';
 import { useAutoResize } from '@/hooks/useAutoResize';
+import { useKeyboardHandler } from '@/hooks/useKeyboardHandler';
 import InputActions from './InputActions';
 import QuickActionsPanel from './QuickActionsPanel';
 import { FileAttachment } from './FileAttachment';
@@ -34,6 +36,20 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Используем хук для управления клавиатурой
+    const { inputRef, scrollToInput } = useKeyboardHandler({
+      enableScrollIntoView: true,
+      scrollOffset: 20,
+    });
+
+    // Связываем refs
+    useEffect(() => {
+      if (textareaRef.current) {
+        (inputRef as React.MutableRefObject<HTMLTextAreaElement>).current =
+          textareaRef.current;
+      }
+    }, [inputRef]);
 
     // Use custom hook for auto-resize functionality
     const minHeight = variant === 'compact' ? 40 : 48;
@@ -62,6 +78,13 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
       },
       [handleSend],
     );
+
+    // Прокручиваем к полю ввода при фокусе на мобильных устройствах
+    const handleFocus = useCallback(() => {
+      setTimeout(() => {
+        scrollToInput();
+      }, 300);
+    }, [scrollToInput]);
 
     const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
       setMessage(e.target.value);
@@ -268,6 +291,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
                 value={message}
                 onChange={handleChange}
                 onKeyDown={handleKeyPress}
+                onFocus={handleFocus}
                 placeholder={placeholder}
                 disabled={isLoading}
                 bg="transparent"

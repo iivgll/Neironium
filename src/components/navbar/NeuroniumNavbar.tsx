@@ -1,6 +1,6 @@
 'use client';
 import React, { useContext } from 'react';
-import { Box, Flex, HStack, IconButton } from '@chakra-ui/react';
+import { Box, Flex, HStack } from '@chakra-ui/react';
 import { SidebarContext } from '@/contexts/SidebarContext';
 import ModelSelector from './ModelSelector';
 import { NeuroniumSidebarResponsive } from '@/components/sidebar/NeuroniumSidebar';

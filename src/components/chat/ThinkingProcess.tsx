@@ -147,7 +147,7 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
           {animationData ? (
             <Lottie
               animationData={animationData}
-              play={isThinking || hasCompleted}
+              play={true}
               loop={true}
               speed={1}
               style={{

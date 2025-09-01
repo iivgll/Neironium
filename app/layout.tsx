@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import '@/styles/App.css';
+import '@/styles/mobile-keyboard.css';
 import AppWrappers from './AppWrappers';
 import ClientLayout from '@/components/layout/ClientLayout';
 

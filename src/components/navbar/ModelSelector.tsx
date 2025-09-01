@@ -35,7 +35,6 @@ export default function ModelSelector({
   onModelChange,
 }: ModelSelectorProps) {
   // Dark theme colors only
-  const bgColor = '#343434'; // neuronium.background.secondary
   const borderColor = '#343434'; // neuronium.border.primary
   const textColor = '#ffffff'; // neuronium.text.primary
   const textSecondary = '#8a8b8c'; // neuronium.text.secondary

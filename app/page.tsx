@@ -1,6 +1,6 @@
 'use client';
 import React, { useRef, useCallback, useState } from 'react';
-import { Box, Flex, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, VStack } from '@chakra-ui/react';
 import NeuroniumChatInput from '@/components/chat/NeuroniumChatInput';
 import NeuroniumNavbar from '@/components/navbar/NeuroniumNavbar';
 import MessageBoxChat from '@/components/messages/MessageBox';
@@ -8,15 +8,25 @@ import UserMessage from '@/components/messages/UserMessage';
 import ThinkingProcess from '@/components/chat/ThinkingProcess';
 import MessageActions from '@/components/messages/MessageActions';
 import { useChat } from '@/hooks/useChat';
+import { useKeyboardHandler } from '@/hooks/useKeyboardHandler';
 import { COLORS } from '@/theme/colors';
 import { useTelegram } from '@/contexts/TelegramContext';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
   const { displayName, user, isTelegramEnvironment } = useTelegram();
   const [messageThinkingStates, setMessageThinkingStates] = useState<{
     [key: number]: boolean;
   }>({});
+
+  // Используем хук для управления клавиатурой
+  const { getFixedBottomStyle, getContainerStyle, isKeyboardVisible } =
+    useKeyboardHandler({
+      enableScrollIntoView: false, // Управляем прокруткой сами
+      scrollOffset: 0,
+    });
 
   // Initialize Telegram data
   React.useEffect(() => {
@@ -37,8 +47,6 @@ export default function Chat() {
     isThinking,
     showThinkingProcess,
     toggleThinkingProcess,
-    hasCompletedThinking,
-    streamingResponse,
   } = useChat({
     onError: handleError,
   });
@@ -54,10 +62,47 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  // Scroll to bottom when messages change
+  // Handle scroll events to detect user scrolling
+  const handleScroll = useCallback(() => {
+    if (!chatContainerRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 50; // Уменьшен порог для большей чувствительности
+
+    // Если пользователь прокрутил вверх от низа
+    setIsUserScrolling(!isAtBottom);
+  }, []);
+
+  // Отслеживаем количество сообщений для определения новых сообщений
+  const prevMessageCountRef = useRef(messages.length);
+
+  // Scroll to bottom when NEW messages appear, but not during content streaming
   React.useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+    const prevCount = prevMessageCountRef.current;
+    const currentCount = messages.length;
+
+    // Новое сообщение добавлено (не стриминг контента)
+    if (currentCount > prevCount) {
+      // При первом сообщении всегда прокручиваем
+      if (currentCount === 1) {
+        scrollToBottom();
+      }
+      // При новом сообщении пользователя всегда прокручиваем
+      else if (messages[currentCount - 1]?.role === 'user') {
+        setIsUserScrolling(false);
+        scrollToBottom();
+      }
+      // При новом сообщении ассистента прокручиваем только если пользователь внизу
+      else if (!isUserScrolling) {
+        scrollToBottom();
+      }
+    }
+
+    prevMessageCountRef.current = currentCount;
+  }, [messages.length, messages, scrollToBottom, isUserScrolling]);
+
+  // НЕ прокручиваем при изменении контента существующих сообщений (стриминг)
+  // Это позволяет пользователю свободно прокручивать во время генерации
 
   return (
     <Box
@@ -83,13 +128,16 @@ export default function Chat() {
       >
         {/* Chat Container */}
         <Box
+          ref={chatContainerRef}
           flex="1"
           overflowY="auto"
           px={{ base: '16px', md: '32px' }}
           maxW="1200px"
           w="100%"
           mx="auto"
-          pb="160px"
+          pb={isKeyboardVisible ? '350px' : '240px'}
+          onScroll={handleScroll}
+          style={getContainerStyle()}
           css={{
             '&::-webkit-scrollbar': {
               width: '4px',
@@ -127,13 +175,14 @@ export default function Chat() {
                 }}
               >
                 Привет, {displayName}
+                <br /> v 1.0.0
               </div>
             </Flex>
           )}
 
           {/* Messages Area */}
           {messages.length > 0 && (
-            <VStack spacing="16px" py="20px" pb="100px" w="100%">
+            <VStack spacing="16px" py="20px" pb="30px" w="100%">
               {messages.map((message, index) => {
                 const isLastAssistantMessage =
                   message.role === 'assistant' && index === messages.length - 1;
@@ -238,14 +287,16 @@ export default function Chat() {
         {/* Fixed Input Area at Bottom */}
         <Box
           position="absolute"
-          bottom="0"
           left="0"
           right="0"
           bg={COLORS.BG_PRIMARY}
           px={{ base: '16px', md: '32px' }}
           py="12px"
+          pb="calc(12px + env(safe-area-inset-bottom, 0px))"
+          minH="100px"
           backdropFilter="blur(10px)"
           zIndex={10}
+          {...getFixedBottomStyle()}
         >
           <Box maxW="1200px" mx="auto">
             <NeuroniumChatInput
