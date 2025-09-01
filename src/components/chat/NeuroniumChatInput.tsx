@@ -46,7 +46,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     });
 
     // Используем iOS-специфичный фикс для клавиатуры
-    useIOSKeyboardFix({
+    const { isIOS, isKeyboardOpen } = useIOSKeyboardFix({
       inputRef: textareaRef,
       containerRef,
       scrollOffset: 60,
@@ -363,8 +363,16 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
           </Box>
         </Box>
 
-        {/* Quick Actions Panel */}
-        <QuickActionsPanel onActionSelect={handleQuickActionSelect} />
+        {/* Quick Actions Panel - скрываем на iOS при открытой клавиатуре */}
+        <Box
+          overflow="hidden"
+          maxH={isIOS && isKeyboardOpen ? '0px' : '100px'}
+          opacity={isIOS && isKeyboardOpen ? 0 : 1}
+          transition="all 0.3s ease"
+          transform={isIOS && isKeyboardOpen ? 'translateY(20px)' : 'translateY(0)'}
+        >
+          <QuickActionsPanel onActionSelect={handleQuickActionSelect} />
+        </Box>
       </Box>
     );
   },

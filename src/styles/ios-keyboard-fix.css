@@ -108,3 +108,14 @@ body.ios-input-focused {
   position: fixed;
   width: 100%;
 }
+
+/* Hide quick actions when keyboard is visible on iOS */
+@supports (-webkit-touch-callout: none) {
+  .ios-keyboard-open .quick-actions-panel {
+    display: none !important;
+  }
+  
+  .ios-input-container.keyboard-visible {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0) + 5px) !important;
+  }
+}
