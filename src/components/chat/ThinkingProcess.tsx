@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Flex, Text, Button } from '@chakra-ui/react';
 import Lottie from 'react-lottie-player';
 import { ChevronDownIcon } from '@chakra-ui/icons';
@@ -45,6 +45,8 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
   const { getAssetPath } = useAssetPath();
   const [animationData, setAnimationData] = useState<object | null>(null);
   const [displayedThinkingText, setDisplayedThinkingText] = useState('');
+  const [animationKey, setAnimationKey] = useState(0);
+  const lottieRef = useRef<any>(null);
 
   // Используем переданный текст или дефолтный
   const textToDisplay = thinkingText || mockThinkingText;
@@ -55,6 +57,8 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
         const response = await fetch(getAssetPath('animation/neuronium.json'));
         const data = await response.json();
         setAnimationData(data);
+        // Force re-render after loading to ensure animation plays
+        setAnimationKey(prev => prev + 1);
       } catch (error) {
         console.error('Failed to load Neuronium animation:', error);
       }
@@ -64,6 +68,28 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
       loadAnimation();
     }
   }, [getAssetPath, animationData]);
+
+  // Force animation restart when thinking state changes or component mounts
+  useEffect(() => {
+    if (animationData) {
+      // Force restart animation
+      setAnimationKey(prev => prev + 1);
+      
+      // Additional retry mechanism for Android
+      const retryAnimation = setTimeout(() => {
+        if (lottieRef.current) {
+          try {
+            lottieRef.current.play();
+          } catch (e) {
+            console.log('Retrying animation play');
+            setAnimationKey(prev => prev + 1);
+          }
+        }
+      }, 200);
+
+      return () => clearTimeout(retryAnimation);
+    }
+  }, [isThinking, animationData]);
 
   // Animate thinking text character by character (like Claude web)
   React.useEffect(() => {
@@ -143,16 +169,37 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
           display="flex"
           alignItems="center"
           justifyContent="center"
+          position="relative"
+          sx={{
+            // Fallback CSS animation for Android
+            '@keyframes lottieRotate': {
+              '0%': { transform: 'rotate(0deg) scale(1)' },
+              '50%': { transform: 'rotate(180deg) scale(1.05)' },
+              '100%': { transform: 'rotate(360deg) scale(1)' }
+            },
+            '& > div': isThinking ? {
+              animation: 'lottieRotate 3s ease-in-out infinite',
+            } : {}
+          }}
         >
           {animationData ? (
             <Lottie
+              key={`lottie-${animationKey}`}
+              ref={lottieRef}
               animationData={animationData}
               play={true}
               loop={true}
               speed={1}
+              rendererSettings={{
+                preserveAspectRatio: 'xMidYMid slice',
+                progressiveLoad: false,
+                hideOnTransparent: false,
+                clearCanvas: true,
+              }}
               style={{
                 width: '100%',
                 height: '100%',
+                pointerEvents: 'none',
               }}
             />
           ) : (
