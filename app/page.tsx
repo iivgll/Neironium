@@ -33,7 +33,7 @@ export default function Chat() {
   // iOS-специфичный фикс
   const { isIOS, isKeyboardOpen } = useIOSKeyboardFix({
     containerRef: inputContainerRef,
-    scrollOffset: 150,
+    scrollOffset: 80,
   });
 
   // Добавляем классы для iOS фиксов

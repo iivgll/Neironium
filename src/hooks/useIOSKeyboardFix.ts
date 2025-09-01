@@ -8,7 +8,7 @@ interface UseIOSKeyboardFixOptions {
 }
 
 export function useIOSKeyboardFix(options: UseIOSKeyboardFixOptions = {}) {
-  const { inputRef, containerRef, scrollOffset = 100 } = options;
+  const { inputRef, containerRef, scrollOffset = 50 } = options;
   const visualViewportSupported = useRef(false);
   const lastScrollPosition = useRef(0);
   const isKeyboardOpen = useRef(false);
@@ -66,7 +66,7 @@ export function useIOSKeyboardFix(options: UseIOSKeyboardFixOptions = {}) {
         // Update container height to prevent overlapping
         if (containerRef?.current) {
           const keyboardHeight = window.innerHeight - visualViewport.height;
-          containerRef.current.style.paddingBottom = `${keyboardHeight + 20}px`;
+          containerRef.current.style.paddingBottom = `${keyboardHeight}px`;
           containerRef.current.style.transition = 'padding-bottom 0.3s ease';
         }
       } else if (!hasKeyboard && isKeyboardOpen.current) {
@@ -121,7 +121,7 @@ export function useIOSKeyboardFix(options: UseIOSKeyboardFixOptions = {}) {
         }, 300);
 
         // Add extra padding to body
-        document.body.style.paddingBottom = '300px';
+        document.body.style.paddingBottom = '150px';
       } else if (event.type === 'focusout' && isInput) {
         // Keyboard is closing
         setTimeout(() => {

@@ -49,7 +49,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     useIOSKeyboardFix({
       inputRef: textareaRef,
       containerRef,
-      scrollOffset: 120,
+      scrollOffset: 60,
     });
 
     // Связываем refs
