@@ -58,7 +58,7 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
         const data = await response.json();
         setAnimationData(data);
         // Force re-render after loading to ensure animation plays
-        setAnimationKey((prev) => prev + 1);
+        setAnimationKey(prev => prev + 1);
       } catch (error) {
         console.error('Failed to load Neuronium animation:', error);
       }
@@ -73,8 +73,8 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
   useEffect(() => {
     if (animationData) {
       // Force restart animation
-      setAnimationKey((prev) => prev + 1);
-
+      setAnimationKey(prev => prev + 1);
+      
       // Additional retry mechanism for Android
       const retryAnimation = setTimeout(() => {
         if (lottieRef.current) {
@@ -82,7 +82,7 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
             lottieRef.current.play();
           } catch (e) {
             console.log('Retrying animation play');
-            setAnimationKey((prev) => prev + 1);
+            setAnimationKey(prev => prev + 1);
           }
         }
       }, 200);
@@ -175,13 +175,11 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
             '@keyframes lottieRotate': {
               '0%': { transform: 'rotate(0deg) scale(1)' },
               '50%': { transform: 'rotate(180deg) scale(1.05)' },
-              '100%': { transform: 'rotate(360deg) scale(1)' },
+              '100%': { transform: 'rotate(360deg) scale(1)' }
             },
-            '& > div': isThinking
-              ? {
-                  animation: 'lottieRotate 3s ease-in-out infinite',
-                }
-              : {},
+            '& > div': isThinking ? {
+              animation: 'lottieRotate 3s ease-in-out infinite',
+            } : {}
           }}
         >
           {animationData ? (
