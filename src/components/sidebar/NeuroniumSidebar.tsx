@@ -30,10 +30,12 @@ import { ArrowIcon } from '../icons/ArrowIcon';
 import { useAssetPath } from '@/hooks/useAssetPath';
 import { ActionButton } from './ActionButton';
 import { ChatItem } from './ChatItem';
+import { useRouter } from 'next/navigation';
 
 export default function NeuroniumSidebar() {
   const { isCollapsed, setIsCollapsed } = useContext(SidebarContext);
   const { getAssetPath } = useAssetPath();
+  const router = useRouter();
 
   // Modal states
   const {
@@ -330,6 +332,16 @@ export default function NeuroniumSidebar() {
               onClick={onSearchModalOpen}
               theme={theme}
             />
+            {/* Telegram Debug - только в режиме разработки */}
+            {process.env.NODE_ENV === 'development' && (
+              <ActionButton
+                icon="/icons/pin.svg"
+                iconAlt="Telegram Debug"
+                label="Telegram Debug"
+                onClick={() => router.push('/telegram-debug')}
+                theme={theme}
+              />
+            )}
           </VStack>
         )}
 
@@ -600,6 +612,7 @@ export default function NeuroniumSidebar() {
 // Mobile Responsive Sidebar
 export function NeuroniumSidebarResponsive() {
   const { getAssetPath } = useAssetPath();
+  const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isSearchModalOpen,
@@ -849,6 +862,16 @@ export function NeuroniumSidebarResponsive() {
                 onClick={onSearchModalOpen}
                 theme={theme}
               />
+              {/* Telegram Debug - только в режиме разработки */}
+              {process.env.NODE_ENV === 'development' && (
+                <ActionButton
+                  icon="/icons/pin.svg"
+                  iconAlt="Telegram Debug"
+                  label="Telegram Debug"
+                  onClick={() => router.push('/telegram-debug')}
+                  theme={theme}
+                />
+              )}
             </VStack>
 
             {/* Main Content Section */}

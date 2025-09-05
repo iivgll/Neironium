@@ -8,11 +8,13 @@ import { NeuroniumSidebarResponsive } from '@/components/sidebar/NeuroniumSideba
 interface NeuroniumNavbarProps {
   model: string;
   onModelChange: (model: string) => void;
+  hideModelSelector?: boolean;
 }
 
 export default function NeuroniumNavbar({
   model,
   onModelChange,
+  hideModelSelector = false,
 }: NeuroniumNavbarProps) {
   const { isCollapsed } = useContext(SidebarContext);
 
@@ -44,7 +46,9 @@ export default function NeuroniumNavbar({
           </Box>
 
           {/* Model Selector */}
-          <ModelSelector selectedModel={model} onModelChange={onModelChange} />
+          {!hideModelSelector && (
+            <ModelSelector selectedModel={model} onModelChange={onModelChange} />
+          )}
         </HStack>
       </Flex>
     </Box>
