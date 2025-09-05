@@ -11,6 +11,7 @@ import React, {
 import { Box, Flex, Textarea, Button, HStack } from '@chakra-ui/react';
 import { useAutoResize } from '@/hooks/useAutoResize';
 import { useKeyboardHandler } from '@/hooks/useKeyboardHandler';
+import { useIOSKeyboardFix } from '@/hooks/useIOSKeyboardFix';
 import InputActions from './InputActions';
 import QuickActionsPanel from './QuickActionsPanel';
 import { FileAttachment } from './FileAttachment';
@@ -36,11 +37,19 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     // Используем хук для управления клавиатурой
     const { inputRef, scrollToInput } = useKeyboardHandler({
       enableScrollIntoView: true,
       scrollOffset: 20,
+    });
+
+    // Используем iOS-специфичный фикс для клавиатуры
+    const { isIOS, isKeyboardOpen } = useIOSKeyboardFix({
+      inputRef: textareaRef,
+      containerRef,
+      scrollOffset: 60,
     });
 
     // Связываем refs
@@ -226,7 +235,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     }
 
     return (
-      <Box w="100%">
+      <Box ref={containerRef} w="100%">
         {/* Hidden file input */}
         <input
           ref={fileInputRef}
@@ -354,8 +363,16 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
           </Box>
         </Box>
 
-        {/* Quick Actions Panel */}
-        <QuickActionsPanel onActionSelect={handleQuickActionSelect} />
+        {/* Quick Actions Panel - скрываем на iOS при открытой клавиатуре */}
+        <Box
+          overflow="hidden"
+          maxH={isIOS && isKeyboardOpen ? '0px' : '100px'}
+          opacity={isIOS && isKeyboardOpen ? 0 : 1}
+          transition="all 0.3s ease"
+          transform={isIOS && isKeyboardOpen ? 'translateY(20px)' : 'translateY(0)'}
+        >
+          <QuickActionsPanel onActionSelect={handleQuickActionSelect} />
+        </Box>
       </Box>
     );
   },

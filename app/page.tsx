@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { Box, Flex, VStack } from '@chakra-ui/react';
 import NeuroniumChatInput from '@/components/chat/NeuroniumChatInput';
 import NeuroniumNavbar from '@/components/navbar/NeuroniumNavbar';
@@ -9,12 +9,14 @@ import ThinkingProcess from '@/components/chat/ThinkingProcess';
 import MessageActions from '@/components/messages/MessageActions';
 import { useChat } from '@/hooks/useChat';
 import { useKeyboardHandler } from '@/hooks/useKeyboardHandler';
+import { useIOSKeyboardFix } from '@/hooks/useIOSKeyboardFix';
 import { COLORS } from '@/theme/colors';
 import { useTelegram } from '@/contexts/TelegramContext';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const { displayName, user, isTelegramEnvironment } = useTelegram();
   const [messageThinkingStates, setMessageThinkingStates] = useState<{
@@ -27,6 +29,41 @@ export default function Chat() {
       enableScrollIntoView: false, // Управляем прокруткой сами
       scrollOffset: 0,
     });
+
+  // iOS-специфичный фикс
+  const { isIOS, isKeyboardOpen } = useIOSKeyboardFix({
+    containerRef: inputContainerRef,
+    scrollOffset: 80,
+  });
+
+  // Добавляем классы для iOS фиксов
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const body = document.body;
+      const isIOSDevice = isIOS;
+
+      if (isIOSDevice) {
+        body.classList.add('ios-device');
+        if (isTelegramEnvironment) {
+          body.classList.add('telegram-webapp');
+        }
+      }
+
+      if (isKeyboardOpen) {
+        body.classList.add('ios-input-focused');
+      } else {
+        body.classList.remove('ios-input-focused');
+      }
+
+      return () => {
+        body.classList.remove(
+          'ios-device',
+          'telegram-webapp',
+          'ios-input-focused',
+        );
+      };
+    }
+  }, [isIOS, isKeyboardOpen, isTelegramEnvironment]);
 
   // Initialize Telegram data
   React.useEffect(() => {
@@ -286,17 +323,31 @@ export default function Chat() {
 
         {/* Fixed Input Area at Bottom */}
         <Box
+          ref={inputContainerRef}
+          className={isIOS ? 'ios-input-container' : ''}
           position="absolute"
           left="0"
           right="0"
           bg={COLORS.BG_PRIMARY}
           px={{ base: '16px', md: '32px' }}
           py="12px"
-          pb="calc(12px + env(safe-area-inset-bottom, 0px))"
+          pb={
+            isIOS
+              ? 'calc(20px + env(safe-area-inset-bottom, 0px))'
+              : 'calc(12px + env(safe-area-inset-bottom, 0px))'
+          }
           minH="100px"
           backdropFilter="blur(10px)"
           zIndex={10}
-          {...getFixedBottomStyle()}
+          {...(isIOS ? {} : getFixedBottomStyle())}
+          sx={{
+            transition: 'all 0.3s ease',
+            '@supports (padding-bottom: env(safe-area-inset-bottom))': {
+              paddingBottom: isIOS
+                ? 'calc(20px + env(safe-area-inset-bottom, 20px))'
+                : 'calc(12px + env(safe-area-inset-bottom, 0px))',
+            },
+          }}
         >
           <Box maxW="1200px" mx="auto">
             <NeuroniumChatInput
