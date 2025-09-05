@@ -332,16 +332,14 @@ export default function NeuroniumSidebar() {
               onClick={onSearchModalOpen}
               theme={theme}
             />
-            {/* Telegram Debug - только в режиме разработки */}
-            {process.env.NODE_ENV === 'development' && (
-              <ActionButton
-                icon="/icons/pin.svg"
-                iconAlt="Telegram Debug"
-                label="Telegram Debug"
-                onClick={() => router.push('/telegram-debug')}
-                theme={theme}
-              />
-            )}
+            {/* Telegram Debug */}
+            <ActionButton
+              icon="/icons/pin.svg"
+              iconAlt="Telegram Debug"
+              label="Telegram Debug"
+              onClick={() => router.push('/telegram-debug')}
+              theme={theme}
+            />
           </VStack>
         )}
 
@@ -862,16 +860,14 @@ export function NeuroniumSidebarResponsive() {
                 onClick={onSearchModalOpen}
                 theme={theme}
               />
-              {/* Telegram Debug - только в режиме разработки */}
-              {process.env.NODE_ENV === 'development' && (
-                <ActionButton
-                  icon="/icons/pin.svg"
-                  iconAlt="Telegram Debug"
-                  label="Telegram Debug"
-                  onClick={() => router.push('/telegram-debug')}
-                  theme={theme}
-                />
-              )}
+              {/* Telegram Debug */}
+              <ActionButton
+                icon="/icons/pin.svg"
+                iconAlt="Telegram Debug"
+                label="Telegram Debug"
+                onClick={() => router.push('/telegram-debug')}
+                theme={theme}
+              />
             </VStack>
 
             {/* Main Content Section */}
