@@ -1,8 +1,8 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import { Box, Flex, Text, VStack, Icon, Button } from '@chakra-ui/react';
-import { MdWarning, MdMessage } from 'react-icons/md';
-import { COLORS } from '@/theme/colors';
+"use client";
+import React, { useEffect, useState } from "react";
+import { Box, Flex, Text, VStack, Icon, Button } from "@chakra-ui/react";
+import { MdWarning, MdMessage } from "react-icons/md";
+import { COLORS } from "@/theme/colors";
 
 interface TelegramGuardProps {
   children: React.ReactNode;
@@ -74,8 +74,8 @@ export function TelegramGuard({ children }: TelegramGuardProps) {
             backgroundImage={COLORS.GRADIENT_PRIMARY}
             backgroundClip="text"
             sx={{
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
             }}
           >
             Доступ ограничен
@@ -128,11 +128,11 @@ export function TelegramGuard({ children }: TelegramGuardProps) {
           transition="all 0.2s"
           leftIcon={<Icon as={MdMessage} w="20px" h="20px" />}
           _hover={{
-            transform: 'translateY(-2px)',
-            boxShadow: '0 12px 40px rgba(136, 84, 243, 0.5)',
+            transform: "translateY(-2px)",
+            boxShadow: "0 12px 40px rgba(136, 84, 243, 0.5)",
           }}
           _active={{
-            transform: 'translateY(0px)',
+            transform: "translateY(0px)",
           }}
         >
           Открыть в Telegram

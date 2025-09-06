@@ -1,14 +1,14 @@
-'use client';
-import React from 'react';
-import { Flex, Text, Input, HStack, IconButton, Icon } from '@chakra-ui/react';
-import { MdMoreHoriz } from 'react-icons/md';
-import { Chat } from '@/types/chat';
+"use client";
+import React from "react";
+import { Flex, Text, Input, HStack, IconButton, Icon } from "@chakra-ui/react";
+import { MdMoreHoriz } from "react-icons/md";
+import { Chat } from "@/types/chat";
 
 interface ChatItemProps {
   chat: Chat;
   isProjectChat?: boolean;
-  hoveredChatId: string | null;
-  editingChatId: string | null;
+  hoveredChatId: number | null;
+  editingChatId: number | null;
   editingChatTitle: string;
   theme: {
     activeBg: string;
@@ -50,14 +50,14 @@ export const ChatItem = React.memo<ChatItemProps>(
 
     return (
       <Flex
-        h={isProjectChat ? '36px' : '40px'}
+        h={isProjectChat ? "36px" : "40px"}
         px="10px"
-        py={isProjectChat ? '6px' : '7px'}
-        bg={chat.isActive ? theme.activeBg : 'transparent'}
+        py={isProjectChat ? "6px" : "7px"}
+        bg={chat.isActive ? theme.activeBg : "transparent"}
         align="center"
         cursor="pointer"
         _hover={{ bg: theme.hoverBg }}
-        borderRadius={isProjectChat ? '8px' : '10px'}
+        borderRadius={isProjectChat ? "8px" : "10px"}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onClick={onClick}
@@ -71,32 +71,32 @@ export const ChatItem = React.memo<ChatItemProps>(
             onChange={(e) => onEditingTitleChange(e.target.value)}
             onBlur={onEditingSave}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 onEditingSave();
-              } else if (e.key === 'Escape') {
+              } else if (e.key === "Escape") {
                 onEditingCancel();
               }
             }}
-            fontSize={isProjectChat ? '14px' : '16px'}
+            fontSize={isProjectChat ? "14px" : "16px"}
             color={theme.textPrimary}
             bg="transparent"
             border="1px solid"
             borderColor={theme.textSecondary}
             borderRadius="4px"
-            h={isProjectChat ? '24px' : '28px'}
+            h={isProjectChat ? "24px" : "28px"}
             px="4px"
             flex="1"
             mr="8px"
             _focus={{
               borderColor: theme.textPrimary,
-              boxShadow: 'none',
+              boxShadow: "none",
             }}
             autoFocus
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
           <Text
-            fontSize={isProjectChat ? '14px' : '16px'}
+            fontSize={isProjectChat ? "14px" : "16px"}
             color={theme.textPrimary}
             noOfLines={1}
             flex="1"
@@ -114,16 +114,16 @@ export const ChatItem = React.memo<ChatItemProps>(
             icon={
               <Icon
                 as={MdMoreHoriz}
-                w={isProjectChat ? '14px' : '16px'}
-                h={isProjectChat ? '14px' : '16px'}
+                w={isProjectChat ? "14px" : "16px"}
+                h={isProjectChat ? "14px" : "16px"}
                 color={theme.textSecondary}
               />
             }
             size="xs"
             variant="ghost"
-            minW={isProjectChat ? '18px' : '20px'}
-            h={isProjectChat ? '18px' : '20px'}
-            _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+            minW={isProjectChat ? "18px" : "20px"}
+            h={isProjectChat ? "18px" : "20px"}
+            _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
             onClick={onMoreActionsClick}
           />
           {!isProjectChat && onAddToProjectClick && (
@@ -138,7 +138,7 @@ export const ChatItem = React.memo<ChatItemProps>(
               variant="ghost"
               minW="20px"
               h="20px"
-              _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+              _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
               onClick={onAddToProjectClick}
             />
           )}
@@ -148,4 +148,4 @@ export const ChatItem = React.memo<ChatItemProps>(
   },
 );
 
-ChatItem.displayName = 'ChatItem';
+ChatItem.displayName = "ChatItem";

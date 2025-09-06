@@ -1,16 +1,16 @@
-'use client';
-import React, { useState } from 'react';
-import { Avatar, AvatarProps } from '@chakra-ui/react';
-import { FiUser } from 'react-icons/fi';
-import { useTelegram } from '@/contexts/TelegramContext';
+"use client";
+import React, { useState } from "react";
+import { Avatar, AvatarProps } from "@chakra-ui/react";
+import { FiUser } from "react-icons/fi";
+import { useTelegram } from "@/contexts/TelegramContext";
 
-interface UserAvatarProps extends Omit<AvatarProps, 'src' | 'name'> {
-  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+interface UserAvatarProps extends Omit<AvatarProps, "src" | "name"> {
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
   showFallback?: boolean;
 }
 
 const UserAvatar = React.memo<UserAvatarProps>(
-  ({ size = 'sm', showFallback = true, ...props }) => {
+  ({ size = "sm", showFallback = true, ...props }) => {
     const { user, displayName } = useTelegram();
     const [imageError, setImageError] = useState(false);
 
@@ -36,8 +36,8 @@ const UserAvatar = React.memo<UserAvatarProps>(
         onError={handleImageError}
         transition="all 0.2s ease-in-out"
         _hover={{
-          transform: 'scale(1.05)',
-          borderColor: 'rgba(136, 84, 243, 0.4)',
+          transform: "scale(1.05)",
+          borderColor: "rgba(136, 84, 243, 0.4)",
         }}
         // Accessibility improvements
         alt={`${displayName} avatar`}
@@ -48,6 +48,6 @@ const UserAvatar = React.memo<UserAvatarProps>(
   },
 );
 
-UserAvatar.displayName = 'UserAvatar';
+UserAvatar.displayName = "UserAvatar";
 
 export default UserAvatar;

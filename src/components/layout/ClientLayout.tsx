@@ -1,9 +1,9 @@
-'use client';
-import React, { ReactNode, useState, useEffect } from 'react';
-import { Box } from '@chakra-ui/react';
-import NeuroniumSidebar from '@/components/sidebar/NeuroniumSidebar';
-import { SidebarContext } from '@/contexts/SidebarContext';
-import { usePathname } from 'next/navigation';
+"use client";
+import React, { ReactNode, useState, useEffect } from "react";
+import { Box } from "@chakra-ui/react";
+import NeuroniumSidebar from "@/components/sidebar/NeuroniumSidebar";
+import { SidebarContext } from "@/contexts/SidebarContext";
+import { usePathname } from "next/navigation";
 
 interface ClientLayoutProps {
   children: ReactNode;
@@ -19,10 +19,10 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     setMounted(true);
 
     // Применить стили к html и body после монтирования
-    if (typeof window !== 'undefined') {
-      document.documentElement.style.height = '100%';
-      document.body.style.height = '100%';
-      document.body.style.overflow = 'hidden';
+    if (typeof window !== "undefined") {
+      document.documentElement.style.height = "100%";
+      document.body.style.height = "100%";
+      document.body.style.overflow = "hidden";
     }
   }, []);
 
@@ -46,7 +46,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   }
 
   const isAuthPage =
-    pathname?.includes('register') || pathname?.includes('sign-in');
+    pathname?.includes("register") || pathname?.includes("sign-in");
 
   return (
     <SidebarContext.Provider
@@ -68,7 +68,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
             top="0"
             right="0"
             bottom="0"
-            left={{ base: 0, lg: isCollapsed ? '68px' : '300px' }}
+            left={{ base: 0, lg: isCollapsed ? "68px" : "300px" }}
             overflow="hidden"
             transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
           >

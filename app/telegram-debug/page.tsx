@@ -1,9 +1,9 @@
-'use client';
-import React from 'react';
-import { Box } from '@chakra-ui/react';
-import NeuroniumNavbar from '@/components/navbar/NeuroniumNavbar';
-import TelegramDebugPanel from '@/components/telegram/TelegramDebugPanel';
-import { COLORS } from '@/theme/colors';
+"use client";
+import React from "react";
+import { Box } from "@chakra-ui/react";
+import NeuroniumNavbar from "@/components/navbar/NeuroniumNavbar";
+import TelegramDebugPanel from "@/components/telegram/TelegramDebugPanel";
+import { COLORS } from "@/theme/colors";
 
 export default function TelegramDebugPage() {
   return (
@@ -19,10 +19,10 @@ export default function TelegramDebugPage() {
       display="flex"
       flexDirection="column"
     >
-      <NeuroniumNavbar 
-        model="gpt-4o" 
-        onModelChange={() => {}} 
-        hideModelSelector={true} 
+      <NeuroniumNavbar
+        model="gpt-4o"
+        onModelChange={() => {}}
+        hideModelSelector={true}
       />
       <Box
         flex="1"
@@ -35,24 +35,24 @@ export default function TelegramDebugPage() {
         <Box
           flex="1"
           overflowY="auto"
-          px={{ base: '16px', md: '32px' }}
+          px={{ base: "16px", md: "32px" }}
           maxW="1200px"
           w="100%"
           mx="auto"
           py="20px"
           css={{
-            '&::-webkit-scrollbar': {
-              width: '4px',
+            "&::-webkit-scrollbar": {
+              width: "4px",
             },
-            '&::-webkit-scrollbar-track': {
-              background: 'transparent',
+            "&::-webkit-scrollbar-track": {
+              background: "transparent",
             },
-            '&::-webkit-scrollbar-thumb': {
-              background: 'rgba(255, 255, 255, 0.2)',
-              borderRadius: '2px',
+            "&::-webkit-scrollbar-thumb": {
+              background: "rgba(255, 255, 255, 0.2)",
+              borderRadius: "2px",
             },
-            '&::-webkit-scrollbar-thumb:hover': {
-              background: 'rgba(255, 255, 255, 0.3)',
+            "&::-webkit-scrollbar-thumb:hover": {
+              background: "rgba(255, 255, 255, 0.3)",
             },
           }}
         >

@@ -1,5 +1,5 @@
-'use client';
-import React, { useState, useEffect } from 'react';
+"use client";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -11,9 +11,9 @@ import {
   Text,
   Flex,
   IconButton,
-} from '@chakra-ui/react';
-import { MdClose } from 'react-icons/md';
-import { COLORS } from '@/theme/colors';
+} from "@chakra-ui/react";
+import { MdClose } from "react-icons/md";
+import { COLORS } from "@/theme/colors";
 
 interface RenameChatModalProps {
   isOpen: boolean;
@@ -26,7 +26,7 @@ export default function RenameChatModal({
   isOpen,
   onClose,
   onRename,
-  currentName = '',
+  currentName = "",
 }: RenameChatModalProps) {
   const [chatName, setChatName] = useState(currentName);
 
@@ -58,12 +58,12 @@ export default function RenameChatModal({
         bg="#121314"
         border="none"
         borderRadius="55px"
-        maxW={['90vw', '680px']}
+        maxW={["90vw", "680px"]}
         mx="20px"
         p="0"
       >
-        <ModalBody p={['20px', '40px']}>
-          <VStack spacing={['30px', '40px']} align="stretch" w="full">
+        <ModalBody p={["20px", "40px"]}>
+          <VStack spacing={["30px", "40px"]} align="stretch" w="full">
             {/* Header */}
             <Flex align="center" justify="space-between">
               {/* Invisible placeholder for centering */}
@@ -78,10 +78,10 @@ export default function RenameChatModal({
 
               {/* Title */}
               <Text
-                fontSize={['18px', '24px']}
+                fontSize={["18px", "24px"]}
                 fontWeight="700"
                 color={COLORS.TEXT_PRIMARY}
-                lineHeight={['18px', '24px']}
+                lineHeight={["18px", "24px"]}
                 textAlign="center"
               >
                 Переименовать чат
@@ -94,7 +94,7 @@ export default function RenameChatModal({
                 size="sm"
                 variant="ghost"
                 color={COLORS.TEXT_PRIMARY}
-                _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+                _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
                 onClick={handleClose}
                 borderRadius="100px"
                 w="36px"
@@ -126,17 +126,17 @@ export default function RenameChatModal({
                   color="white"
                   fontSize="16px"
                   letterSpacing="-0.4px"
-                  _placeholder={{ color: '#8c8c8c' }}
-                  _hover={{ borderColor: 'white' }}
+                  _placeholder={{ color: "#8c8c8c" }}
+                  _hover={{ borderColor: "white" }}
                   _focus={{
-                    borderColor: 'white',
-                    boxShadow: 'none',
+                    borderColor: "white",
+                    boxShadow: "none",
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !isRenameDisabled) {
+                    if (e.key === "Enter" && !isRenameDisabled) {
                       handleRename();
                     }
-                    if (e.key === 'Escape') {
+                    if (e.key === "Escape") {
                       handleClose();
                     }
                   }}
@@ -146,7 +146,7 @@ export default function RenameChatModal({
             </VStack>
 
             {/* Footer Buttons */}
-            <Flex justify="flex-end" gap="16px" direction={['column', 'row']}>
+            <Flex justify="flex-end" gap="16px" direction={["column", "row"]}>
               <Button
                 bg="#343434"
                 color={COLORS.TEXT_PRIMARY}
@@ -156,15 +156,15 @@ export default function RenameChatModal({
                 py="16px"
                 fontWeight="700"
                 fontSize="16px"
-                _hover={{ bg: 'rgba(52, 52, 52, 0.8)' }}
-                _active={{ bg: 'rgba(52, 52, 52, 0.6)' }}
+                _hover={{ bg: "rgba(52, 52, 52, 0.8)" }}
+                _active={{ bg: "rgba(52, 52, 52, 0.6)" }}
                 onClick={handleClose}
                 order={[2, 1]}
               >
                 Отменить
               </Button>
               <Button
-                bg={isRenameDisabled ? 'rgba(255, 255, 255, 0.5)' : 'white'}
+                bg={isRenameDisabled ? "rgba(255, 255, 255, 0.5)" : "white"}
                 color="#1d1e20"
                 borderRadius="100px"
                 h="54px"
@@ -174,10 +174,10 @@ export default function RenameChatModal({
                 fontSize="16px"
                 isDisabled={isRenameDisabled}
                 _hover={
-                  !isRenameDisabled ? { bg: 'rgba(255, 255, 255, 0.9)' } : {}
+                  !isRenameDisabled ? { bg: "rgba(255, 255, 255, 0.9)" } : {}
                 }
                 _active={
-                  !isRenameDisabled ? { bg: 'rgba(255, 255, 255, 0.8)' } : {}
+                  !isRenameDisabled ? { bg: "rgba(255, 255, 255, 0.8)" } : {}
                 }
                 onClick={handleRename}
                 order={[1, 2]}

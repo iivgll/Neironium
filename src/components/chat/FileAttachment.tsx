@@ -1,15 +1,15 @@
-'use client';
-import React from 'react';
-import { Box, Flex, Text, IconButton, Image } from '@chakra-ui/react';
+"use client";
+import React from "react";
+import { Box, Flex, Text, IconButton, Image } from "@chakra-ui/react";
 import {
   MdClose,
   MdInsertDriveFile,
   MdPictureAsPdf,
   MdImage,
-} from 'react-icons/md';
-import { FaFileWord, FaFileExcel, FaFilePowerpoint } from 'react-icons/fa';
-import { AttachedFile, formatFileSize } from '@/types/file';
-import { COLORS } from '@/theme/colors';
+} from "react-icons/md";
+import { FaFileWord, FaFileExcel, FaFilePowerpoint } from "react-icons/fa";
+import { AttachedFile, formatFileSize } from "@/types/file";
+import { COLORS } from "@/theme/colors";
 
 interface FileAttachmentProps {
   file: AttachedFile;
@@ -17,19 +17,19 @@ interface FileAttachmentProps {
 }
 
 const getFileIcon = (type: string) => {
-  if (type.includes('pdf')) return MdPictureAsPdf;
-  if (type.includes('word') || type.includes('document')) return FaFileWord;
-  if (type.includes('excel') || type.includes('spreadsheet'))
+  if (type.includes("pdf")) return MdPictureAsPdf;
+  if (type.includes("word") || type.includes("document")) return FaFileWord;
+  if (type.includes("excel") || type.includes("spreadsheet"))
     return FaFileExcel;
-  if (type.includes('powerpoint') || type.includes('presentation'))
+  if (type.includes("powerpoint") || type.includes("presentation"))
     return FaFilePowerpoint;
-  if (type.startsWith('image/')) return MdImage;
+  if (type.startsWith("image/")) return MdImage;
   return MdInsertDriveFile;
 };
 
 export function FileAttachment({ file, onRemove }: FileAttachmentProps) {
   const Icon = getFileIcon(file.type);
-  const isImage = file.type.startsWith('image/');
+  const isImage = file.type.startsWith("image/");
 
   return (
     <Box
@@ -41,7 +41,7 @@ export function FileAttachment({ file, onRemove }: FileAttachmentProps) {
       transition="all 0.2s"
       _hover={{
         borderColor: COLORS.ACCENT_VIOLET,
-        transform: 'translateY(-2px)',
+        transform: "translateY(-2px)",
       }}
     >
       {isImage && file.preview ? (
@@ -78,7 +78,7 @@ export function FileAttachment({ file, onRemove }: FileAttachmentProps) {
           <Icon
             size={32}
             color={COLORS.ACCENT_VIOLET}
-            style={{ marginBottom: '8px' }}
+            style={{ marginBottom: "8px" }}
           />
           <Text
             fontSize="11px"
@@ -106,7 +106,7 @@ export function FileAttachment({ file, onRemove }: FileAttachmentProps) {
         bg="rgba(0, 0, 0, 0.6)"
         color="white"
         _hover={{
-          bg: 'rgba(0, 0, 0, 0.8)',
+          bg: "rgba(0, 0, 0, 0.8)",
         }}
         onClick={() => onRemove(file.id)}
       />

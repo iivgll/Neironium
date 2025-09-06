@@ -1,8 +1,8 @@
-'use client';
-import React from 'react';
-import { Button, Text } from '@chakra-ui/react';
-import Image from 'next/image';
-import { useAssetPath } from '@/hooks/useAssetPath';
+"use client";
+import React from "react";
+import { Button, Text } from "@chakra-ui/react";
+import Image from "next/image";
+import { useAssetPath } from "@/hooks/useAssetPath";
 
 interface ActionButtonProps {
   icon: string;
@@ -47,4 +47,4 @@ export const ActionButton = React.memo<ActionButtonProps>(
   },
 );
 
-ActionButton.displayName = 'ActionButton';
+ActionButton.displayName = "ActionButton";

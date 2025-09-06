@@ -1,6 +1,6 @@
-'use client';
-import { useState, useCallback, useMemo } from 'react';
-import { Project, Chat } from '@/types/chat';
+"use client";
+import { useState, useCallback, useMemo } from "react";
+import { Project, Chat } from "@/types/chat";
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -8,10 +8,13 @@ export function useProjects() {
   const createProject = useCallback(
     (name: string, initialChats: Chat[] = []) => {
       const newProject: Project = {
-        id: `project-${Date.now()}`,
+        id: Date.now(), // Generate number ID
         name,
         chats: initialChats,
         isExpanded: true,
+        description: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
       setProjects((prev) => [...prev, newProject]);
       return newProject.id;
@@ -19,12 +22,12 @@ export function useProjects() {
     [],
   );
 
-  const deleteProject = useCallback((projectId: string) => {
+  const deleteProject = useCallback((projectId: number) => {
     setProjects((prev) => prev.filter((project) => project.id !== projectId));
   }, []);
 
   const updateProject = useCallback(
-    (projectId: string, updates: Partial<Project>) => {
+    (projectId: number, updates: Partial<Project>) => {
       setProjects((prev) =>
         prev.map((project) =>
           project.id === projectId ? { ...project, ...updates } : project,
@@ -34,7 +37,7 @@ export function useProjects() {
     [],
   );
 
-  const toggleProjectExpansion = useCallback((projectId: string) => {
+  const toggleProjectExpansion = useCallback((projectId: number) => {
     setProjects((prev) =>
       prev.map((project) =>
         project.id === projectId
@@ -44,7 +47,7 @@ export function useProjects() {
     );
   }, []);
 
-  const addChatToProject = useCallback((projectId: string, chat: Chat) => {
+  const addChatToProject = useCallback((projectId: number, chat: Chat) => {
     setProjects((prev) =>
       prev.map((project) =>
         project.id === projectId
@@ -55,7 +58,7 @@ export function useProjects() {
   }, []);
 
   const removeChatFromProject = useCallback(
-    (projectId: string, chatId: string) => {
+    (projectId: number, chatId: number) => {
       setProjects((prev) =>
         prev.map((project) =>
           project.id === projectId
@@ -70,7 +73,7 @@ export function useProjects() {
     [],
   );
 
-  const removeChatFromAllProjects = useCallback((chatId: string) => {
+  const removeChatFromAllProjects = useCallback((chatId: number) => {
     setProjects((prev) =>
       prev.map((project) => ({
         ...project,
@@ -79,7 +82,7 @@ export function useProjects() {
     );
   }, []);
 
-  const setActiveChatInProjects = useCallback((chatId: string) => {
+  const setActiveChatInProjects = useCallback((chatId: number) => {
     setProjects((prev) =>
       prev.map((project) => ({
         ...project,
@@ -92,7 +95,7 @@ export function useProjects() {
   }, []);
 
   const updateChatInProjects = useCallback(
-    (chatId: string, updates: Partial<Chat>) => {
+    (chatId: number, updates: Partial<Chat>) => {
       setProjects((prev) =>
         prev.map((project) => ({
           ...project,
@@ -106,7 +109,7 @@ export function useProjects() {
   );
 
   const getProject = useCallback(
-    (projectId: string) => {
+    (projectId: number) => {
       return projects.find((project) => project.id === projectId);
     },
     [projects],

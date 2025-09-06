@@ -1,8 +1,8 @@
-import React, { ReactNode } from 'react';
-import '@/styles/App.css';
-import '@/styles/mobile-keyboard.css';
-import AppWrappers from './AppWrappers';
-import ClientLayout from '@/components/layout/ClientLayout';
+import React, { ReactNode } from "react";
+import "@/styles/App.css";
+import "@/styles/mobile-keyboard.css";
+import AppWrappers from "./AppWrappers";
+import ClientLayout from "@/components/layout/ClientLayout";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -10,8 +10,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       style={
         {
-          '--tg-viewport-height': '100vh',
-          '--tg-viewport-stable-height': '100vh',
+          "--tg-viewport-height": "100vh",
+          "--tg-viewport-stable-height": "100vh",
         } as React.CSSProperties
       }
     >
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           async
         ></script>
       </head>
-      <body id={'root'}>
+      <body id={"root"}>
         <AppWrappers>
           <ClientLayout>{children}</ClientLayout>
         </AppWrappers>

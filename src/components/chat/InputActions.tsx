@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo } from "react";
 import {
   Flex,
   HStack,
@@ -6,9 +6,9 @@ import {
   Button,
   Tooltip,
   Image,
-} from '@chakra-ui/react';
-import { COLORS } from '@/theme/colors';
-import { useAssetPath } from '@/hooks/useAssetPath';
+} from "@chakra-ui/react";
+import { COLORS } from "@/theme/colors";
+import { useAssetPath } from "@/hooks/useAssetPath";
 
 interface InputActionsProps {
   showDeepSearch: boolean;
@@ -34,7 +34,7 @@ const InputActions = memo<InputActionsProps>(
     const iconColor = COLORS.TEXT_SECONDARY;
     const iconHoverColor = COLORS.TEXT_PRIMARY;
     const actionBg = COLORS.BG_HOVER;
-    const deepSearchActiveBg = 'rgba(255, 255, 255, 0.1)';
+    const deepSearchActiveBg = "rgba(255, 255, 255, 0.1)";
 
     return (
       <Flex
@@ -52,7 +52,7 @@ const InputActions = memo<InputActionsProps>(
               aria-label="Attach file"
               icon={
                 <Image
-                  src={getAssetPath('/icons/pin.svg')}
+                  src={getAssetPath("/icons/pin.svg")}
                   alt="pin"
                   w="20px"
                   h="20px"
@@ -80,20 +80,20 @@ const InputActions = memo<InputActionsProps>(
           <Tooltip
             label={
               showDeepSearch
-                ? 'Deep Research активен'
-                : 'Включить Deep Research'
+                ? "Deep Research активен"
+                : "Включить Deep Research"
             }
             placement="top"
             hasArrow
           >
             <Button
               size="sm"
-              variant={showDeepSearch ? 'solid' : 'ghost'}
-              bg={showDeepSearch ? deepSearchActiveBg : 'transparent'}
-              color={showDeepSearch ? 'white' : iconColor}
+              variant={showDeepSearch ? "solid" : "ghost"}
+              bg={showDeepSearch ? deepSearchActiveBg : "transparent"}
+              color={showDeepSearch ? "white" : iconColor}
               leftIcon={
                 <Image
-                  src={getAssetPath('/icons/magnifer.svg')}
+                  src={getAssetPath("/icons/magnifer.svg")}
                   alt="send"
                   w="20px"
                   h="20px"
@@ -107,7 +107,7 @@ const InputActions = memo<InputActionsProps>(
               borderRadius="8px"
               _hover={{
                 bg: showDeepSearch ? deepSearchActiveBg : actionBg,
-                color: showDeepSearch ? 'white' : iconHoverColor,
+                color: showDeepSearch ? "white" : iconHoverColor,
               }}
               _active={{
                 bg: showDeepSearch
@@ -172,16 +172,16 @@ const InputActions = memo<InputActionsProps>(
                 isLoading={isLoading}
                 _hover={{
                   bg: COLORS.ACCENT_VIOLET_HOVER,
-                  transform: 'scale(1.05)',
+                  transform: "scale(1.05)",
                 }}
                 _active={{
                   bg: COLORS.ACCENT_VIOLET_ACTIVE,
-                  transform: 'scale(0.98)',
+                  transform: "scale(0.98)",
                 }}
                 _disabled={{
                   opacity: 0.5,
-                  cursor: 'not-allowed',
-                  transform: 'scale(1)',
+                  cursor: "not-allowed",
+                  transform: "scale(1)",
                 }}
                 minW="32px"
                 h="32px"
@@ -195,6 +195,6 @@ const InputActions = memo<InputActionsProps>(
   },
 );
 
-InputActions.displayName = 'InputActions';
+InputActions.displayName = "InputActions";
 
 export default InputActions;

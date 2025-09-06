@@ -114,7 +114,7 @@ const [actionsModalPosition, setActionsModalPosition] = useState({
 ```typescript
 // ISSUE: Mock data hardcoded in component
 const mockChatResults: ChatResult[] = [
-  { id: 'chat-1', title: 'Создание статей для Хабра' /* ... */ },
+  { id: "chat-1", title: "Создание статей для Хабра" /* ... */ },
   // ... more mock data
 ];
 ```
@@ -142,7 +142,7 @@ const mockChatResults: ChatResult[] = [
 ```typescript
 // ISSUE: Hard-coded initial data in hook
 const INITIAL_CHATS: Chat[] = [
-  { id: 'chat-1', title: 'Создание статей для Хабра', isActive: true },
+  { id: "chat-1", title: "Создание статей для Хабра", isActive: true },
   // ...
 ];
 ```
@@ -205,7 +205,7 @@ const activeChat = useMemo(() => {
 ```typescript
 const validation = validateProjectName(projectName);
 if (!validation.isValid) {
-  setValidationError(validation.error || 'Неверное название проекта');
+  setValidationError(validation.error || "Неверное название проекта");
   return;
 }
 // No error handling for onCreateProject callback
@@ -306,12 +306,12 @@ const [actionsModalPosition, setActionsModalPosition] = useState({
 ```typescript
 useEffect(() => {
   const handleEscape = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') onClose();
+    if (event.key === "Escape") onClose();
   };
 
   if (isOpen) {
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }
 }, [isOpen, onClose]);
 ```
@@ -380,7 +380,7 @@ useEffect(() => {
    try {
      onCreateProject?.(sanitizedName);
    } catch (error) {
-     setValidationError('Произошла ошибка при создании проекта');
+     setValidationError("Произошла ошибка при создании проекта");
    }
    ```
    **FIXED: Added try-catch blocks with user feedback in NewProjectModal**

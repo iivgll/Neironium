@@ -1,4 +1,4 @@
-import { TelegramWebApp } from './telegram';
+import { TelegramWebApp } from "./telegram";
 
 declare global {
   interface Window {

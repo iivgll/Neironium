@@ -1,12 +1,12 @@
 /* Стили для корректной работы с мобильной клавиатурой */
 
 /* Предотвращаем масштабирование при фокусе на input */
-input[type='text'],
-input[type='email'],
-input[type='number'],
-input[type='tel'],
-input[type='url'],
-input[type='search'],
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
 textarea,
 select {
   font-size: 16px !important; /* Предотвращает zoom на iOS при фокусе */

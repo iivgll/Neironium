@@ -1,5 +1,5 @@
-'use client';
-import React from 'react';
+"use client";
+import React from "react";
 import {
   Modal,
   ModalOverlay,
@@ -9,8 +9,8 @@ import {
   VStack,
   Text,
   HStack,
-} from '@chakra-ui/react';
-import { COLORS } from '@/theme/colors';
+} from "@chakra-ui/react";
+import { COLORS } from "@/theme/colors";
 
 interface DeleteChatModalProps {
   isOpen: boolean;
@@ -23,7 +23,7 @@ export default function DeleteChatModal({
   isOpen,
   onClose,
   onConfirm,
-  chatTitle = '',
+  chatTitle = "",
 }: DeleteChatModalProps) {
   const handleConfirm = () => {
     onConfirm();
@@ -64,10 +64,10 @@ export default function DeleteChatModal({
                 textAlign="center"
                 maxW="100%"
               >
-                Вся история переписки в чате{' '}
+                Вся история переписки в чате{" "}
                 <Text as="span" fontWeight="700" color={COLORS.TEXT_PRIMARY}>
                   «{chatTitle}»
-                </Text>{' '}
+                </Text>{" "}
                 будет стерта без возможности восстановления.
               </Text>
             </VStack>
@@ -84,8 +84,8 @@ export default function DeleteChatModal({
                 py="16px"
                 fontWeight="700"
                 fontSize="16px"
-                _hover={{ bg: 'rgba(52, 52, 52, 0.8)' }}
-                _active={{ bg: 'rgba(52, 52, 52, 0.6)' }}
+                _hover={{ bg: "rgba(52, 52, 52, 0.8)" }}
+                _active={{ bg: "rgba(52, 52, 52, 0.6)" }}
                 onClick={onClose}
               >
                 Отменить
@@ -102,8 +102,8 @@ export default function DeleteChatModal({
                 fontWeight="700"
                 fontSize="16px"
                 lineHeight="22px"
-                _hover={{ bg: 'rgba(208, 94, 94, 0.8)' }}
-                _active={{ bg: 'rgba(208, 94, 94, 0.6)' }}
+                _hover={{ bg: "rgba(208, 94, 94, 0.8)" }}
+                _active={{ bg: "rgba(208, 94, 94, 0.6)" }}
                 onClick={handleConfirm}
               >
                 Удалить

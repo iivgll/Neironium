@@ -1,4 +1,4 @@
-import { useEffect, RefObject } from 'react';
+import { useEffect, RefObject } from "react";
 
 interface UseAutoResizeOptions {
   minHeight?: number;

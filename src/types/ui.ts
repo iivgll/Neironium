@@ -1,5 +1,5 @@
 // UI-related type definitions
-import { IconType } from 'react-icons';
+import { IconType } from "react-icons";
 
 export interface QuickAction {
   id: string;
@@ -31,9 +31,9 @@ export interface RouteItem {
   badge?: string | number;
 }
 
-export type ComponentVariant = 'default' | 'compact' | 'minimal';
+export type ComponentVariant = "default" | "compact" | "minimal";
 
 export interface BaseProps {
   className?: string;
-  'data-testid'?: string;
+  "data-testid"?: string;
 }

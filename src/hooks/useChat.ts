@@ -1,176 +1,167 @@
-import { useState, useCallback } from 'react';
-import { Message } from '@/types/chat';
-import { AttachedFile } from '@/types/file';
+import { useState, useCallback } from "react";
+import { MessageRead } from "@/types/api";
+import { apiClient } from "@/utils/apiClient";
+import { streamHandler, StreamEvent } from "@/utils/streamHandler";
 
 export interface UseChatOptions {
   onError?: (error: Error) => void;
 }
 
-export const useChat = (options: UseChatOptions = {}) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
+  const [messages, setMessages] = useState<MessageRead[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [model, setModel] = useState<string>('gpt-4o');
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [model, setModel] = useState<string>("gpt-4o");
   const [isThinking, setIsThinking] = useState(false);
   const [showThinkingProcess, setShowThinkingProcess] = useState(false);
   const [hasCompletedThinking, setHasCompletedThinking] = useState(false);
-  const [streamingResponse, setStreamingResponse] = useState('');
+  const [streamingResponse, setStreamingResponse] = useState("");
+
+  const loadMessages = useCallback(async () => {
+    if (!chatId) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await apiClient.getMessages(chatId);
+      setMessages(response.items);
+    } catch (error) {
+      console.error("Failed to load messages:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to load messages";
+      setError(errorMessage);
+      options.onError?.(new Error(errorMessage));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [chatId, options.onError]);
 
   const sendMessage = useCallback(
-    async (message: string, attachedFiles?: AttachedFile[]) => {
-      if (!message.trim() && (!attachedFiles || attachedFiles.length === 0))
-        return;
+    async (message: string) => {
+      if (!chatId || !message.trim()) return;
 
-      // Add user message
-      let displayContent = message;
-      if (attachedFiles && attachedFiles.length > 0) {
-        const filesList = attachedFiles.map((f) => f.name).join(', ');
-        displayContent = message
-          ? `${message}\n\n📎 Прикрепленные файлы: ${filesList}`
-          : `📎 Прикрепленные файлы: ${filesList}`;
-      }
-
-      const userMessage: Message = {
-        role: 'user',
-        content: displayContent,
-        timestamp: new Date(),
-      };
-
-      // Сохраняем текст размышления для этого сообщения
-      const thinkingText = `Пользователь задал интересный вопрос. Позвольте мне проанализировать его и подготовить комплексный ответ.
-
-## Анализ запроса
-
-Мне нужно рассмотреть несколько **ключевых аспектов** вопроса:
-
-1. **Основная тема** - о чём именно спрашивает пользователь
-2. **Контекст** - в какой области нужен ответ
-3. **Глубина** - насколько детальный ответ требуется
-
-Пользователь может задавать вопросы на различные темы:
-- Технические вопросы
-- Общие знания
-- Креативные задачи
-- Аналитика и данные
-
-## Структурирование ответа
-
-Я думаю, лучше всего будет организовать ответ следующим образом:
-
-### План ответа:
-1. Начать с общего введения
-2. Представить основные концепции
-3. Привести примеры и иллюстрации
-4. Завершить практическими рекомендациями
-
-Ок, теперь я готов сформулировать исчерпывающий и полезный ответ...`;
-
-      // Сразу создаем временное сообщение ассистента с процессом размышления
-      const thinkingMessage: Message = {
-        role: 'assistant',
-        content: '',
-        timestamp: new Date(),
-        metadata: {
-          hasThinkingProcess: true,
-          thinkingText: thinkingText,
-          thinkingExpanded: showThinkingProcess,
-        },
-      };
-
-      setMessages((prev) => [...prev, userMessage, thinkingMessage]);
-      setIsLoading(true);
-
-      // Сбрасываем все состояния и сразу показываем размышление
-      setIsThinking(true);
-      setHasCompletedThinking(false);
-      setStreamingResponse('');
+      const clientMessageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       try {
-        // Simulate thinking process - показываем процесс размышления 3-4 секунды
-        await new Promise((resolve) => setTimeout(resolve, 3500));
+        console.log("🚀 Starting sendMessage, setting isStreaming to TRUE");
+        setIsStreaming(true);
+        setError(null);
 
-        // Закрываем процесс размышления, но помечаем как завершенный
-        setIsThinking(false);
-        setHasCompletedThinking(true);
-
-        // Небольшая пауза перед показом ответа
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        let responseContent = `# Ответ на ваш вопрос
-
-Это **демонстрационный ответ** от нейросети Neuronium. В реальном приложении здесь будет подключено ваше API.
-
-## Возможности системы
-
-Я могу помочь с:
-- 💡 Ответами на вопросы
-- 📝 Генерацией текста
-- 📊 Анализом данных
-- 🎨 Креативными задачами
-
-## Пример изображения
-
-![Что такое ИИ](https://beconnected.esafety.gov.au/pluginfile.php/99437/mod_resource/content/2/what-is-ai%20%281%29.jpg)
-
-### Основные преимущества:
-
-1. **Быстрые ответы** - обработка запросов в режиме реального времени
-2. **Точность** - использование передовых языковых моделей
-3. **Многозадачность** - поддержка различных типов запросов
-
-Моя система размышления позволяет мне тщательно обдумывать каждый ответ перед его предоставлением.`;
-
-        if (attachedFiles && attachedFiles.length > 0) {
-          responseContent = `📄 **Я вижу, что вы прикрепили ${attachedFiles.length} файл(ов).**\n\n${responseContent}`;
-        }
-
-        // Обновляем существующее сообщение ассистента
-        setStreamingResponse('');
-
-        // Анимируем появление текста символ за символом
-        for (let i = 0; i <= responseContent.length; i++) {
-          const currentText = responseContent.slice(0, i);
-          setStreamingResponse(currentText);
-
-          // Обновляем последнее сообщение
-          setMessages((prev) => {
-            const updatedMessages = [...prev];
-            if (updatedMessages.length > 0) {
-              updatedMessages[updatedMessages.length - 1] = {
-                ...updatedMessages[updatedMessages.length - 1],
-                content: currentText,
-                metadata: {
-                  ...updatedMessages[updatedMessages.length - 1].metadata,
-                  hasThinkingProcess: true,
-                  thinkingText: thinkingText,
-                  thinkingExpanded: showThinkingProcess,
-                },
-              };
-            }
-            return updatedMessages;
-          });
-
-          await new Promise((resolve) => setTimeout(resolve, 20)); // 20ms на символ
-        }
-
-        setStreamingResponse('');
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Произошла ошибка';
-        options.onError?.(new Error(errorMessage));
-
-        // Optionally add error message to chat
-        const errorMsg: Message = {
-          role: 'assistant',
-          content: `Ошибка: ${errorMessage}`,
-          timestamp: new Date(),
+        // Добавляем пользовательское сообщение сразу
+        const userMessage: MessageRead = {
+          id: Date.now(), // Временный ID
+          chat_id: chatId,
+          role: "user",
+          content: message.trim(),
+          created_at: new Date().toISOString(),
         };
-        setMessages((prev) => [...prev, errorMsg]);
+
+        setMessages((prev) => [...prev, userMessage]);
+
+        // Создаем сообщение ассистента для отображения процесса
+        const assistantMessage: MessageRead = {
+          id: Date.now() + 1, // Временный ID
+          chat_id: chatId,
+          role: "assistant",
+          content: "",
+          created_at: new Date().toISOString(),
+        };
+
+        setMessages((prev) => {
+          const newMessages = [...prev, assistantMessage];
+          console.log(
+            "💭 Added assistant message, total messages:",
+            newMessages.length,
+          );
+          return newMessages;
+        });
+        console.log("💭 Starting stream immediately...");
+
+        // Обрабатываем stream
+        await streamHandler.handleStream(
+          chatId,
+          message,
+          (event: StreamEvent) => {
+            switch (event.type) {
+              case "message_start":
+                console.log("📝 Stream started");
+                break;
+
+              case "message_delta":
+                console.log("📝 Stream delta received:", event.data);
+                // Обновляем контент ассистента
+                if (event.data?.content) {
+                  const newContent = event.data.content;
+
+                  // Для всех строк добавляем сразу (упрощаем)
+                  setMessages((prev) => {
+                    const newMessages = [...prev];
+                    const lastMessage = newMessages[newMessages.length - 1];
+                    if (lastMessage.role === "assistant") {
+                      lastMessage.content += newContent;
+                      console.log(
+                        "📝 Updated message content length:",
+                        lastMessage.content.length,
+                      );
+                    }
+                    return newMessages;
+                  });
+                }
+                break;
+
+              case "message_end":
+                console.log("📝 Stream ended");
+                setIsStreaming(false); // Останавливаем стриминг здесь
+                // TODO: Можно перезагрузить сообщения для актуальных ID, но это сбрасывает состояние
+                // loadMessages();
+                break;
+
+              case "error":
+                console.error("Stream error:", event.error);
+                setError(event.error || "Streaming error occurred");
+                setIsStreaming(false); // Останавливаем стриминг при ошибке
+                // Удаляем незавершенное сообщение ассистента
+                setMessages((prev) => prev.slice(0, -1));
+                break;
+            }
+          },
+          clientMessageId,
+        );
+      } catch (error) {
+        console.error("Failed to send message:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to send message";
+        setError(errorMessage);
+        setIsStreaming(false); // Останавливаем стриминг при ошибке
+        // Удаляем добавленные сообщения при ошибке
+        setMessages((prev) => prev.slice(0, -2));
+        options.onError?.(new Error(errorMessage));
       } finally {
-        setIsLoading(false);
-        setIsThinking(false);
+        console.log("🏁 Finishing sendMessage (not changing isStreaming here)");
+        // setIsStreaming(false) теперь вызывается в message_end или error
       }
     },
-    [options],
+    [chatId, loadMessages, options.onError],
+  );
+
+  const deleteMessage = useCallback(
+    async (messageId: number) => {
+      if (!chatId) return;
+
+      try {
+        await apiClient.deleteMessage(chatId, messageId);
+        setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+      } catch (error) {
+        console.error("Failed to delete message:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to delete message";
+        setError(errorMessage);
+        options.onError?.(new Error(errorMessage));
+      }
+    },
+    [chatId, options.onError],
   );
 
   const clearMessages = useCallback(() => {
@@ -178,7 +169,8 @@ export const useChat = (options: UseChatOptions = {}) => {
     setIsThinking(false);
     setShowThinkingProcess(false);
     setHasCompletedThinking(false);
-    setStreamingResponse('');
+    setStreamingResponse("");
+    setError(null);
   }, []);
 
   const toggleThinkingProcess = useCallback(() => {
@@ -188,9 +180,13 @@ export const useChat = (options: UseChatOptions = {}) => {
   return {
     messages,
     isLoading,
+    isStreaming,
+    error,
     model,
     setModel,
     sendMessage,
+    loadMessages,
+    deleteMessage,
     clearMessages,
     isThinking,
     showThinkingProcess,

@@ -1,11 +1,11 @@
-'use client';
-import React, { useState, useEffect, useRef } from 'react';
-import { Box, Flex, Text, Button } from '@chakra-ui/react';
-import Lottie from 'react-lottie-player';
-import { ChevronDownIcon } from '@chakra-ui/icons';
-import { useAssetPath } from '@/hooks/useAssetPath';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { Box, Flex, Text, Button } from "@chakra-ui/react";
+import Lottie from "react-lottie-player";
+import { ChevronDownIcon } from "@chakra-ui/icons";
+import { useAssetPath } from "@/hooks/useAssetPath";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ThinkingProcessProps {
   isThinking?: boolean;
@@ -44,7 +44,7 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
 }) => {
   const { getAssetPath } = useAssetPath();
   const [animationData, setAnimationData] = useState<object | null>(null);
-  const [displayedThinkingText, setDisplayedThinkingText] = useState('');
+  const [displayedThinkingText, setDisplayedThinkingText] = useState("");
   const [animationKey, setAnimationKey] = useState(0);
   const lottieRef = useRef<any>(null);
 
@@ -54,13 +54,13 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
   React.useEffect(() => {
     const loadAnimation = async () => {
       try {
-        const response = await fetch(getAssetPath('animation/neuronium.json'));
+        const response = await fetch(getAssetPath("animation/neuronium.json"));
         const data = await response.json();
         setAnimationData(data);
         // Force re-render after loading to ensure animation plays
-        setAnimationKey(prev => prev + 1);
+        setAnimationKey((prev) => prev + 1);
       } catch (error) {
-        console.error('Failed to load Neuronium animation:', error);
+        console.error("Failed to load Neuronium animation:", error);
       }
     };
 
@@ -73,16 +73,16 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
   useEffect(() => {
     if (animationData) {
       // Force restart animation
-      setAnimationKey(prev => prev + 1);
-      
+      setAnimationKey((prev) => prev + 1);
+
       // Additional retry mechanism for Android
       const retryAnimation = setTimeout(() => {
         if (lottieRef.current) {
           try {
             lottieRef.current.play();
           } catch (e) {
-            console.log('Retrying animation play');
-            setAnimationKey(prev => prev + 1);
+            console.log("Retrying animation play");
+            setAnimationKey((prev) => prev + 1);
           }
         }
       }, 200);
@@ -94,7 +94,7 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
   // Animate thinking text character by character (like Claude web)
   React.useEffect(() => {
     if (!isThinking && !hasCompleted) {
-      setDisplayedThinkingText('');
+      setDisplayedThinkingText("");
       return;
     }
 
@@ -106,7 +106,7 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
 
     // Если думаем, анимируем появление текста
     if (isThinking) {
-      setDisplayedThinkingText(''); // Сбрасываем текст перед началом анимации
+      setDisplayedThinkingText(""); // Сбрасываем текст перед началом анимации
       let currentIndex = 0;
       let retryCount = 0;
       const maxRetries = 3;
@@ -130,7 +130,7 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
             clearInterval(interval);
             currentIndex = 0;
             retryCount++;
-            setDisplayedThinkingText('');
+            setDisplayedThinkingText("");
             animateText(); // Перезапускаем анимацию
           }
         }, 5000);
@@ -150,19 +150,19 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
 
   return (
     <Box
-      px={{ base: '16px', md: '22px' }}
-      py={{ base: '12px', md: '16px' }}
+      px={{ base: "16px", md: "22px" }}
+      py={{ base: "12px", md: "16px" }}
       borderRadius="12px"
     >
       <Flex
         align="center"
-        gap={{ base: '8px', md: '10px' }}
-        flexWrap={{ base: 'wrap', md: 'nowrap' }}
+        gap={{ base: "8px", md: "10px" }}
+        flexWrap={{ base: "wrap", md: "nowrap" }}
       >
         {/* Neuronium Avatar with Animation */}
         <Box
-          width={{ base: '60px', md: '100px' }}
-          height={{ base: '60px', md: '100px' }}
+          width={{ base: "60px", md: "100px" }}
+          height={{ base: "60px", md: "100px" }}
           borderRadius="8px"
           overflow="hidden"
           flexShrink={0}
@@ -172,14 +172,16 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
           position="relative"
           sx={{
             // Fallback CSS animation for Android
-            '@keyframes lottieRotate': {
-              '0%': { transform: 'rotate(0deg) scale(1)' },
-              '50%': { transform: 'rotate(180deg) scale(1.05)' },
-              '100%': { transform: 'rotate(360deg) scale(1)' }
+            "@keyframes lottieRotate": {
+              "0%": { transform: "rotate(0deg) scale(1)" },
+              "50%": { transform: "rotate(180deg) scale(1.05)" },
+              "100%": { transform: "rotate(360deg) scale(1)" },
             },
-            '& > div': isThinking ? {
-              animation: 'lottieRotate 3s ease-in-out infinite',
-            } : {}
+            "& > div": isThinking
+              ? {
+                  animation: "lottieRotate 3s ease-in-out infinite",
+                }
+              : {},
           }}
         >
           {animationData ? (
@@ -191,15 +193,15 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
               loop={true}
               speed={1}
               rendererSettings={{
-                preserveAspectRatio: 'xMidYMid slice',
+                preserveAspectRatio: "xMidYMid slice",
                 progressiveLoad: false,
                 hideOnTransparent: false,
                 clearCanvas: true,
               }}
               style={{
-                width: '100%',
-                height: '100%',
-                pointerEvents: 'none',
+                width: "100%",
+                height: "100%",
+                pointerEvents: "none",
               }}
             />
           ) : (
@@ -220,45 +222,45 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
           bg="rgba(255, 255, 255, 0.1)"
           color="white"
           borderRadius="100px"
-          px={{ base: '12px', md: '10px' }}
-          py={{ base: '8px', md: '7px' }}
-          h={{ base: 'auto', md: '32px' }}
-          minH={{ base: '32px', md: '32px' }}
-          fontSize={{ base: '11px', md: '12px' }}
+          px={{ base: "12px", md: "10px" }}
+          py={{ base: "8px", md: "7px" }}
+          h={{ base: "auto", md: "32px" }}
+          minH={{ base: "32px", md: "32px" }}
+          fontSize={{ base: "11px", md: "12px" }}
           fontWeight="400"
           letterSpacing="-0.132px"
-          whiteSpace={{ base: 'normal', md: 'nowrap' }}
+          whiteSpace={{ base: "normal", md: "nowrap" }}
           textAlign="left"
           _hover={{
-            bg: 'rgba(255, 255, 255, 0.15)',
+            bg: "rgba(255, 255, 255, 0.15)",
           }}
           _active={{
-            bg: 'rgba(255, 255, 255, 0.2)',
+            bg: "rgba(255, 255, 255, 0.2)",
           }}
         >
           <Text
             mr="5px"
-            fontSize={{ base: '11px', md: '12px' }}
-            display={{ base: 'block', md: 'inline' }}
-            lineHeight={{ base: '14px', md: 'normal' }}
+            fontSize={{ base: "11px", md: "12px" }}
+            display={{ base: "block", md: "inline" }}
+            lineHeight={{ base: "14px", md: "normal" }}
           >
             {isExpanded ? (
               <>
-                <Text as="span" display={{ base: 'block', md: 'inline' }}>
+                <Text as="span" display={{ base: "block", md: "inline" }}>
                   Скрыть процесс
                 </Text>
-                <Text as="span" display={{ base: 'block', md: 'inline' }}>
-                  {' '}
+                <Text as="span" display={{ base: "block", md: "inline" }}>
+                  {" "}
                   размышления
                 </Text>
               </>
             ) : (
               <>
-                <Text as="span" display={{ base: 'block', md: 'inline' }}>
+                <Text as="span" display={{ base: "block", md: "inline" }}>
                   Показать процесс
                 </Text>
-                <Text as="span" display={{ base: 'block', md: 'inline' }}>
-                  {' '}
+                <Text as="span" display={{ base: "block", md: "inline" }}>
+                  {" "}
                   размышления
                 </Text>
               </>
@@ -267,7 +269,7 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
           <ChevronDownIcon
             w="16px"
             h="16px"
-            transform={isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'}
+            transform={isExpanded ? "rotate(180deg)" : "rotate(0deg)"}
             transition="transform 0.2s"
             flexShrink={0}
           />
@@ -285,45 +287,45 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
         >
           <Box
             sx={{
-              '& p': {
-                fontSize: '14px',
-                color: 'white',
-                fontWeight: '400',
-                lineHeight: '1.6',
-                marginBottom: '12px',
+              "& p": {
+                fontSize: "14px",
+                color: "white",
+                fontWeight: "400",
+                lineHeight: "1.6",
+                marginBottom: "12px",
                 opacity: 0.9,
-                '&:last-child': {
+                "&:last-child": {
                   marginBottom: 0,
                 },
               },
-              '& h2': {
-                fontSize: '16px',
-                color: 'white',
-                fontWeight: '600',
-                marginTop: '16px',
-                marginBottom: '8px',
+              "& h2": {
+                fontSize: "16px",
+                color: "white",
+                fontWeight: "600",
+                marginTop: "16px",
+                marginBottom: "8px",
                 opacity: 0.95,
               },
-              '& strong': {
-                color: 'purple.300',
-                fontWeight: '600',
+              "& strong": {
+                color: "purple.300",
+                fontWeight: "600",
               },
-              '& ul, & ol': {
-                paddingLeft: '20px',
-                marginBottom: '12px',
+              "& ul, & ol": {
+                paddingLeft: "20px",
+                marginBottom: "12px",
               },
-              '& li': {
-                fontSize: '14px',
-                color: 'white',
+              "& li": {
+                fontSize: "14px",
+                color: "white",
                 opacity: 0.9,
-                marginBottom: '4px',
+                marginBottom: "4px",
               },
-              '& code': {
-                backgroundColor: 'rgba(139, 92, 246, 0.2)',
-                padding: '2px 6px',
-                borderRadius: '4px',
-                fontSize: '13px',
-                color: 'purple.200',
+              "& code": {
+                backgroundColor: "rgba(139, 92, 246, 0.2)",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                fontSize: "13px",
+                color: "purple.200",
               },
             }}
           >
@@ -336,10 +338,10 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
                 color="purple.300"
                 fontSize="14px"
                 sx={{
-                  animation: 'blink 1s infinite',
-                  '@keyframes blink': {
-                    '0%, 50%': { opacity: 1 },
-                    '51%, 100%': { opacity: 0 },
+                  animation: "blink 1s infinite",
+                  "@keyframes blink": {
+                    "0%, 50%": { opacity: 1 },
+                    "51%, 100%": { opacity: 0 },
                   },
                 }}
               >

@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
-import { Flex, Button, Icon } from '@chakra-ui/react';
-import { useQuickActions, QuickAction } from '@/hooks/useQuickActions';
-import { COLORS } from '@/theme/colors';
+import React, { memo } from "react";
+import { Flex, Button, Icon } from "@chakra-ui/react";
+import { useQuickActions, QuickAction } from "@/hooks/useQuickActions";
+import { COLORS } from "@/theme/colors";
 
 interface QuickActionsPanelProps {
   onActionSelect: (prompt: string) => void;
@@ -33,13 +33,13 @@ const QuickActionsPanel = memo<QuickActionsPanelProps>(({ onActionSelect }) => {
           color={COLORS.TEXT_PRIMARY}
           _hover={{
             bg: action.color,
-            color: 'white',
-            '& svg': {
-              color: 'white',
+            color: "white",
+            "& svg": {
+              color: "white",
             },
           }}
           _active={{
-            transform: 'scale(0.98)',
+            transform: "scale(0.98)",
           }}
           whiteSpace="nowrap"
           fontSize="13px"
@@ -53,6 +53,6 @@ const QuickActionsPanel = memo<QuickActionsPanelProps>(({ onActionSelect }) => {
   );
 });
 
-QuickActionsPanel.displayName = 'QuickActionsPanel';
+QuickActionsPanel.displayName = "QuickActionsPanel";
 
 export default QuickActionsPanel;

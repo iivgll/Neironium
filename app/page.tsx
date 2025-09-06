@@ -1,22 +1,24 @@
-'use client';
-import React, { useRef, useCallback, useState } from 'react';
-import { Box, Flex, VStack } from '@chakra-ui/react';
-import NeuroniumChatInput from '@/components/chat/NeuroniumChatInput';
-import NeuroniumNavbar from '@/components/navbar/NeuroniumNavbar';
-import MessageBoxChat from '@/components/messages/MessageBox';
-import UserMessage from '@/components/messages/UserMessage';
-import ThinkingProcess from '@/components/chat/ThinkingProcess';
-import MessageActions from '@/components/messages/MessageActions';
-import { useChat } from '@/hooks/useChat';
-import { useKeyboardHandler } from '@/hooks/useKeyboardHandler';
-import { COLORS } from '@/theme/colors';
-import { useTelegram } from '@/contexts/TelegramContext';
+"use client";
+import React, { useRef, useCallback, useState } from "react";
+import { Box, Flex, VStack } from "@chakra-ui/react";
+import NeuroniumChatInput from "@/components/chat/NeuroniumChatInput";
+import NeuroniumNavbar from "@/components/navbar/NeuroniumNavbar";
+import MessageBoxChat from "@/components/messages/MessageBox";
+import UserMessage from "@/components/messages/UserMessage";
+import ThinkingProcess from "@/components/chat/ThinkingProcess";
+import MessageActions from "@/components/messages/MessageActions";
+import { useChat } from "@/hooks/useChat";
+import { useKeyboardHandler } from "@/hooks/useKeyboardHandler";
+import { COLORS } from "@/theme/colors";
+import { useTelegram } from "@/contexts/TelegramContext";
+import { useChatsContext } from "@/contexts/ChatsContext";
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const { displayName, user, isTelegramEnvironment } = useTelegram();
+  const { activeChatId, loadMessages: loadChatMessages } = useChatsContext();
   const [messageThinkingStates, setMessageThinkingStates] = useState<{
     [key: number]: boolean;
   }>({});
@@ -34,22 +36,33 @@ export default function Chat() {
   }, [displayName, user, isTelegramEnvironment]);
 
   const handleError = useCallback((error: Error) => {
-    console.error('Chat error:', error);
+    console.error("Chat error:", error);
     // Handle error display here if needed
   }, []);
 
   const {
     messages,
     isLoading,
+    isStreaming,
+    error,
     model,
     setModel,
     sendMessage,
+    loadMessages,
+    deleteMessage,
     isThinking,
     showThinkingProcess,
     toggleThinkingProcess,
-  } = useChat({
+  } = useChat(activeChatId || undefined, {
     onError: handleError,
   });
+
+  // Load messages when active chat changes
+  React.useEffect(() => {
+    if (activeChatId) {
+      loadMessages();
+    }
+  }, [activeChatId]); // Убираем loadMessages из зависимостей
 
   const toggleMessageThinking = useCallback((index: number) => {
     setMessageThinkingStates((prev) => ({
@@ -59,7 +72,7 @@ export default function Chat() {
   }, []);
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   // Handle scroll events to detect user scrolling
@@ -88,7 +101,7 @@ export default function Chat() {
         scrollToBottom();
       }
       // При новом сообщении пользователя всегда прокручиваем
-      else if (messages[currentCount - 1]?.role === 'user') {
+      else if (messages[currentCount - 1]?.role === "user") {
         setIsUserScrolling(false);
         scrollToBottom();
       }
@@ -131,26 +144,26 @@ export default function Chat() {
           ref={chatContainerRef}
           flex="1"
           overflowY="auto"
-          px={{ base: '16px', md: '32px' }}
+          px={{ base: "16px", md: "32px" }}
           maxW="1200px"
           w="100%"
           mx="auto"
-          pb={isKeyboardVisible ? '350px' : '240px'}
+          pb={isKeyboardVisible ? "350px" : "240px"}
           onScroll={handleScroll}
           style={getContainerStyle()}
           css={{
-            '&::-webkit-scrollbar': {
-              width: '4px',
+            "&::-webkit-scrollbar": {
+              width: "4px",
             },
-            '&::-webkit-scrollbar-track': {
-              background: 'transparent',
+            "&::-webkit-scrollbar-track": {
+              background: "transparent",
             },
-            '&::-webkit-scrollbar-thumb': {
-              background: 'rgba(255, 255, 255, 0.2)',
-              borderRadius: '2px',
+            "&::-webkit-scrollbar-thumb": {
+              background: "rgba(255, 255, 255, 0.2)",
+              borderRadius: "2px",
             },
-            '&::-webkit-scrollbar-thumb:hover': {
-              background: 'rgba(255, 255, 255, 0.3)',
+            "&::-webkit-scrollbar-thumb:hover": {
+              background: "rgba(255, 255, 255, 0.3)",
             },
           }}
         >
@@ -165,12 +178,12 @@ export default function Chat() {
             >
               <div
                 style={{
-                  fontSize: '2.25rem',
-                  marginBottom: '12px',
+                  fontSize: "2.25rem",
+                  marginBottom: "12px",
                   backgroundImage: COLORS.GRADIENT_PRIMARY,
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: "text",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
                   fontWeight: 700,
                 }}
               >
@@ -184,10 +197,18 @@ export default function Chat() {
           {messages.length > 0 && (
             <VStack spacing="16px" py="20px" pb="30px" w="100%">
               {messages.map((message, index) => {
+                console.log(
+                  "🎨 Rendering message",
+                  index,
+                  "role:",
+                  message.role,
+                  "content length:",
+                  message.content?.length || 0,
+                );
                 const isLastAssistantMessage =
-                  message.role === 'assistant' && index === messages.length - 1;
+                  message.role === "assistant" && index === messages.length - 1;
 
-                if (message.role === 'assistant') {
+                if (message.role === "assistant") {
                   const hasThinking = message.metadata?.hasThinkingProcess;
                   const thinkingText = message.metadata?.thinkingText;
                   // Для текущего сообщения используем глобальное состояние, для старых - локальное
@@ -206,8 +227,8 @@ export default function Chat() {
                         position="relative"
                       >
                         <Box
-                          maxW={{ base: '100%', md: '70%' }}
-                          width={{ base: '100%', md: 'auto' }}
+                          maxW={{ base: "100%", md: "70%" }}
+                          width={{ base: "100%", md: "auto" }}
                         >
                           {/* Показываем ThinkingProcess для всех сообщений с процессом размышления */}
                           {hasThinking && (
@@ -234,13 +255,23 @@ export default function Chat() {
                               <Box
                                 mt={
                                   hasThinking
-                                    ? { base: '-15px', md: '-30px' }
-                                    : '0'
+                                    ? { base: "-15px", md: "-30px" }
+                                    : "0"
                                 }
                               >
-                                <MessageBoxChat output={message.content} />
+                                <MessageBoxChat
+                                  output={message.content}
+                                  isStreaming={
+                                    isLastAssistantMessage && isStreaming
+                                  }
+                                  showTypingIndicator={
+                                    isLastAssistantMessage &&
+                                    isStreaming &&
+                                    !message.content
+                                  }
+                                />
                               </Box>
-                              <Box pl={{ base: '16px', md: '22px' }}>
+                              <Box pl={{ base: "16px", md: "22px" }}>
                                 <MessageActions
                                   content={message.content}
                                   isLastMessage={isLastAssistantMessage}
@@ -251,7 +282,7 @@ export default function Chat() {
                                           const lastUserMessage = messages
                                             .slice(0, -1)
                                             .reverse()
-                                            .find((m) => m.role === 'user');
+                                            .find((m) => m.role === "user");
                                           if (lastUserMessage) {
                                             sendMessage(
                                               lastUserMessage.content,
@@ -273,7 +304,7 @@ export default function Chat() {
                     <UserMessage
                       key={index}
                       content={message.content}
-                      maxWidth={{ base: '100%', md: '70%' }}
+                      maxWidth={{ base: "100%", md: "70%" }}
                     />
                   );
                 }
@@ -290,7 +321,7 @@ export default function Chat() {
           left="0"
           right="0"
           bg={COLORS.BG_PRIMARY}
-          px={{ base: '16px', md: '32px' }}
+          px={{ base: "16px", md: "32px" }}
           py="12px"
           pb="calc(12px + env(safe-area-inset-bottom, 0px))"
           minH="100px"
@@ -304,8 +335,8 @@ export default function Chat() {
               isLoading={isLoading}
               placeholder={
                 messages.length === 0
-                  ? 'Спроси любой вопрос'
-                  : 'Продолжить разговор...'
+                  ? "Спроси любой вопрос"
+                  : "Продолжить разговор..."
               }
             />
           </Box>

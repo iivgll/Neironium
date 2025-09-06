@@ -1,5 +1,5 @@
-'use client';
-import React, { useState, useRef, useEffect } from 'react';
+"use client";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -12,12 +12,12 @@ import {
   Text,
   Flex,
   IconButton,
-} from '@chakra-ui/react';
-import { MdClose } from 'react-icons/md';
-import Image from 'next/image';
-import { COLORS } from '@/theme/colors';
-import { validateProjectName, sanitizeString } from '@/utils/validation';
-import { useAssetPath } from '@/hooks/useAssetPath';
+} from "@chakra-ui/react";
+import { MdClose } from "react-icons/md";
+import Image from "next/image";
+import { COLORS } from "@/theme/colors";
+import { validateProjectName, sanitizeString } from "@/utils/validation";
+import { useAssetPath } from "@/hooks/useAssetPath";
 
 interface NewProjectModalProps {
   isOpen: boolean;
@@ -30,8 +30,8 @@ export default function NewProjectModal({
   onClose,
   onCreateProject,
 }: NewProjectModalProps) {
-  const [projectName, setProjectName] = useState('');
-  const [validationError, setValidationError] = useState<string>('');
+  const [projectName, setProjectName] = useState("");
+  const [validationError, setValidationError] = useState<string>("");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { getAssetPath } = useAssetPath();
@@ -44,7 +44,7 @@ export default function NewProjectModal({
         if (inputRef.current) {
           inputRef.current.focus();
           // Для мобильных устройств - дополнительный клик для вызова клавиатуры
-          if ('ontouchstart' in window) {
+          if ("ontouchstart" in window) {
             inputRef.current.click();
           }
         }
@@ -63,25 +63,25 @@ export default function NewProjectModal({
 
   const handleCreate = () => {
     if (!validation.isValid) {
-      setValidationError(validation.error || 'Неверное название проекта');
+      setValidationError(validation.error || "Неверное название проекта");
       return;
     }
 
     try {
       const sanitizedName = sanitizeString(projectName.trim());
       onCreateProject?.(sanitizedName);
-      setProjectName('');
-      setValidationError('');
+      setProjectName("");
+      setValidationError("");
       onClose();
     } catch (error) {
-      console.error('Error creating project:', error);
-      setValidationError('Произошла ошибка при создании проекта');
+      console.error("Error creating project:", error);
+      setValidationError("Произошла ошибка при создании проекта");
     }
   };
 
   const handleClose = () => {
-    setProjectName('');
-    setValidationError('');
+    setProjectName("");
+    setValidationError("");
     setIsFocused(false);
     // Убираем фокус с поля при закрытии
     if (inputRef.current) {
@@ -94,7 +94,7 @@ export default function NewProjectModal({
     setProjectName(e.target.value);
     // Clear validation error when user starts typing
     if (validationError) {
-      setValidationError('');
+      setValidationError("");
     }
   };
 
@@ -105,12 +105,12 @@ export default function NewProjectModal({
         bg="#121314"
         border="none"
         borderRadius="55px"
-        maxW={['90vw', '680px']}
+        maxW={["90vw", "680px"]}
         mx="20px"
         p="0"
       >
-        <ModalBody p={['20px', '40px']}>
-          <VStack spacing={['30px', '40px']} align="stretch" w="full">
+        <ModalBody p={["20px", "40px"]}>
+          <VStack spacing={["30px", "40px"]} align="stretch" w="full">
             {/* Header */}
             <Flex align="center" justify="space-between">
               {/* Invisible placeholder for centering */}
@@ -125,10 +125,10 @@ export default function NewProjectModal({
 
               {/* Title */}
               <Text
-                fontSize={['18px', '24px']}
+                fontSize={["18px", "24px"]}
                 fontWeight="700"
                 color={COLORS.TEXT_PRIMARY}
-                lineHeight={['18px', '24px']}
+                lineHeight={["18px", "24px"]}
                 textAlign="center"
               >
                 Новый проект
@@ -141,7 +141,7 @@ export default function NewProjectModal({
                 size="sm"
                 variant="ghost"
                 color={COLORS.TEXT_PRIMARY}
-                _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+                _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
                 onClick={handleClose}
                 borderRadius="100px"
                 w="36px"
@@ -180,16 +180,16 @@ export default function NewProjectModal({
                     color="white"
                     fontSize="16px"
                     letterSpacing="-0.4px"
-                    _placeholder={{ color: '#8c8c8c' }}
-                    _hover={{ borderColor: 'white' }}
+                    _placeholder={{ color: "#8c8c8c" }}
+                    _hover={{ borderColor: "white" }}
                     _focus={{
-                      borderColor: 'white',
-                      boxShadow: 'none',
+                      borderColor: "white",
+                      boxShadow: "none",
                     }}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !isCreateDisabled) {
+                      if (e.key === "Enter" && !isCreateDisabled) {
                         handleCreate();
                       }
                     }}
@@ -206,12 +206,12 @@ export default function NewProjectModal({
                     opacity={projectName || isFocused ? 0 : 1}
                     pointerEvents="none"
                     sx={{
-                      '@keyframes blink': {
-                        '0%, 50%': { opacity: 1 },
-                        '51%, 100%': { opacity: 0 },
+                      "@keyframes blink": {
+                        "0%, 50%": { opacity: 1 },
+                        "51%, 100%": { opacity: 0 },
                       },
                       animation:
-                        projectName || isFocused ? 'none' : 'blink 1s infinite',
+                        projectName || isFocused ? "none" : "blink 1s infinite",
                     }}
                   />
                 </Box>
@@ -227,7 +227,7 @@ export default function NewProjectModal({
               <Box bg="rgba(255,255,255,0.05)" borderRadius="20px" p="20px">
                 <Flex align="flex-start" gap="10px">
                   <Image
-                    src={getAssetPath('/icons/idea.svg')}
+                    src={getAssetPath("/icons/idea.svg")}
                     alt="Info"
                     width={24}
                     height={24}
@@ -257,7 +257,7 @@ export default function NewProjectModal({
             </VStack>
 
             {/* Footer Buttons */}
-            <Flex justify="flex-end" gap="16px" direction={['column', 'row']}>
+            <Flex justify="flex-end" gap="16px" direction={["column", "row"]}>
               <Button
                 bg="#343434"
                 color={COLORS.TEXT_PRIMARY}
@@ -267,15 +267,15 @@ export default function NewProjectModal({
                 py="16px"
                 fontWeight="700"
                 fontSize="16px"
-                _hover={{ bg: 'rgba(52, 52, 52, 0.8)' }}
-                _active={{ bg: 'rgba(52, 52, 52, 0.6)' }}
+                _hover={{ bg: "rgba(52, 52, 52, 0.8)" }}
+                _active={{ bg: "rgba(52, 52, 52, 0.6)" }}
                 onClick={handleClose}
                 order={[2, 1]}
               >
                 Отменить
               </Button>
               <Button
-                bg={isCreateDisabled ? 'rgba(255, 255, 255, 0.5)' : 'white'}
+                bg={isCreateDisabled ? "rgba(255, 255, 255, 0.5)" : "white"}
                 color="#1d1e20"
                 borderRadius="100px"
                 h="54px"
@@ -285,10 +285,10 @@ export default function NewProjectModal({
                 fontSize="16px"
                 isDisabled={isCreateDisabled}
                 _hover={
-                  !isCreateDisabled ? { bg: 'rgba(255, 255, 255, 0.9)' } : {}
+                  !isCreateDisabled ? { bg: "rgba(255, 255, 255, 0.9)" } : {}
                 }
                 _active={
-                  !isCreateDisabled ? { bg: 'rgba(255, 255, 255, 0.8)' } : {}
+                  !isCreateDisabled ? { bg: "rgba(255, 255, 255, 0.8)" } : {}
                 }
                 onClick={handleCreate}
                 order={[1, 2]}

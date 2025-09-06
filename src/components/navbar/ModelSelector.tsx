@@ -1,5 +1,5 @@
-'use client';
-import React from 'react';
+"use client";
+import React from "react";
 import {
   Box,
   Button,
@@ -10,8 +10,8 @@ import {
   Text,
   Icon,
   HStack,
-} from '@chakra-ui/react';
-import { MdKeyboardArrowDown, MdCheck } from 'react-icons/md';
+} from "@chakra-ui/react";
+import { MdKeyboardArrowDown, MdCheck } from "react-icons/md";
 
 interface ModelOption {
   id: string;
@@ -20,9 +20,9 @@ interface ModelOption {
 }
 
 const models: ModelOption[] = [
-  { id: 'gpt-4o', name: 'ChatGpt 5', description: 'Описание' },
-  { id: 'gpt-4', name: 'ChatGpt 4', description: 'Описание' },
-  { id: 'gpt-3.5-turbo', name: 'ChatGpt 3.5', description: 'Описание' },
+  { id: "gpt-4o", name: "ChatGpt 5", description: "Описание" },
+  { id: "gpt-4", name: "ChatGpt 4", description: "Описание" },
+  { id: "gpt-3.5-turbo", name: "ChatGpt 3.5", description: "Описание" },
 ];
 
 interface ModelSelectorProps {
@@ -35,12 +35,12 @@ export default function ModelSelector({
   onModelChange,
 }: ModelSelectorProps) {
   // Dark theme colors only
-  const borderColor = '#343434'; // neuronium.border.primary
-  const textColor = '#ffffff'; // neuronium.text.primary
-  const textSecondary = '#8a8b8c'; // neuronium.text.secondary
-  const menuBg = '#2a2a2a'; // neuronium.background.tertiary
-  const hoverBg = 'rgba(255, 255, 255, 0.05)'; // neuronium.background.hover
-  const activeColor = '#fafafaff'; // neuronium.accent.violet
+  const borderColor = "#343434"; // neuronium.border.primary
+  const textColor = "#ffffff"; // neuronium.text.primary
+  const textSecondary = "#8a8b8c"; // neuronium.text.secondary
+  const menuBg = "#2a2a2a"; // neuronium.background.tertiary
+  const hoverBg = "rgba(255, 255, 255, 0.05)"; // neuronium.background.hover
+  const activeColor = "#fafafaff"; // neuronium.accent.violet
 
   const currentModel = models.find((m) => m.id === selectedModel) || models[0];
 
@@ -55,7 +55,7 @@ export default function ModelSelector({
         fontSize="16px"
         _hover={{ bg: hoverBg }}
         _active={{ bg: hoverBg }}
-        _focus={{ boxShadow: 'none' }}
+        _focus={{ boxShadow: "none" }}
         px="12px"
         py="6px"
         h="auto"

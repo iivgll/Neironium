@@ -1,12 +1,12 @@
-'use client';
-import { useEffect, useState, useCallback } from 'react';
+"use client";
+import { useEffect, useState, useCallback } from "react";
 
 export const useTelegramKeyboard = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     // Проверяем, доступен ли Telegram WebApp API
-    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
 
       // Настройка Telegram WebApp
@@ -14,10 +14,10 @@ export const useTelegramKeyboard = () => {
       tg.expand(); // Разворачиваем приложение на весь экран
 
       // Включаем режим, который корректно обрабатывает клавиатуру
-      if (tg.isVersionAtLeast && tg.isVersionAtLeast('6.1')) {
+      if (tg.isVersionAtLeast && tg.isVersionAtLeast("6.1")) {
         // Устанавливаем цвет заголовка
-        tg.setHeaderColor('#151515');
-        tg.setBackgroundColor('#151515');
+        tg.setHeaderColor("#151515");
+        tg.setBackgroundColor("#151515");
       }
 
       // Отслеживаем изменения viewport
@@ -28,11 +28,11 @@ export const useTelegramKeyboard = () => {
         // Обновляем CSS переменные
         if (viewportHeight && viewportStableHeight) {
           document.documentElement.style.setProperty(
-            '--tg-viewport-height',
+            "--tg-viewport-height",
             `${viewportHeight}px`,
           );
           document.documentElement.style.setProperty(
-            '--tg-viewport-stable-height',
+            "--tg-viewport-stable-height",
             `${viewportStableHeight}px`,
           );
 
@@ -43,13 +43,13 @@ export const useTelegramKeyboard = () => {
       };
 
       // Подписываемся на события
-      tg.onEvent('viewportChanged', handleViewportChanged);
+      tg.onEvent("viewportChanged", handleViewportChanged);
 
       // Инициализируем значения
       handleViewportChanged();
 
       return () => {
-        tg.offEvent('viewportChanged', handleViewportChanged);
+        tg.offEvent("viewportChanged", handleViewportChanged);
       };
     }
   }, []);

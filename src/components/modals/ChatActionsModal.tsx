@@ -1,5 +1,5 @@
-'use client';
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
 import {
   Box,
   Flex,
@@ -12,15 +12,15 @@ import {
   ModalBody,
   IconButton,
   useBreakpointValue,
-} from '@chakra-ui/react';
-import Image from 'next/image';
-import { MdClose } from 'react-icons/md';
-import { COLORS } from '@/theme/colors';
-import { Project } from '@/types/chat';
-import ProjectTooltip from '../tooltips/ProjectTooltip';
-import { ArrowIcon } from '../icons/ArrowIcon';
-import { useEffect } from 'react';
-import { useAssetPath } from '@/hooks/useAssetPath';
+} from "@chakra-ui/react";
+import Image from "next/image";
+import { MdClose } from "react-icons/md";
+import { COLORS } from "@/theme/colors";
+import { Project } from "@/types/chat";
+import ProjectTooltip from "../tooltips/ProjectTooltip";
+import { ArrowIcon } from "../icons/ArrowIcon";
+import { useEffect } from "react";
+import { useAssetPath } from "@/hooks/useAssetPath";
 
 interface ChatActionsModalProps {
   isOpen: boolean;
@@ -32,10 +32,10 @@ interface ChatActionsModalProps {
   onNewProject?: () => void;
   onDeleteConfirm?: (chatTitle: string) => void;
   chatTitle?: string;
-  chatId?: string;
+  chatId?: number;
   projects?: Project[];
-  onMoveToProject?: (chatId: string, projectId: string) => void;
-  onCreateProjectAndMove?: (chatId: string) => void;
+  onMoveToProject?: (chatId: number, projectId: number) => void;
+  onCreateProjectAndMove?: (chatId: number) => void;
 }
 
 // ProjectTooltip component moved to separate file
@@ -48,7 +48,7 @@ export default function ChatActionsModal({
   onCopy,
   onNewProject,
   onDeleteConfirm,
-  chatTitle = 'Создание статей для Хабра',
+  chatTitle = "Создание статей для Хабра",
   chatId,
   projects = [],
   onMoveToProject,
@@ -61,13 +61,13 @@ export default function ChatActionsModal({
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         onClose();
         return;
       }
 
       // Focus management for better accessibility
-      if (event.key === 'Tab') {
+      if (event.key === "Tab") {
         // Let the browser handle tab navigation within the modal
         // The modal content is already focusable
         return;
@@ -75,8 +75,8 @@ export default function ChatActionsModal({
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
     }
   }, [isOpen, onClose]);
 
@@ -133,7 +133,7 @@ export default function ChatActionsModal({
                   size="sm"
                   variant="ghost"
                   color={COLORS.TEXT_PRIMARY}
-                  _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
                   onClick={onClose}
                   borderRadius="100px"
                 />
@@ -149,10 +149,10 @@ export default function ChatActionsModal({
                   cursor="pointer"
                   borderRadius="12px"
                   bg="rgba(255, 255, 255, 0.05)"
-                  _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
                   _focus={{
-                    bg: 'rgba(255, 255, 255, 0.1)',
-                    outline: '2px solid white',
+                    bg: "rgba(255, 255, 255, 0.1)",
+                    outline: "2px solid white",
                   }}
                   onClick={() => {
                     onRename?.();
@@ -162,7 +162,7 @@ export default function ChatActionsModal({
                   role="button"
                   aria-label={`Переименовать чат ${chatTitle}`}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       onRename?.();
                       onClose();
@@ -170,7 +170,7 @@ export default function ChatActionsModal({
                   }}
                 >
                   <Image
-                    src={getAssetPath('/icons/edit-2.svg')}
+                    src={getAssetPath("/icons/edit-2.svg")}
                     alt="Rename"
                     width={20}
                     height={20}
@@ -194,10 +194,10 @@ export default function ChatActionsModal({
                     cursor="pointer"
                     borderRadius="12px"
                     bg="rgba(255, 255, 255, 0.05)"
-                    _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+                    _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
                     _focus={{
-                      bg: 'rgba(255, 255, 255, 0.1)',
-                      outline: '2px solid white',
+                      bg: "rgba(255, 255, 255, 0.1)",
+                      outline: "2px solid white",
                     }}
                     onClick={() => {
                       setShowProjectTooltip(!showProjectTooltip);
@@ -207,7 +207,7 @@ export default function ChatActionsModal({
                     aria-label="Добавить в проект"
                     aria-expanded={showProjectTooltip}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
+                      if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         setShowProjectTooltip(!showProjectTooltip);
                       }
@@ -216,7 +216,7 @@ export default function ChatActionsModal({
                   >
                     <Flex align="center">
                       <Image
-                        src={getAssetPath('/icons/folder.svg')}
+                        src={getAssetPath("/icons/folder.svg")}
                         alt="Add to project"
                         width={20}
                         height={20}
@@ -232,7 +232,7 @@ export default function ChatActionsModal({
                     </Flex>
                     <ArrowIcon
                       transform={
-                        showProjectTooltip ? 'rotate(90deg)' : 'rotate(270deg)'
+                        showProjectTooltip ? "rotate(90deg)" : "rotate(270deg)"
                       }
                     />
                   </Flex>
@@ -254,11 +254,11 @@ export default function ChatActionsModal({
                         cursor="pointer"
                         borderRadius="8px"
                         bg="rgba(255, 255, 255, 0.03)"
-                        _hover={{ bg: 'rgba(255, 255, 255, 0.08)' }}
+                        _hover={{ bg: "rgba(255, 255, 255, 0.08)" }}
                         onClick={handleNewProject}
                       >
                         <Image
-                          src={getAssetPath('/icons/folder-add.svg')}
+                          src={getAssetPath("/icons/folder-add.svg")}
                           alt="New project"
                           width={16}
                           height={16}
@@ -284,7 +284,7 @@ export default function ChatActionsModal({
                           cursor="pointer"
                           borderRadius="8px"
                           bg="rgba(255, 255, 255, 0.03)"
-                          _hover={{ bg: 'rgba(255, 255, 255, 0.08)' }}
+                          _hover={{ bg: "rgba(255, 255, 255, 0.08)" }}
                           onClick={() => {
                             if (chatId && onMoveToProject) {
                               onMoveToProject(chatId, project.id);
@@ -293,7 +293,7 @@ export default function ChatActionsModal({
                           }}
                         >
                           <Image
-                            src={getAssetPath('/icons/folder.svg')}
+                            src={getAssetPath("/icons/folder.svg")}
                             alt="Project"
                             width={16}
                             height={16}
@@ -320,10 +320,10 @@ export default function ChatActionsModal({
                   cursor="pointer"
                   borderRadius="12px"
                   bg="rgba(255, 255, 255, 0.05)"
-                  _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
                   _focus={{
-                    bg: 'rgba(255, 255, 255, 0.1)',
-                    outline: '2px solid white',
+                    bg: "rgba(255, 255, 255, 0.1)",
+                    outline: "2px solid white",
                   }}
                   onClick={() => {
                     onCopy?.();
@@ -333,7 +333,7 @@ export default function ChatActionsModal({
                   role="button"
                   aria-label={`Копировать чат ${chatTitle}`}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       onCopy?.();
                       onClose();
@@ -341,7 +341,7 @@ export default function ChatActionsModal({
                   }}
                 >
                   <Image
-                    src={getAssetPath('/icons/copy.svg')}
+                    src={getAssetPath("/icons/copy.svg")}
                     alt="Copy"
                     width={20}
                     height={20}
@@ -366,14 +366,14 @@ export default function ChatActionsModal({
                   cursor="pointer"
                   borderRadius="12px"
                   bg="rgba(208, 94, 94, 0.1)"
-                  _hover={{ bg: 'rgba(208, 94, 94, 0.2)' }}
+                  _hover={{ bg: "rgba(208, 94, 94, 0.2)" }}
                   onClick={() => {
                     onDeleteConfirm?.(chatTitle);
                     onClose();
                   }}
                 >
                   <Image
-                    src={getAssetPath('/icons/trash.svg')}
+                    src={getAssetPath("/icons/trash.svg")}
                     alt="Delete"
                     width={20}
                     height={20}
@@ -432,14 +432,14 @@ export default function ChatActionsModal({
               align="center"
               cursor="pointer"
               borderRadius="5px"
-              _hover={{ bg: 'rgba(255, 255, 255, 0.05)' }}
+              _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}
               onClick={() => {
                 onRename?.();
                 onClose();
               }}
             >
               <Image
-                src={getAssetPath('/icons/edit-2.svg')}
+                src={getAssetPath("/icons/edit-2.svg")}
                 alt="Rename"
                 width={16}
                 height={16}
@@ -462,11 +462,11 @@ export default function ChatActionsModal({
               justify="space-between"
               cursor="pointer"
               borderRadius="5px"
-              bg={showProjectTooltip ? '#434343' : '#343434'}
-              _hover={{ bg: '#434343' }}
+              bg={showProjectTooltip ? "#434343" : "#343434"}
+              _hover={{ bg: "#434343" }}
               onClick={() => {
                 console.log(
-                  '🖱️ Desktop: Добавить в проект clicked, showProjectTooltip:',
+                  "🖱️ Desktop: Добавить в проект clicked, showProjectTooltip:",
                   showProjectTooltip,
                 );
                 setShowProjectTooltip(!showProjectTooltip);
@@ -474,7 +474,7 @@ export default function ChatActionsModal({
             >
               <Flex align="center">
                 <Image
-                  src={getAssetPath('/icons/folder.svg')}
+                  src={getAssetPath("/icons/folder.svg")}
                   alt="Add to project"
                   width={16}
                   height={16}
@@ -489,7 +489,7 @@ export default function ChatActionsModal({
                 </Text>
               </Flex>
               <ArrowIcon
-                direction={showProjectTooltip ? 'down' : 'right'}
+                direction={showProjectTooltip ? "down" : "right"}
                 color={COLORS.TEXT_SECONDARY}
                 w="16px"
                 h="16px"
@@ -503,14 +503,14 @@ export default function ChatActionsModal({
               align="center"
               cursor="pointer"
               borderRadius="5px"
-              _hover={{ bg: 'rgba(255, 255, 255, 0.05)' }}
+              _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}
               onClick={() => {
                 onCopy?.();
                 onClose();
               }}
             >
               <Image
-                src={getAssetPath('/icons/copy.svg')}
+                src={getAssetPath("/icons/copy.svg")}
                 alt="Copy"
                 width={16}
                 height={16}
@@ -534,14 +534,14 @@ export default function ChatActionsModal({
               align="center"
               cursor="pointer"
               borderRadius="5px"
-              _hover={{ bg: 'rgba(255, 255, 255, 0.05)' }}
+              _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}
               onClick={() => {
                 onDeleteConfirm?.(chatTitle);
                 onClose();
               }}
             >
               <Image
-                src={getAssetPath('/icons/trash.svg')}
+                src={getAssetPath("/icons/trash.svg")}
                 alt="Delete"
                 width={16}
                 height={16}

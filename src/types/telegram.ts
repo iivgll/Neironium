@@ -14,7 +14,7 @@ export interface TelegramWebAppUser {
 
 export interface TelegramWebAppChat {
   id: number;
-  type: 'group' | 'supergroup' | 'channel';
+  type: "group" | "supergroup" | "channel";
   title: string;
   username?: string;
   photo_url?: string;
@@ -25,7 +25,7 @@ export interface TelegramWebAppInitData {
   user?: TelegramWebAppUser;
   receiver?: TelegramWebAppUser;
   chat?: TelegramWebAppChat;
-  chat_type?: 'sender' | 'private' | 'group' | 'supergroup' | 'channel';
+  chat_type?: "sender" | "private" | "group" | "supergroup" | "channel";
   chat_instance?: string;
   start_param?: string;
   can_send_after?: number;
@@ -57,7 +57,7 @@ export interface TelegramWebApp {
   initDataUnsafe: TelegramWebAppInitData;
   version: string;
   platform: string;
-  colorScheme: 'light' | 'dark';
+  colorScheme: "light" | "dark";
   themeParams: TelegramWebAppThemeParams;
   isExpanded: boolean;
   viewportHeight: number;
@@ -104,10 +104,10 @@ export interface MockTelegramUser {
 }
 
 export const MOCK_TELEGRAM_USER: MockTelegramUser = {
-  id: 123456789,
-  first_name: 'Разработчик',
-  last_name: 'Тестовый',
-  username: 'dev_user',
-  language_code: 'ru',
-  photo_url: 'https://i.pravatar.cc/300?img=3',
+  id: 1234567894,
+  first_name: "Разработчик",
+  last_name: "Тестовый",
+  username: "dev_user44",
+  language_code: "ru",
+  photo_url: "https://i.pravatar.cc/300?img=3",
 };

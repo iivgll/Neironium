@@ -1,10 +1,10 @@
-'use client';
-import React, { useMemo } from 'react';
-import { Box, Flex, Text, VStack, Divider } from '@chakra-ui/react';
-import Image from 'next/image';
-import { COLORS } from '@/theme/colors';
-import { Project } from '@/types/chat';
-import { useAssetPath } from '@/hooks/useAssetPath';
+"use client";
+import React, { useMemo } from "react";
+import { Box, Flex, Text, VStack, Divider } from "@chakra-ui/react";
+import Image from "next/image";
+import { COLORS } from "@/theme/colors";
+import { Project } from "@/types/chat";
+import { useAssetPath } from "@/hooks/useAssetPath";
 
 interface ProjectTooltipProps {
   isOpen: boolean;
@@ -12,9 +12,9 @@ interface ProjectTooltipProps {
   position: { x: number; y: number };
   onNewProject?: () => void;
   projects?: Project[];
-  chatId?: string;
-  onMoveToProject?: (chatId: string, projectId: string) => void;
-  onCreateProjectAndMove?: (chatId: string) => void;
+  chatId?: number;
+  onMoveToProject?: (chatId: number, projectId: number) => void;
+  onCreateProjectAndMove?: (chatId: number) => void;
 }
 
 export default function ProjectTooltip({
@@ -40,7 +40,7 @@ export default function ProjectTooltip({
           align="center"
           cursor="pointer"
           borderRadius="5px"
-          _hover={{ bg: 'rgba(255, 255, 255, 0.05)' }}
+          _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}
           onClick={() => {
             if (chatId && onMoveToProject) {
               onMoveToProject(chatId, project.id);
@@ -49,7 +49,7 @@ export default function ProjectTooltip({
           }}
         >
           <Image
-            src={getAssetPath('/icons/folder.svg')}
+            src={getAssetPath("/icons/folder.svg")}
             alt="Project"
             width={16}
             height={16}
@@ -108,25 +108,25 @@ export default function ProjectTooltip({
               align="center"
               cursor="pointer"
               borderRadius="5px"
-              _hover={{ bg: 'rgba(255, 255, 255, 0.05)' }}
+              _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}
               onClick={(e) => {
-                console.log('🖱️ Desktop ProjectTooltip: Новый проект clicked!');
+                console.log("🖱️ Desktop ProjectTooltip: Новый проект clicked!");
                 e.stopPropagation();
                 if (chatId && onCreateProjectAndMove) {
                   console.log(
-                    '🖱️ Using onCreateProjectAndMove with chatId:',
+                    "🖱️ Using onCreateProjectAndMove with chatId:",
                     chatId,
                   );
                   onCreateProjectAndMove(chatId);
                 } else {
-                  console.log('🖱️ Using onNewProject');
+                  console.log("🖱️ Using onNewProject");
                   onNewProject?.();
                 }
                 onClose();
               }}
             >
               <Image
-                src={getAssetPath('/icons/folder-add.svg')}
+                src={getAssetPath("/icons/folder-add.svg")}
                 alt="New project"
                 width={16}
                 height={16}

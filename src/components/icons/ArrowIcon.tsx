@@ -1,14 +1,14 @@
-'use client';
-import React from 'react';
-import { Icon, IconProps } from '@chakra-ui/react';
+"use client";
+import React from "react";
+import { Icon, IconProps } from "@chakra-ui/react";
 
 interface ArrowIconProps extends IconProps {
-  direction?: 'up' | 'down' | 'left' | 'right';
+  direction?: "up" | "down" | "left" | "right";
 }
 
 export const ArrowIcon: React.FC<ArrowIconProps> = ({
-  direction = 'down',
-  color = '#8a8b8c',
+  direction = "down",
+  color = "#8a8b8c",
   ...props
 }) => {
   const rotationMap = {
@@ -19,7 +19,7 @@ export const ArrowIcon: React.FC<ArrowIconProps> = ({
   };
 
   // Convert color to string for SVG stroke
-  const strokeColor = typeof color === 'string' ? color : '#8a8b8c';
+  const strokeColor = typeof color === "string" ? color : "#8a8b8c";
 
   return (
     <Icon

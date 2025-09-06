@@ -1,8 +1,8 @@
-'use client';
-import React, { useState } from 'react';
-import { HStack, IconButton, useToast, Tooltip } from '@chakra-ui/react';
-import { CopyIcon, RepeatIcon } from '@chakra-ui/icons';
-import { FiThumbsUp, FiThumbsDown } from 'react-icons/fi';
+"use client";
+import React, { useState } from "react";
+import { HStack, IconButton, useToast, Tooltip } from "@chakra-ui/react";
+import { CopyIcon, RepeatIcon } from "@chakra-ui/icons";
+import { FiThumbsUp, FiThumbsDown } from "react-icons/fi";
 
 interface MessageActionsProps {
   content: string;
@@ -23,31 +23,31 @@ const MessageActions: React.FC<MessageActionsProps> = ({
     try {
       // Удаляем markdown форматирование для копирования
       const plainText = content
-        .replace(/#{1,6}\s/g, '') // Удаляем заголовки
-        .replace(/\*\*(.*?)\*\*/g, '$1') // Удаляем жирный текст
-        .replace(/\*(.*?)\*/g, '$1') // Удаляем курсив
-        .replace(/`(.*?)`/g, '$1') // Удаляем inline код
-        .replace(/```[\s\S]*?```/g, '') // Удаляем блоки кода
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'); // Удаляем ссылки
+        .replace(/#{1,6}\s/g, "") // Удаляем заголовки
+        .replace(/\*\*(.*?)\*\*/g, "$1") // Удаляем жирный текст
+        .replace(/\*(.*?)\*/g, "$1") // Удаляем курсив
+        .replace(/`(.*?)`/g, "$1") // Удаляем inline код
+        .replace(/```[\s\S]*?```/g, "") // Удаляем блоки кода
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1"); // Удаляем ссылки
 
       await navigator.clipboard.writeText(plainText);
       setCopied(true);
       toast({
-        title: 'Скопировано!',
-        status: 'success',
+        title: "Скопировано!",
+        status: "success",
         duration: 2000,
         isClosable: true,
-        position: 'bottom',
+        position: "bottom",
       });
 
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       toast({
-        title: 'Ошибка копирования',
-        status: 'error',
+        title: "Ошибка копирования",
+        status: "error",
         duration: 2000,
         isClosable: true,
-        position: 'bottom',
+        position: "bottom",
       });
     }
   };
@@ -73,11 +73,11 @@ const MessageActions: React.FC<MessageActionsProps> = ({
           icon={<FiThumbsUp />}
           size="sm"
           variant="ghost"
-          color={liked === true ? 'green.400' : 'white'}
+          color={liked === true ? "green.400" : "white"}
           opacity={liked === true ? 1 : 0.6}
           _hover={{
-            bg: 'rgba(255, 255, 255, 0.1)',
-            color: liked === true ? 'green.300' : 'white',
+            bg: "rgba(255, 255, 255, 0.1)",
+            color: liked === true ? "green.300" : "white",
             opacity: 1,
           }}
           onClick={handleLike}
@@ -90,11 +90,11 @@ const MessageActions: React.FC<MessageActionsProps> = ({
           icon={<FiThumbsDown />}
           size="sm"
           variant="ghost"
-          color={liked === false ? 'red.400' : 'white'}
+          color={liked === false ? "red.400" : "white"}
           opacity={liked === false ? 1 : 0.6}
           _hover={{
-            bg: 'rgba(255, 255, 255, 0.1)',
-            color: liked === false ? 'red.300' : 'white',
+            bg: "rgba(255, 255, 255, 0.1)",
+            color: liked === false ? "red.300" : "white",
             opacity: 1,
           }}
           onClick={handleDislike}
@@ -102,7 +102,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
       </Tooltip>
 
       <Tooltip
-        label={copied ? 'Скопировано!' : 'Копировать'}
+        label={copied ? "Скопировано!" : "Копировать"}
         placement="top"
         hasArrow
       >
@@ -111,11 +111,11 @@ const MessageActions: React.FC<MessageActionsProps> = ({
           icon={<CopyIcon />}
           size="sm"
           variant="ghost"
-          color={copied ? 'green.400' : 'white'}
+          color={copied ? "green.400" : "white"}
           opacity={copied ? 1 : 0.6}
           _hover={{
-            bg: 'rgba(255, 255, 255, 0.1)',
-            color: copied ? 'green.300' : 'white',
+            bg: "rgba(255, 255, 255, 0.1)",
+            color: copied ? "green.300" : "white",
             opacity: 1,
           }}
           onClick={handleCopy}
@@ -132,8 +132,8 @@ const MessageActions: React.FC<MessageActionsProps> = ({
             color="white"
             opacity={0.6}
             _hover={{
-              bg: 'rgba(255, 255, 255, 0.1)',
-              color: 'white',
+              bg: "rgba(255, 255, 255, 0.1)",
+              color: "white",
               opacity: 1,
             }}
             onClick={onRegenerate}

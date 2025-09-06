@@ -1,5 +1,5 @@
-'use client';
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -14,15 +14,15 @@ import {
   Text,
   Flex,
   Divider,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 // Removed unused imports - using SVG icons instead
-import Image from 'next/image';
-import { COLORS } from '@/theme/colors';
-import { ChatResult } from '@/types/chat';
-import { useDebounce } from '@/hooks/useDebounce';
-import { useChats } from '@/hooks/useChats';
-import { useProjects } from '@/hooks/useProjects';
-import { useAssetPath } from '@/hooks/useAssetPath';
+import Image from "next/image";
+import { COLORS } from "@/theme/colors";
+import { ChatResult } from "@/types/chat";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useChats } from "@/hooks/useChats";
+import { useProjects } from "@/hooks/useProjects";
+import { useAssetPath } from "@/hooks/useAssetPath";
 
 interface ChatSearchModalProps {
   isOpen: boolean;
@@ -35,8 +35,8 @@ interface ChatSearchModalProps {
 const convertChatToResult = (chat: any, source: string): ChatResult => ({
   id: chat.id,
   title: chat.title,
-  lastMessage: 'Последнее сообщение не загружено',
-  date: 'Сегодня',
+  lastMessage: "Последнее сообщение не загружено",
+  date: "Сегодня",
   tags: [source],
 });
 
@@ -44,7 +44,7 @@ export default function ChatSearchModal({
   isOpen,
   onClose,
 }: ChatSearchModalProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredResults, setFilteredResults] = useState<ChatResult[]>([]);
   const { getAssetPath } = useAssetPath();
 
@@ -61,7 +61,7 @@ export default function ChatSearchModal({
 
     // Add regular chats
     chatsList.forEach((chat) => {
-      results.push(convertChatToResult(chat, 'Чаты'));
+      results.push(convertChatToResult(chat, "Чаты"));
     });
 
     // Add chats from projects
@@ -77,7 +77,7 @@ export default function ChatSearchModal({
   // Handle search with debounced value and error handling
   React.useEffect(() => {
     try {
-      if (debouncedSearchQuery.trim() === '') {
+      if (debouncedSearchQuery.trim() === "") {
         setFilteredResults(allChatResults);
       } else {
         const query = debouncedSearchQuery.toLowerCase().trim();
@@ -89,12 +89,12 @@ export default function ChatSearchModal({
         setFilteredResults(filtered);
       }
     } catch (error) {
-      console.error('Error filtering chat results:', error);
+      console.error("Error filtering chat results:", error);
       setFilteredResults([]);
     }
   }, [debouncedSearchQuery, allChatResults]);
 
-  const handleChatSelect = (chatId: string) => {
+  const handleChatSelect = (chatId: number) => {
     try {
       // Try to set active chat in regular chats first
       const regularChat = chatsList.find((chat) => chat.id === chatId);
@@ -108,7 +108,7 @@ export default function ChatSearchModal({
       setActiveChatInProjects(chatId);
       onClose();
     } catch (error) {
-      console.error('Error selecting chat:', error);
+      console.error("Error selecting chat:", error);
     }
   };
 
@@ -175,7 +175,7 @@ export default function ChatSearchModal({
                 pointerEvents="none"
               >
                 <Image
-                  src={getAssetPath('/icons/magnifer.svg')}
+                  src={getAssetPath("/icons/magnifer.svg")}
                   alt="search"
                   width={20}
                   height={20}
@@ -205,11 +205,11 @@ export default function ChatSearchModal({
                       onClick={() => handleChatSelect(chat.id)}
                     >
                       <Image
-                        src={getAssetPath('/icons/chat.svg')}
+                        src={getAssetPath("/icons/chat.svg")}
                         alt="chat"
                         width={20}
                         height={20}
-                        style={{ marginRight: '12px' }}
+                        style={{ marginRight: "12px" }}
                       />
                       <Text
                         fontSize="16px"

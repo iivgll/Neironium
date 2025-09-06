@@ -3,9 +3,11 @@
 ## Общее описание задачи
 
 ### Что нужно сделать
+
 Вам нужно интегрировать существующий фронтенд (Next.js 15 + React 19 + Chakra UI) с новым бэкенд API. Сейчас приложение работает с OpenAI API напрямую, но нужно переключить его на работу с собственным бэкендом, который предоставляет API для авторизации через Telegram, управления проектами, чатами и сообщениями.
 
 ### Основные изменения
+
 1. **Замена OpenAI API на собственный бэкенд** - вместо прямых вызовов OpenAI нужно работать через собственный API
 2. **Добавление авторизации** - вход через Telegram с сохранением токенов
 3. **Управление проектами** - создание папок для группировки чатов
@@ -13,6 +15,7 @@
 5. **Streaming сообщений** - реализация потоковой передачи ответов от AI
 
 ### Что НЕ нужно делать
+
 - Не нужно реализовывать logout (по требованию заказчика)
 - Не нужно менять дизайн или UI компоненты
 - Не нужно реализовывать бэкенд - только фронтенд интеграцию
@@ -20,6 +23,7 @@
 ## 1. Анализ требований и архитектуры
 
 ### Существующая архитектура проекта:
+
 - **Framework**: Next.js 15 с App Router
 - **State Management**: React Context + localStorage
 - **UI Library**: Chakra UI
@@ -27,6 +31,7 @@
 - **Existing Features**: Telegram авторизация, чат интерфейс, проекты
 
 ### Требования к реализации:
+
 - ✅ **Авторизация**: Telegram login, обновление токенов
 - ✅ **Проекты**: CRUD операции
 - ✅ **Чаты**: CRUD операции с фильтрацией по проектам
@@ -64,11 +69,11 @@ export interface TelegramAuthPayload {
 export interface AuthTokenResponse {
   access_token: string;
   refresh_token: string;
-  token_type: 'Bearer';
+  token_type: "Bearer";
   expires_in: number;
 }
 
-// User types  
+// User types
 export interface UserRead {
   tg_id: number;
   nickname?: string | null;
@@ -132,14 +137,14 @@ export interface MessageCreate {
 export interface MessageRead {
   id: number;
   chat_id: number;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   created_at: string;
 }
 
 // Streaming types
 export interface StreamingResponse {
-  type: 'message' | 'error' | 'done';
+  type: "message" | "error" | "done";
   data?: any;
   error?: string;
 }
@@ -163,7 +168,7 @@ export interface Chat {
 }
 
 export interface Project {
-  id: number; // Изменено с string на number  
+  id: number; // Изменено с string на number
   name: string;
   description?: string | null;
   chats: Chat[];
@@ -175,7 +180,7 @@ export interface Project {
 export interface Message {
   id?: number; // Изменено с string на number
   chat_id: number;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   created_at: string;
   client_message_id?: string;
@@ -198,32 +203,32 @@ export interface Message {
 ```typescript
 // src/utils/apiClient.ts
 class ApiClient {
-  private baseURL = '/api/web/v1';
+  private baseURL = "/api/web/v1";
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
 
   constructor() {
     // Загружаем токены из localStorage при инициализации
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       this.loadTokensFromStorage();
     }
   }
 
   private loadTokensFromStorage() {
-    this.accessToken = localStorage.getItem('access_token');
-    this.refreshToken = localStorage.getItem('refresh_token');
+    this.accessToken = localStorage.getItem("access_token");
+    this.refreshToken = localStorage.getItem("refresh_token");
   }
 
   private saveTokensToStorage(accessToken: string, refreshToken: string) {
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
+    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("refresh_token", refreshToken);
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
   }
 
   private clearTokensFromStorage() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     this.accessToken = null;
     this.refreshToken = null;
   }
@@ -233,10 +238,10 @@ class ApiClient {
 
     try {
       const response = await fetch(`${this.baseURL}/auth/refresh`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.refreshToken}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.refreshToken}`,
         },
       });
 
@@ -246,26 +251,23 @@ class ApiClient {
         return true;
       }
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      console.error("Token refresh failed:", error);
     }
 
     this.clearTokensFromStorage();
     return false;
   }
 
-  async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     };
 
     if (this.accessToken) {
-      headers['Authorization'] = `Bearer ${this.accessToken}`;
+      headers["Authorization"] = `Bearer ${this.accessToken}`;
     }
 
     let response = await fetch(url, {
@@ -276,9 +278,9 @@ class ApiClient {
     // Если 401 и есть refresh token, попробуем обновить
     if (response.status === 401 && this.refreshToken) {
       const refreshed = await this.refreshAccessToken();
-      
+
       if (refreshed && this.accessToken) {
-        headers['Authorization'] = `Bearer ${this.accessToken}`;
+        headers["Authorization"] = `Bearer ${this.accessToken}`;
         response = await fetch(url, {
           ...options,
           headers,
@@ -295,31 +297,36 @@ class ApiClient {
   }
 
   // Auth methods
-  async loginWithTelegram(authData: TelegramAuthPayload): Promise<AuthTokenResponse> {
-    const response = await this.request<AuthTokenResponse>('/auth/telegram', {
-      method: 'POST',
+  async loginWithTelegram(
+    authData: TelegramAuthPayload,
+  ): Promise<AuthTokenResponse> {
+    const response = await this.request<AuthTokenResponse>("/auth/telegram", {
+      method: "POST",
       body: JSON.stringify(authData),
     });
-    
+
     this.saveTokensToStorage(response.access_token, response.refresh_token);
     return response;
   }
 
   async getCurrentUser(): Promise<UserRead> {
-    return this.request<UserRead>('/me');
+    return this.request<UserRead>("/me");
   }
 
   // Projects methods
-  async getProjects(limit = 20, cursor?: string): Promise<PaginatedResponse<ProjectRead>> {
+  async getProjects(
+    limit = 20,
+    cursor?: string,
+  ): Promise<PaginatedResponse<ProjectRead>> {
     const params = new URLSearchParams({ limit: limit.toString() });
-    if (cursor) params.append('cursor', cursor);
-    
+    if (cursor) params.append("cursor", cursor);
+
     return this.request<PaginatedResponse<ProjectRead>>(`/projects?${params}`);
   }
 
   async createProject(data: ProjectCreate): Promise<ProjectRead> {
-    return this.request<ProjectRead>('/projects', {
-      method: 'POST',
+    return this.request<ProjectRead>("/projects", {
+      method: "POST",
       body: JSON.stringify(data),
     });
   }
@@ -328,35 +335,38 @@ class ApiClient {
     return this.request<ProjectRead>(`/projects/${projectId}`);
   }
 
-  async updateProject(projectId: number, data: ProjectUpdate): Promise<ProjectRead> {
+  async updateProject(
+    projectId: number,
+    data: ProjectUpdate,
+  ): Promise<ProjectRead> {
     return this.request<ProjectRead>(`/projects/${projectId}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(data),
     });
   }
 
   async deleteProject(projectId: number): Promise<void> {
     await this.request(`/projects/${projectId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
   // Chats methods
   async getChats(
-    limit = 20, 
-    cursor?: string, 
-    projectId?: number
+    limit = 20,
+    cursor?: string,
+    projectId?: number,
   ): Promise<PaginatedResponse<ChatRead>> {
     const params = new URLSearchParams({ limit: limit.toString() });
-    if (cursor) params.append('cursor', cursor);
-    if (projectId) params.append('project_id', projectId.toString());
-    
+    if (cursor) params.append("cursor", cursor);
+    if (projectId) params.append("project_id", projectId.toString());
+
     return this.request<PaginatedResponse<ChatRead>>(`/chats?${params}`);
   }
 
   async createChat(data: ChatCreate): Promise<ChatRead> {
-    return this.request<ChatRead>('/chats', {
-      method: 'POST',
+    return this.request<ChatRead>("/chats", {
+      method: "POST",
       body: JSON.stringify(data),
     });
   }
@@ -367,59 +377,62 @@ class ApiClient {
 
   async updateChat(chatId: number, data: ChatUpdate): Promise<ChatRead> {
     return this.request<ChatRead>(`/chats/${chatId}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(data),
     });
   }
 
   async deleteChat(chatId: number): Promise<void> {
     await this.request(`/chats/${chatId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
-  // Messages methods  
+  // Messages methods
   async getMessages(
     chatId: number,
     limit = 50,
-    cursor?: string
+    cursor?: string,
   ): Promise<PaginatedResponse<MessageRead>> {
     const params = new URLSearchParams({ limit: limit.toString() });
-    if (cursor) params.append('cursor', cursor);
-    
+    if (cursor) params.append("cursor", cursor);
+
     return this.request<PaginatedResponse<MessageRead>>(
-      `/chats/${chatId}/messages?${params}`
+      `/chats/${chatId}/messages?${params}`,
     );
   }
 
   async deleteMessage(chatId: number, messageId: number): Promise<void> {
     await this.request(`/chats/${chatId}/messages/${messageId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
-  async getRequestStatus(chatId: number, clientMessageId: string): Promise<any> {
+  async getRequestStatus(
+    chatId: number,
+    clientMessageId: string,
+  ): Promise<any> {
     return this.request(`/chats/${chatId}/requests/${clientMessageId}`);
   }
 
   // Streaming messages
   async streamMessage(
-    chatId: number, 
-    content: string, 
-    clientMessageId?: string
+    chatId: number,
+    content: string,
+    clientMessageId?: string,
   ): Promise<ReadableStream> {
     const url = `${this.baseURL}/chats/${chatId}/messages/stream`;
-    
+
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     };
 
     if (this.accessToken) {
-      headers['Authorization'] = `Bearer ${this.accessToken}`;
+      headers["Authorization"] = `Bearer ${this.accessToken}`;
     }
 
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({
         content,
@@ -432,7 +445,7 @@ class ApiClient {
     }
 
     if (!response.body) {
-      throw new Error('No response body for streaming');
+      throw new Error("No response body for streaming");
     }
 
     return response.body;
@@ -564,7 +577,7 @@ interface ProjectsContextType {
   currentProject: ProjectRead | null;
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   loadProjects: () => Promise<void>;
   createProject: (name: string, description?: string) => Promise<ProjectRead>;
@@ -592,10 +605,10 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await apiClient.getProjects();
       setProjects(response.items);
-      
+
       // TODO: Implement pagination for large project lists
     } catch (error) {
       console.error('Failed to load projects:', error);
@@ -623,11 +636,11 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       const updatedProject = await apiClient.updateProject(id, data);
-      
-      setProjects(prev => 
+
+      setProjects(prev =>
         prev.map(project => project.id === id ? updatedProject : project)
       );
-      
+
       if (currentProject?.id === id) {
         setCurrentProject(updatedProject);
       }
@@ -642,9 +655,9 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       await apiClient.deleteProject(id);
-      
+
       setProjects(prev => prev.filter(project => project.id !== id));
-      
+
       if (currentProject?.id === id) {
         setCurrentProject(null);
       }
@@ -689,10 +702,10 @@ export function useProjects(): ProjectsContextType {
 
 ```typescript
 // src/utils/streamHandler.ts
-import { apiClient } from './apiClient';
+import { apiClient } from "./apiClient";
 
 export interface StreamEvent {
-  type: 'message_start' | 'message_delta' | 'message_end' | 'error';
+  type: "message_start" | "message_delta" | "message_end" | "error";
   data?: any;
   error?: string;
 }
@@ -704,21 +717,25 @@ export class MessageStreamHandler {
     chatId: number,
     content: string,
     onEvent: (event: StreamEvent) => void,
-    clientMessageId?: string
+    clientMessageId?: string,
   ): Promise<void> {
     try {
-      const stream = await apiClient.streamMessage(chatId, content, clientMessageId);
+      const stream = await apiClient.streamMessage(
+        chatId,
+        content,
+        clientMessageId,
+      );
       const reader = stream.getReader();
 
-      let buffer = '';
+      let buffer = "";
       let isReading = true;
 
       while (isReading) {
         const { done, value } = await reader.read();
-        
+
         if (done) {
           isReading = false;
-          onEvent({ type: 'message_end' });
+          onEvent({ type: "message_end" });
           break;
         }
 
@@ -727,32 +744,32 @@ export class MessageStreamHandler {
         buffer += chunk;
 
         // Обрабатываем все полные строки в буфере
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || ''; // Сохраняем неполную строку в буфере
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || ""; // Сохраняем неполную строку в буфере
 
         for (const line of lines) {
-          if (line.trim() === '') continue;
+          if (line.trim() === "") continue;
 
           try {
             // Предполагаем, что каждая строка - это JSON объект
             const eventData = JSON.parse(line);
             onEvent({
-              type: eventData.type || 'message_delta',
+              type: eventData.type || "message_delta",
               data: eventData.data,
             });
           } catch (parseError) {
             // Если не JSON, обрабатываем как обычный текст
-            if (line.startsWith('data: ')) {
+            if (line.startsWith("data: ")) {
               const data = line.substring(6);
               try {
                 const parsedData = JSON.parse(data);
                 onEvent({
-                  type: 'message_delta',
+                  type: "message_delta",
                   data: parsedData,
                 });
               } catch {
                 onEvent({
-                  type: 'message_delta',
+                  type: "message_delta",
                   data: { content: data },
                 });
               }
@@ -761,10 +778,10 @@ export class MessageStreamHandler {
         }
       }
     } catch (error) {
-      console.error('Stream handling error:', error);
+      console.error("Stream handling error:", error);
       onEvent({
-        type: 'error',
-        error: error instanceof Error ? error.message : 'Streaming failed'
+        type: "error",
+        error: error instanceof Error ? error.message : "Streaming failed",
       });
     }
   }
@@ -777,10 +794,10 @@ export const streamHandler = new MessageStreamHandler();
 
 ```typescript
 // src/hooks/useChat.ts
-import { useState, useCallback } from 'react';
-import { MessageRead, ChatRead } from '@/types/api';
-import { apiClient } from '@/utils/apiClient';
-import { streamHandler, StreamEvent } from '@/utils/streamHandler';
+import { useState, useCallback } from "react";
+import { MessageRead, ChatRead } from "@/types/api";
+import { apiClient } from "@/utils/apiClient";
+import { streamHandler, StreamEvent } from "@/utils/streamHandler";
 
 export function useChat(chatId?: number) {
   const [messages, setMessages] = useState<MessageRead[]>([]);
@@ -794,108 +811,120 @@ export function useChat(chatId?: number) {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await apiClient.getMessages(chatId);
       setMessages(response.items);
     } catch (error) {
-      console.error('Failed to load messages:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load messages');
+      console.error("Failed to load messages:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to load messages",
+      );
     } finally {
       setIsLoading(false);
     }
   }, [chatId]);
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!chatId || !content.trim()) return;
+  const sendMessage = useCallback(
+    async (content: string) => {
+      if (!chatId || !content.trim()) return;
 
-    const clientMessageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    try {
-      setIsStreaming(true);
-      setError(null);
+      const clientMessageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // Добавляем пользовательское сообщение сразу
-      const userMessage: MessageRead = {
-        id: Date.now(), // Временный ID
-        chat_id: chatId,
-        role: 'user',
-        content: content.trim(),
-        created_at: new Date().toISOString(),
-      };
+      try {
+        setIsStreaming(true);
+        setError(null);
 
-      setMessages(prev => [...prev, userMessage]);
+        // Добавляем пользовательское сообщение сразу
+        const userMessage: MessageRead = {
+          id: Date.now(), // Временный ID
+          chat_id: chatId,
+          role: "user",
+          content: content.trim(),
+          created_at: new Date().toISOString(),
+        };
 
-      // Создаем сообщение ассистента для отображения процесса
-      const assistantMessage: MessageRead = {
-        id: Date.now() + 1, // Временный ID
-        chat_id: chatId,
-        role: 'assistant', 
-        content: '',
-        created_at: new Date().toISOString(),
-      };
+        setMessages((prev) => [...prev, userMessage]);
 
-      setMessages(prev => [...prev, assistantMessage]);
+        // Создаем сообщение ассистента для отображения процесса
+        const assistantMessage: MessageRead = {
+          id: Date.now() + 1, // Временный ID
+          chat_id: chatId,
+          role: "assistant",
+          content: "",
+          created_at: new Date().toISOString(),
+        };
 
-      // Обрабатываем stream
-      await streamHandler.handleStream(
-        chatId,
-        content,
-        (event: StreamEvent) => {
-          switch (event.type) {
-            case 'message_start':
-              // Сообщение начато
-              break;
-              
-            case 'message_delta':
-              // Обновляем контент ассистента
-              if (event.data?.content) {
-                setMessages(prev => {
-                  const newMessages = [...prev];
-                  const lastMessage = newMessages[newMessages.length - 1];
-                  if (lastMessage.role === 'assistant') {
-                    lastMessage.content += event.data.content;
-                  }
-                  return newMessages;
-                });
-              }
-              break;
-              
-            case 'message_end':
-              // Перезагружаем сообщения для получения актуальных ID
-              loadMessages();
-              break;
-              
-            case 'error':
-              console.error('Stream error:', event.error);
-              setError(event.error || 'Streaming error occurred');
-              // Удаляем незавершенное сообщение ассистента
-              setMessages(prev => prev.slice(0, -1));
-              break;
-          }
-        },
-        clientMessageId
-      );
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      setError(error instanceof Error ? error.message : 'Failed to send message');
-      // Удаляем добавленные сообщения при ошибке
-      setMessages(prev => prev.slice(0, -2));
-    } finally {
-      setIsStreaming(false);
-    }
-  }, [chatId, loadMessages]);
+        setMessages((prev) => [...prev, assistantMessage]);
 
-  const deleteMessage = useCallback(async (messageId: number) => {
-    if (!chatId) return;
+        // Обрабатываем stream
+        await streamHandler.handleStream(
+          chatId,
+          content,
+          (event: StreamEvent) => {
+            switch (event.type) {
+              case "message_start":
+                // Сообщение начато
+                break;
 
-    try {
-      await apiClient.deleteMessage(chatId, messageId);
-      setMessages(prev => prev.filter(msg => msg.id !== messageId));
-    } catch (error) {
-      console.error('Failed to delete message:', error);
-      setError(error instanceof Error ? error.message : 'Failed to delete message');
-    }
-  }, [chatId]);
+              case "message_delta":
+                // Обновляем контент ассистента
+                if (event.data?.content) {
+                  setMessages((prev) => {
+                    const newMessages = [...prev];
+                    const lastMessage = newMessages[newMessages.length - 1];
+                    if (lastMessage.role === "assistant") {
+                      lastMessage.content += event.data.content;
+                    }
+                    return newMessages;
+                  });
+                }
+                break;
+
+              case "message_end":
+                // Перезагружаем сообщения для получения актуальных ID
+                loadMessages();
+                break;
+
+              case "error":
+                console.error("Stream error:", event.error);
+                setError(event.error || "Streaming error occurred");
+                // Удаляем незавершенное сообщение ассистента
+                setMessages((prev) => prev.slice(0, -1));
+                break;
+            }
+          },
+          clientMessageId,
+        );
+      } catch (error) {
+        console.error("Failed to send message:", error);
+        setError(
+          error instanceof Error ? error.message : "Failed to send message",
+        );
+        // Удаляем добавленные сообщения при ошибке
+        setMessages((prev) => prev.slice(0, -2));
+      } finally {
+        setIsStreaming(false);
+      }
+    },
+    [chatId, loadMessages],
+  );
+
+  const deleteMessage = useCallback(
+    async (messageId: number) => {
+      if (!chatId) return;
+
+      try {
+        await apiClient.deleteMessage(chatId, messageId);
+        setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+      } catch (error) {
+        console.error("Failed to delete message:", error);
+        setError(
+          error instanceof Error ? error.message : "Failed to delete message",
+        );
+      }
+    },
+    [chatId],
+  );
 
   return {
     messages,
@@ -1168,7 +1197,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function Sidebar() {
   const { isAuthenticated } = useAuth();
   const { projects, currentProject, setCurrentProject } = useProjects();
-  
+
   if (!isAuthenticated) {
     return <LoginPrompt />;
   }
@@ -1176,7 +1205,7 @@ export default function Sidebar() {
   return (
     <Box>
       {/* Existing sidebar content */}
-      <ProjectsList 
+      <ProjectsList
         projects={projects}
         currentProject={currentProject}
         onProjectSelect={setCurrentProject}
@@ -1189,6 +1218,7 @@ export default function Sidebar() {
 ## 8. Особенности работы с токенами
 
 ### 8.1 Token Management Strategy
+
 - **Access Token**: Короткоживущий (1-24 часа), используется для API запросов
 - **Refresh Token**: Долгоживущий (7-30 дней), используется для обновления access token
 - **Automatic Refresh**: При получении 401 автоматически пытаемся обновить токен
@@ -1196,6 +1226,7 @@ export default function Sidebar() {
 - **Security**: Токены не передаются в URL параметрах
 
 ### 8.2 Error Handling
+
 - **Network Errors**: Retry logic с exponential backoff
 - **401 Unauthorized**: Автоматическое обновление токена
 - **403 Forbidden**: Показать сообщение об отсутствии прав
@@ -1205,6 +1236,7 @@ export default function Sidebar() {
 ## 9. Streaming Implementation Details
 
 ### 9.1 Server-Sent Events (SSE) Approach
+
 ```typescript
 // Пример обработки SSE потока
 const processSSEStream = async (response: Response) => {
@@ -1216,18 +1248,18 @@ const processSSEStream = async (response: Response) => {
     if (done) break;
 
     const chunk = decoder.decode(value);
-    const lines = chunk.split('\n');
+    const lines = chunk.split("\n");
 
     for (const line of lines) {
-      if (line.startsWith('data: ')) {
+      if (line.startsWith("data: ")) {
         const data = line.slice(6);
-        if (data === '[DONE]') return;
-        
+        if (data === "[DONE]") return;
+
         try {
           const json = JSON.parse(data);
           onMessageChunk(json);
         } catch (e) {
-          console.error('Failed to parse SSE data:', e);
+          console.error("Failed to parse SSE data:", e);
         }
       }
     }
@@ -1236,6 +1268,7 @@ const processSSEStream = async (response: Response) => {
 ```
 
 ### 9.2 Message Aggregation
+
 - **Chunk Assembly**: Собираем частичные сообщения в полные
 - **State Management**: Отслеживаем состояние streaming для UI
 - **Error Recovery**: Обработка разрывов соединения
@@ -1244,18 +1277,21 @@ const processSSEStream = async (response: Response) => {
 ## 10. Testing Strategy
 
 ### 10.1 Unit Tests
+
 - **API Client**: Тестировать все endpoints
 - **Stream Handler**: Mock streaming responses
 - **Context Providers**: Тестировать state management
 - **Utility Functions**: Token management, error handling
 
 ### 10.2 Integration Tests
+
 - **Auth Flow**: Full login/logout cycle
 - **CRUD Operations**: Projects and chats management
 - **Streaming**: Mock streaming API responses
 - **Error Scenarios**: Network failures, token expiration
 
 ### 10.3 E2E Tests
+
 - **User Journey**: Complete app workflow
 - **Cross-browser**: Chrome, Safari, Firefox
 - **Mobile**: Responsive design testing
@@ -1264,56 +1300,67 @@ const processSSEStream = async (response: Response) => {
 ## 11. Частые проблемы и их решения
 
 ### Проблема: Токены не сохраняются
+
 **Решение**: Проверить что localStorage доступен и не блокируется браузером. В режиме инкогнито может не работать.
 
 ### Проблема: CORS ошибки при вызове API
+
 **Решение**: Убедиться что бэкенд разрешает запросы с вашего домена. Использовать прокси в next.config.js:
+
 ```javascript
 module.exports = {
   async rewrites() {
     return [
       {
-        source: '/api/web/v1/:path*',
-        destination: 'https://backend-url.com/api/web/v1/:path*',
+        source: "/api/web/v1/:path*",
+        destination: "https://backend-url.com/api/web/v1/:path*",
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ### Проблема: Streaming не работает
+
 **Решение**: Проверить что бэкенд отправляет правильный Content-Type: text/event-stream. Убедиться что прокси не буферизует ответы.
 
 ### Проблема: Типы не совпадают с бэкендом
+
 **Решение**: Сгенерировать типы из OpenAPI спецификации используя openapi-typescript:
+
 ```bash
 npx openapi-typescript openapi.json -o src/types/generated-api.ts
 ```
 
 ### Проблема: Пользователь видит старые данные после изменений
+
 **Решение**: После мутирующих операций (создание, обновление, удаление) перезагружать связанные данные или использовать оптимистичные обновления.
 
 ## 12. Checklist для разработчика
 
 ### Перед началом работы:
+
 - [ ] Получить доступ к тестовому бэкенду
 - [ ] Получить тестовый Telegram аккаунт
 - [ ] Изучить существующую кодовую базу
 - [ ] Проверить что все зависимости установлены
 
 ### Phase 1 выполнен когда:
+
 - [ ] Созданы все TypeScript типы
 - [ ] ApiClient успешно делает запросы
 - [ ] AuthContext загружается без ошибок
 - [ ] Токены сохраняются в localStorage
 
 ### Phase 2 выполнен когда:
+
 - [ ] Пользователь может войти через Telegram
 - [ ] Токены автоматически обновляются
 - [ ] UI показывает статус авторизации
 - [ ] После входа загружаются данные пользователя
 
 ### Phase 3 выполнен когда:
+
 - [ ] Проекты отображаются в sidebar
 - [ ] Можно создать новый проект
 - [ ] Можно переименовать проект
@@ -1321,18 +1368,21 @@ npx openapi-typescript openapi.json -o src/types/generated-api.ts
 - [ ] Чаты группируются по проектам
 
 ### Phase 4 выполнен когда:
+
 - [ ] Чаты привязаны к проектам
 - [ ] Можно создать чат в проекте
 - [ ] Можно перенести чат между проектами
 - [ ] Фильтрация чатов работает корректно
 
 ### Phase 5 выполнен когда:
+
 - [ ] Сообщения загружаются из API
 - [ ] Streaming работает плавно
 - [ ] Текст появляется по мере генерации
 - [ ] Ошибки обрабатываются корректно
 
 ### Phase 6 выполнен когда:
+
 - [ ] Все функции протестированы
 - [ ] Edge cases обработаны
 - [ ] Производительность оптимизирована
@@ -1341,35 +1391,39 @@ npx openapi-typescript openapi.json -o src/types/generated-api.ts
 ## 13. API Endpoints Reference
 
 ### Авторизация
-| Endpoint | Method | Описание | Использование |
-|----------|--------|----------|---------------|
-| `/auth/telegram` | POST | Вход через Telegram | При первом входе пользователя |
-| `/auth/refresh` | POST | Обновление токенов | Автоматически при 401 ошибке |
-| `/me` | GET | Данные пользователя | После успешной авторизации |
+
+| Endpoint         | Method | Описание            | Использование                 |
+| ---------------- | ------ | ------------------- | ----------------------------- |
+| `/auth/telegram` | POST   | Вход через Telegram | При первом входе пользователя |
+| `/auth/refresh`  | POST   | Обновление токенов  | Автоматически при 401 ошибке  |
+| `/me`            | GET    | Данные пользователя | После успешной авторизации    |
 
 ### Проекты
-| Endpoint | Method | Описание | Использование |
-|----------|--------|----------|---------------|
-| `/projects` | GET | Список проектов | При загрузке sidebar |
-| `/projects` | POST | Создать проект | Кнопка "New Project" |
-| `/projects/{id}` | GET | Получить проект | При открытии проекта |
-| `/projects/{id}` | PATCH | Изменить проект | Редактирование названия |
-| `/projects/{id}` | DELETE | Удалить проект | Контекстное меню |
+
+| Endpoint         | Method | Описание        | Использование           |
+| ---------------- | ------ | --------------- | ----------------------- |
+| `/projects`      | GET    | Список проектов | При загрузке sidebar    |
+| `/projects`      | POST   | Создать проект  | Кнопка "New Project"    |
+| `/projects/{id}` | GET    | Получить проект | При открытии проекта    |
+| `/projects/{id}` | PATCH  | Изменить проект | Редактирование названия |
+| `/projects/{id}` | DELETE | Удалить проект  | Контекстное меню        |
 
 ### Чаты
-| Endpoint | Method | Описание | Использование |
-|----------|--------|----------|---------------|
-| `/chats` | GET | Список чатов | При загрузке проекта |
-| `/chats` | POST | Создать чат | Кнопка "New Chat" |
-| `/chats/{id}` | GET | Получить чат | При открытии чата |
-| `/chats/{id}` | PATCH | Изменить чат | Редактирование настроек |
-| `/chats/{id}` | DELETE | Удалить чат | Контекстное меню |
+
+| Endpoint      | Method | Описание     | Использование           |
+| ------------- | ------ | ------------ | ----------------------- |
+| `/chats`      | GET    | Список чатов | При загрузке проекта    |
+| `/chats`      | POST   | Создать чат  | Кнопка "New Chat"       |
+| `/chats/{id}` | GET    | Получить чат | При открытии чата       |
+| `/chats/{id}` | PATCH  | Изменить чат | Редактирование настроек |
+| `/chats/{id}` | DELETE | Удалить чат  | Контекстное меню        |
 
 ### Сообщения
-| Endpoint | Method | Описание | Использование |
-|----------|--------|----------|---------------|
-| `/chats/{id}/messages` | GET | История сообщений | При открытии чата |
-| `/chats/{id}/messages/stream` | POST | Отправка с streaming | При отправке сообщения |
-| `/chats/{id}/messages/{msgId}` | DELETE | Удалить сообщение | Контекстное меню |
+
+| Endpoint                       | Method | Описание             | Использование          |
+| ------------------------------ | ------ | -------------------- | ---------------------- |
+| `/chats/{id}/messages`         | GET    | История сообщений    | При открытии чата      |
+| `/chats/{id}/messages/stream`  | POST   | Отправка с streaming | При отправке сообщения |
+| `/chats/{id}/messages/{msgId}` | DELETE | Удалить сообщение    | Контекстное меню       |
 
 Этот план обеспечивает полную интеграцию с новым API при сохранении существующей архитектуры и UX паттернов приложения.

@@ -1,8 +1,8 @@
-'use client';
-import React from 'react';
-import { Box, VStack, Text, Icon } from '@chakra-ui/react';
-import { COLORS } from '@/theme/colors';
-import { MdBlock } from 'react-icons/md';
+"use client";
+import React from "react";
+import { Box, VStack, Text, Icon } from "@chakra-ui/react";
+import { COLORS } from "@/theme/colors";
+import { MdBlock } from "react-icons/md";
 
 export function UnauthorizedScreen() {
   return (

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, {
   useState,
   useRef,
@@ -7,31 +7,31 @@ import React, {
   useCallback,
   memo,
   useEffect,
-} from 'react';
-import { Box, Flex, Textarea, Button, HStack } from '@chakra-ui/react';
-import { useAutoResize } from '@/hooks/useAutoResize';
-import { useKeyboardHandler } from '@/hooks/useKeyboardHandler';
-import InputActions from './InputActions';
-import QuickActionsPanel from './QuickActionsPanel';
-import { FileAttachment } from './FileAttachment';
-import { AttachedFile, MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from '@/types/file';
-import { COLORS } from '@/theme/colors';
+} from "react";
+import { Box, Flex, Textarea, Button, HStack } from "@chakra-ui/react";
+import { useAutoResize } from "@/hooks/useAutoResize";
+import { useKeyboardHandler } from "@/hooks/useKeyboardHandler";
+import InputActions from "./InputActions";
+import QuickActionsPanel from "./QuickActionsPanel";
+import { FileAttachment } from "./FileAttachment";
+import { AttachedFile, MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from "@/types/file";
+import { COLORS } from "@/theme/colors";
 
 interface NeuroniumChatInputProps {
   onSend: (message: string, attachedFiles?: AttachedFile[]) => void;
   isLoading?: boolean;
   placeholder?: string;
-  variant?: 'default' | 'compact';
+  variant?: "default" | "compact";
 }
 
 const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
   ({
     onSend,
     isLoading = false,
-    placeholder = 'Спроси любой вопрос',
-    variant = 'default',
+    placeholder = "Спроси любой вопрос",
+    variant = "default",
   }) => {
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState("");
     const [showDeepSearch, setShowDeepSearch] = useState(false);
     const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -52,8 +52,8 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     }, [inputRef]);
 
     // Use custom hook for auto-resize functionality
-    const minHeight = variant === 'compact' ? 40 : 48;
-    const maxHeight = variant === 'compact' ? 300 : 360;
+    const minHeight = variant === "compact" ? 40 : 48;
+    const maxHeight = variant === "compact" ? 300 : 360;
     const { resetHeight } = useAutoResize(textareaRef, message, {
       minHeight,
       maxHeight,
@@ -62,7 +62,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     const handleSend = useCallback(() => {
       if ((message.trim() || attachedFiles.length > 0) && !isLoading) {
         onSend(message.trim(), attachedFiles);
-        setMessage('');
+        setMessage("");
         setAttachedFiles([]);
         resetHeight();
       }
@@ -71,7 +71,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     const handleKeyPress = useCallback(
       (e: KeyboardEvent<HTMLTextAreaElement>) => {
         // Send on Enter, new line on Shift+Enter
-        if (e.key === 'Enter' && !e.shiftKey) {
+        if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
           handleSend();
         }
@@ -110,7 +110,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
 
         // Check file size
         if (file.size > MAX_FILE_SIZE) {
-          if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === "development") {
             console.error(`File ${file.name} is too large. Max size is 25MB`);
           }
           continue;
@@ -119,7 +119,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
         // Check file type
         const isAllowed = Object.keys(ALLOWED_FILE_TYPES).includes(file.type);
         if (!isAllowed) {
-          if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === "development") {
             console.error(`File type ${file.type} is not allowed`);
           }
           continue;
@@ -134,7 +134,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
         };
 
         // Create preview for images
-        if (file.type.startsWith('image/')) {
+        if (file.type.startsWith("image/")) {
           const reader = new FileReader();
           reader.onload = (e) => {
             const result = e.target?.result as string;
@@ -154,7 +154,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
 
       // Reset input
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }, []);
 
@@ -167,7 +167,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     }, []);
 
     // Render compact version if specified
-    if (variant === 'compact') {
+    if (variant === "compact") {
       return (
         <Flex
           bg={COLORS.BG_SECONDARY}
@@ -196,7 +196,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
             px="8px"
             py="6px"
             _placeholder={{ color: COLORS.TEXT_SECONDARY }}
-            _focus={{ boxShadow: 'none' }}
+            _focus={{ boxShadow: "none" }}
             _disabled={{ opacity: 0.6 }}
           />
 
@@ -214,7 +214,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
               borderRadius="8px"
               _hover={{
                 bg: COLORS.ACCENT_VIOLET_HOVER,
-                transform: 'scale(1.05)',
+                transform: "scale(1.05)",
               }}
               minW="60px"
             >
@@ -232,9 +232,9 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
           ref={fileInputRef}
           type="file"
           multiple
-          accept={Object.values(ALLOWED_FILE_TYPES).join(',')}
+          accept={Object.values(ALLOWED_FILE_TYPES).join(",")}
           onChange={handleFileSelect}
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
         />
 
         {/* Attached Files */}
@@ -245,15 +245,15 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
             overflowX="auto"
             pb="8px"
             css={{
-              '&::-webkit-scrollbar': {
-                height: '4px',
+              "&::-webkit-scrollbar": {
+                height: "4px",
               },
-              '&::-webkit-scrollbar-track': {
-                background: 'transparent',
+              "&::-webkit-scrollbar-track": {
+                background: "transparent",
               },
-              '&::-webkit-scrollbar-thumb': {
+              "&::-webkit-scrollbar-thumb": {
                 background: COLORS.TEXT_SECONDARY,
-                borderRadius: '2px',
+                borderRadius: "2px",
               },
             }}
           >
@@ -312,29 +312,29 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
                 transition="height 0.1s ease"
                 _placeholder={{
                   color: COLORS.TEXT_SECONDARY,
-                  fontSize: '16px',
-                  fontWeight: '400',
+                  fontSize: "16px",
+                  fontWeight: "400",
                 }}
                 _focus={{
-                  boxShadow: 'none',
-                  outline: 'none',
+                  boxShadow: "none",
+                  outline: "none",
                 }}
                 _disabled={{
                   opacity: 0.6,
-                  cursor: 'not-allowed',
+                  cursor: "not-allowed",
                 }}
                 css={{
-                  '&::-webkit-scrollbar': {
-                    width: '4px',
+                  "&::-webkit-scrollbar": {
+                    width: "4px",
                   },
-                  '&::-webkit-scrollbar-track': {
-                    background: 'transparent',
+                  "&::-webkit-scrollbar-track": {
+                    background: "transparent",
                   },
-                  '&::-webkit-scrollbar-thumb': {
+                  "&::-webkit-scrollbar-thumb": {
                     background: COLORS.TEXT_SECONDARY,
-                    borderRadius: '2px',
+                    borderRadius: "2px",
                   },
-                  '&::-webkit-scrollbar-thumb:hover': {
+                  "&::-webkit-scrollbar-thumb:hover": {
                     background: COLORS.TEXT_PRIMARY,
                   },
                 }}
@@ -361,7 +361,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
   },
 );
 
-NeuroniumChatInput.displayName = 'NeuroniumChatInput';
+NeuroniumChatInput.displayName = "NeuroniumChatInput";
 
 export default NeuroniumChatInput;
 
