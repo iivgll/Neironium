@@ -40,15 +40,7 @@ const NeuroniumAvatar: React.FC<NeuroniumAvatarProps> = ({
   }, [isAnimating, isReady]);
 
   if (!animationData) {
-    return (
-      <Box
-        width={`${size}px`}
-        height={`${size}px`}
-        borderRadius="full"
-        bg="purple.500"
-        opacity={0.3}
-      />
-    );
+    return null; // Не показываем ничего пока анимация не загрузилась
   }
 
   return (
@@ -57,7 +49,7 @@ const NeuroniumAvatar: React.FC<NeuroniumAvatarProps> = ({
         lottieRef={lottieRef}
         animationData={animationData}
         loop={true}
-        autoplay={false}
+        autoplay={true}
         style={{ width: size, height: size }}
         onComplete={() => console.log("🔄 Animation loop complete")}
         onLoopComplete={() => console.log("🔁 Loop iteration complete")}

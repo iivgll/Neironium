@@ -13,7 +13,7 @@ interface InputActionsProps {
 }
 
 // Простые статические стили - никаких хуков!
-const basePath = process.env.NODE_ENV === "production" ? "/Neironium" : "";
+const basePath = ""; // Убираем basePath для Vercel деплоя
 const getStaticAssetPath = (path: string) => {
   const cleanPath = path.startsWith("/") ? path.slice(1) : path;
   return `${basePath}/${cleanPath}`;
@@ -109,7 +109,7 @@ function InputActions({
           title="Голосовой ввод"
           icon={
             <Image
-              src="icons/microphone.svg"
+              src={getStaticAssetPath("/icons/microphone.svg")}
               alt="microphone"
               w="20px"
               h="20px"
@@ -132,7 +132,7 @@ function InputActions({
             aria-label="Отправить"
             title="Отправить"
             icon={
-              <Image src="icons/arrow_right.svg" alt="send" w="20px" h="20px" />
+              <Image src={getStaticAssetPath("/icons/arrow_right.svg")} alt="send" w="20px" h="20px" />
             }
             variant="solid"
             size="sm"

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 
 export const useAssetPath = () => {
-  const basePath = process.env.NODE_ENV === "production" ? "/Neironium" : "";
+  const basePath = ""; // Убираем basePath для Vercel деплоя
 
   const getAssetPath = useCallback(
     (path: string) => {
