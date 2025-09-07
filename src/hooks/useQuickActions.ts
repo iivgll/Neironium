@@ -32,24 +32,6 @@ export const useQuickActions = (onActionSelect: (prompt: string) => void) => {
       icon: FaLightbulb,
       color: COLORS.TAG_PRODUCTIVITY,
     },
-    {
-      id: "goals",
-      label: "Личные дела",
-      icon: FaChartLine,
-      color: COLORS.TAG_GOALS,
-    },
-    {
-      id: "development",
-      label: "Развлечение",
-      icon: FaCogs,
-      color: COLORS.TAG_DEVELOPMENT,
-    },
-    {
-      id: "relationships",
-      label: "Отношения",
-      icon: FaHeart,
-      color: COLORS.TAG_RELATIONSHIPS,
-    },
   ];
 
   const handleQuickAction = useCallback(

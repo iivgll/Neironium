@@ -485,17 +485,6 @@ export default function NeuroniumSidebar() {
                             toggleProjectExpansion(project.id);
                             setCurrentProject(project);
                           }}
-                          onContextMenu={(e) => {
-                            e.preventDefault();
-                            setSelectedProjectId(project.id);
-                            const rect =
-                              e.currentTarget.getBoundingClientRect();
-                            setProjectActionsPosition({
-                              x: rect.right + 4,
-                              y: rect.top,
-                            });
-                            onProjectActionsOpen();
-                          }}
                         >
                           <Image
                             src={getAssetPath("/icons/folder.svg")}
@@ -512,8 +501,82 @@ export default function NeuroniumSidebar() {
                           >
                             {project.name}
                           </Text>
-                          {/* Dropdown Arrow - visible on hover or when expanded */}
-                          {(hoveredProjectId === project.id || isExpanded) && (
+                          {/* Action buttons - visible on hover */}
+                          {hoveredProjectId === project.id && (
+                            <Flex gap="4px">
+                              {/* Dropdown Arrow */}
+                              <IconButton
+                                aria-label={`${isExpanded ? "Свернуть" : "Развернуть"} проект ${project.name}`}
+                                icon={
+                                  <ArrowIcon
+                                    direction={isExpanded ? "up" : "down"}
+                                    color={theme.textSecondary}
+                                    w="16px"
+                                    h="16px"
+                                  />
+                                }
+                                size="xs"
+                                variant="ghost"
+                                minW="20px"
+                                h="20px"
+                                _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleProjectExpansion(project.id);
+                                }}
+                              />
+                              {/* Three dots menu button */}
+                              <IconButton
+                                aria-label={`Действия для проекта ${project.name}`}
+                                icon={
+                                  <Box
+                                    as="svg"
+                                    width="16px"
+                                    height="16px"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                  >
+                                    <circle
+                                      cx="3"
+                                      cy="8"
+                                      r="1.5"
+                                      fill={theme.textSecondary}
+                                    />
+                                    <circle
+                                      cx="8"
+                                      cy="8"
+                                      r="1.5"
+                                      fill={theme.textSecondary}
+                                    />
+                                    <circle
+                                      cx="13"
+                                      cy="8"
+                                      r="1.5"
+                                      fill={theme.textSecondary}
+                                    />
+                                  </Box>
+                                }
+                                size="xs"
+                                variant="ghost"
+                                minW="20px"
+                                h="20px"
+                                _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedProjectId(project.id);
+                                  const rect =
+                                    e.currentTarget.getBoundingClientRect();
+                                  setProjectActionsPosition({
+                                    x: rect.right + 4,
+                                    y: rect.top,
+                                  });
+                                  onProjectActionsOpen();
+                                }}
+                              />
+                            </Flex>
+                          )}
+                          {/* Show only arrow when expanded but not hovered */}
+                          {!hoveredProjectId && isExpanded && (
                             <IconButton
                               aria-label={`${isExpanded ? "Свернуть" : "Развернуть"} проект ${project.name}`}
                               icon={
@@ -1168,17 +1231,6 @@ export function NeuroniumSidebarResponsive() {
                               mobileToggleProjectExpansion(project.id);
                               setCurrentProject(project);
                             }}
-                            onContextMenu={(e) => {
-                              e.preventDefault();
-                              setMobileSelectedProjectId(project.id);
-                              const rect =
-                                e.currentTarget.getBoundingClientRect();
-                              setMobileProjectActionsPosition({
-                                x: rect.right + 4,
-                                y: rect.top,
-                              });
-                              onProjectActionsOpen();
-                            }}
                           >
                             <Image
                               src={getAssetPath("/icons/folder.svg")}
@@ -1195,9 +1247,97 @@ export function NeuroniumSidebarResponsive() {
                             >
                               {project.name}
                             </Text>
-                            {/* Dropdown Arrow */}
-                            {(hoveredProjectId === project.id ||
-                              isExpanded) && (
+                            {/* Action buttons - visible on hover */}
+                            {hoveredProjectId === project.id && (
+                              <Flex gap="4px">
+                                {/* Dropdown Arrow */}
+                                <IconButton
+                                  aria-label="Toggle project"
+                                  icon={
+                                    <Box
+                                      as="svg"
+                                      width="16px"
+                                      height="16px"
+                                      viewBox="0 0 16 16"
+                                      fill="none"
+                                      transform={
+                                        isExpanded
+                                          ? "rotate(180deg)"
+                                          : "rotate(0deg)"
+                                      }
+                                      transition="transform 0.2s"
+                                    >
+                                      <path
+                                        d="M4 6L8 10L12 6"
+                                        stroke={theme.textSecondary}
+                                        strokeWidth="1.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      />
+                                    </Box>
+                                  }
+                                  size="xs"
+                                  variant="ghost"
+                                  minW="20px"
+                                  h="20px"
+                                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    mobileToggleProjectExpansion(project.id);
+                                  }}
+                                />
+                                {/* Three dots menu button */}
+                                <IconButton
+                                  aria-label={`Действия для проекта ${project.name}`}
+                                  icon={
+                                    <Box
+                                      as="svg"
+                                      width="16px"
+                                      height="16px"
+                                      viewBox="0 0 16 16"
+                                      fill="none"
+                                    >
+                                      <circle
+                                        cx="3"
+                                        cy="8"
+                                        r="1.5"
+                                        fill={theme.textSecondary}
+                                      />
+                                      <circle
+                                        cx="8"
+                                        cy="8"
+                                        r="1.5"
+                                        fill={theme.textSecondary}
+                                      />
+                                      <circle
+                                        cx="13"
+                                        cy="8"
+                                        r="1.5"
+                                        fill={theme.textSecondary}
+                                      />
+                                    </Box>
+                                  }
+                                  size="xs"
+                                  variant="ghost"
+                                  minW="20px"
+                                  h="20px"
+                                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMobileSelectedProjectId(project.id);
+                                    const rect =
+                                      e.currentTarget.getBoundingClientRect();
+                                    setMobileProjectActionsPosition({
+                                      x: rect.right + 4,
+                                      y: rect.top,
+                                    });
+                                    onProjectActionsOpen();
+                                  }}
+                                />
+                              </Flex>
+                            )}
+                            {/* Show only arrow when expanded but not hovered */}
+                            {!hoveredProjectId && isExpanded && (
                               <IconButton
                                 aria-label="Toggle project"
                                 icon={

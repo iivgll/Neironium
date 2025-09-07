@@ -61,12 +61,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
   };
 
   return (
-    <HStack
-      spacing={{ base: 1, md: 2 }}
-      mt={3}
-      opacity={1}
-      transition="opacity 0.2s"
-    >
+    <HStack opacity={1} transition="opacity 0.2s">
       <Tooltip label="Нравится" placement="top" hasArrow>
         <IconButton
           aria-label="Like"

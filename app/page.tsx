@@ -7,21 +7,29 @@ import MessageBoxChat from "@/components/messages/MessageBox";
 import UserMessage from "@/components/messages/UserMessage";
 import ThinkingProcess from "@/components/chat/ThinkingProcess";
 import MessageActions from "@/components/messages/MessageActions";
+import NeuroniumAvatar from "@/components/messages/NeuroniumAvatar";
 import { useChat } from "@/hooks/useChat";
 import { useKeyboardHandler } from "@/hooks/useKeyboardHandler";
 import { COLORS } from "@/theme/colors";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { useChatsContext } from "@/contexts/ChatsContext";
+import { streamHandler, StreamEvent } from "@/utils/streamHandler";
+import { MessageRead } from "@/types/api";
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const { displayName, user, isTelegramEnvironment } = useTelegram();
-  const { activeChatId, loadMessages: loadChatMessages } = useChatsContext();
+  const {
+    activeChatId,
+    loadMessages: loadChatMessages,
+    createChat,
+  } = useChatsContext();
   const [messageThinkingStates, setMessageThinkingStates] = useState<{
     [key: number]: boolean;
   }>({});
+  const [isAutoCreatingChat, setIsAutoCreatingChat] = useState(false);
 
   // Используем хук для управления клавиатурой
   const { getFixedBottomStyle, getContainerStyle, isKeyboardVisible } =
@@ -35,6 +43,24 @@ export default function Chat() {
     // Telegram data initialized
   }, [displayName, user, isTelegramEnvironment]);
 
+  // Функция для генерации названия чата из сообщения
+  const generateChatTitle = useCallback((message: string): string => {
+    // Берем первые 3-5 слов сообщения как название чата
+    const words = message.trim().split(/\s+/);
+    const titleWords = words.slice(0, Math.min(5, words.length));
+    let title = titleWords.join(" ");
+
+    // Если заголовок слишком длинный, обрезаем до 50 символов
+    if (title.length > 50) {
+      title = title.substring(0, 47) + "...";
+    }
+
+    // Убираем знаки препинания в конце
+    title = title.replace(/[.,!?;:]$/, "");
+
+    return title || "Новый чат";
+  }, []);
+
   const handleError = useCallback((error: Error) => {
     console.error("Chat error:", error);
     // Handle error display here if needed
@@ -42,9 +68,12 @@ export default function Chat() {
 
   const {
     messages,
+    setMessages,
     isLoading,
     isStreaming,
+    setIsStreaming,
     error,
+    setError,
     model,
     setModel,
     sendMessage,
@@ -57,12 +86,160 @@ export default function Chat() {
     onError: handleError,
   });
 
-  // Load messages when active chat changes
+  // Load messages when active chat changes (но не после автосоздания)
   React.useEffect(() => {
-    if (activeChatId) {
+    if (activeChatId && !isAutoCreatingChat) {
       loadMessages();
+    } else if (!activeChatId && !isAutoCreatingChat) {
+      // Очищаем сообщения когда нет активного чата
+      setMessages([]);
     }
-  }, [activeChatId]); // Убираем loadMessages из зависимостей
+  }, [activeChatId, loadMessages, isAutoCreatingChat, setMessages]);
+
+  // Функция для прямой отправки сообщения в новый чат
+  const sendMessageDirectly = useCallback(
+    async (chatId: number, message: string) => {
+      if (!message.trim()) return;
+
+      const clientMessageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+
+      try {
+        console.log("🚀 Sending message directly to new chat:", chatId);
+        setIsStreaming(true);
+        setError(null);
+
+        // Добавляем пользовательское сообщение сразу
+        const userMessage: MessageRead = {
+          id: Date.now(), // Временный ID
+          chat_id: chatId,
+          role: "user",
+          content: message.trim(),
+          created_at: new Date().toISOString(),
+        };
+
+        setMessages((prev: MessageRead[]) => [...prev, userMessage]);
+
+        // Создаем сообщение ассистента сразу для отображения процесса
+        const assistantMessage: MessageRead = {
+          id: Date.now() + 1, // Временный ID
+          chat_id: chatId,
+          role: "assistant",
+          content: "",
+          created_at: new Date().toISOString(),
+        };
+
+        setMessages((prev: MessageRead[]) => [...prev, assistantMessage]);
+
+        // Обрабатываем stream
+        await streamHandler.handleStream(
+          chatId,
+          message,
+          (event: StreamEvent) => {
+            switch (event.type) {
+              case "message_start":
+                console.log("📝 Stream started");
+                break;
+
+              case "message_delta":
+                console.log("📝 Stream delta received:", event.data);
+                // Обновляем контент ассистента
+                if (event.data?.content) {
+                  const newContent = event.data.content;
+                  console.log("✏️ Adding content:", newContent);
+
+                  setMessages((prev: MessageRead[]) => {
+                    const newMessages = [...prev];
+                    const lastMessage = newMessages[newMessages.length - 1];
+                    if (lastMessage.role === "assistant") {
+                      lastMessage.content += newContent;
+                      console.log(
+                        "📝 Updated message content length:",
+                        lastMessage.content.length,
+                        "isStreaming:",
+                        true,
+                      );
+                    }
+                    return newMessages;
+                  });
+                }
+                break;
+
+              case "message_end":
+                console.log("📝 Stream ended");
+                setIsStreaming(false);
+                setIsAutoCreatingChat(false); // Сбрасываем флаг после завершения стриминга
+                break;
+
+              case "error":
+                console.error("Stream error:", event.error);
+                setError(event.error || "Streaming error occurred");
+                setIsStreaming(false);
+                setIsAutoCreatingChat(false); // Сбрасываем флаг при ошибке
+                // Удаляем незавершенное сообщение ассистента
+                setMessages((prev: MessageRead[]) => prev.slice(0, -1));
+                break;
+            }
+          },
+          clientMessageId,
+        );
+      } catch (error) {
+        console.error("Failed to send message directly:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to send message";
+        setError(errorMessage);
+        setIsStreaming(false);
+        setIsAutoCreatingChat(false); // Сбрасываем флаг при ошибке
+        // Удаляем добавленные сообщения при ошибке
+        setMessages((prev: MessageRead[]) => prev.slice(0, -2));
+        handleError(new Error(errorMessage));
+      }
+    },
+    [handleError, setMessages, setIsStreaming, setError],
+  );
+
+  // Обертка для sendMessage с автосозданием чата
+  const handleSendMessage = useCallback(
+    async (message: string) => {
+      if (!message.trim()) return;
+
+      // Если нет активного чата, создаем новый и отправляем сообщение напрямую
+      if (!activeChatId) {
+        try {
+          setIsAutoCreatingChat(true);
+          const chatTitle = generateChatTitle(message);
+          const newChat = await createChat({
+            title: chatTitle,
+          });
+          console.log(
+            "✨ Auto-created new chat:",
+            chatTitle,
+            "ID:",
+            newChat.id,
+          );
+
+          // Отправляем сообщение напрямую через API, используя новый chatId
+          await sendMessageDirectly(newChat.id, message);
+        } catch (error) {
+          console.error("Failed to auto-create chat:", error);
+          setIsAutoCreatingChat(false);
+          handleError(
+            error instanceof Error ? error : new Error("Failed to create chat"),
+          );
+        }
+      } else {
+        // Если чат уже есть, отправляем сообщение как обычно
+        sendMessage(message);
+      }
+    },
+    [
+      activeChatId,
+      generateChatTitle,
+      createChat,
+      sendMessage,
+      handleError,
+      sendMessageDirectly,
+    ],
+  );
 
   const toggleMessageThinking = useCallback((index: number) => {
     setMessageThinkingStates((prev) => ({
@@ -223,11 +400,21 @@ export default function Chat() {
                       <Flex
                         w="100%"
                         justify="flex-start"
-                        direction="column"
+                        direction="row"
                         position="relative"
+                        alignItems="flex-start"
+                        gap={{ base: "4px", md: "8px" }}
                       >
+                        {/* Анимация слева от всего контента */}
+                        <Box flexShrink={0} pt={0}>
+                          <NeuroniumAvatar
+                            isAnimating={isLastAssistantMessage}
+                            size={80}
+                          />
+                        </Box>
+
                         <Box
-                          maxW={{ base: "100%", md: "70%" }}
+                          maxW={{ base: "calc(100% - 90px)", md: "70%" }}
                           width={{ base: "100%", md: "auto" }}
                         >
                           {/* Показываем ThinkingProcess для всех сообщений с процессом размышления */}
@@ -249,14 +436,14 @@ export default function Chat() {
                             />
                           )}
 
-                          {/* Ответ ассистента - показываем только если есть контент */}
-                          {message.content && (
+                          {/* Ответ ассистента - показываем всегда для последнего сообщения или если есть контент */}
+                          {(isLastAssistantMessage || message.content) && (
                             <>
                               <Box
                                 mt={
                                   hasThinking
-                                    ? { base: "-15px", md: "-30px" }
-                                    : "0"
+                                    ? { base: "-8px", md: "-30px" }
+                                    : { base: "-4px", md: "0" }
                                 }
                               >
                                 <MessageBoxChat
@@ -264,35 +451,33 @@ export default function Chat() {
                                   isStreaming={
                                     isLastAssistantMessage && isStreaming
                                   }
-                                  showTypingIndicator={
-                                    isLastAssistantMessage &&
-                                    isStreaming &&
-                                    !message.content
-                                  }
-                                />
-                              </Box>
-                              <Box pl={{ base: "16px", md: "22px" }}>
-                                <MessageActions
-                                  content={message.content}
                                   isLastMessage={isLastAssistantMessage}
-                                  onRegenerate={
-                                    isLastAssistantMessage
-                                      ? () => {
-                                          // Перегенерация последнего сообщения
-                                          const lastUserMessage = messages
-                                            .slice(0, -1)
-                                            .reverse()
-                                            .find((m) => m.role === "user");
-                                          if (lastUserMessage) {
-                                            sendMessage(
-                                              lastUserMessage.content,
-                                            );
-                                          }
-                                        }
-                                      : undefined
-                                  }
                                 />
                               </Box>
+                              {message.content && (
+                                <Box>
+                                  <MessageActions
+                                    content={message.content}
+                                    isLastMessage={isLastAssistantMessage}
+                                    onRegenerate={
+                                      isLastAssistantMessage
+                                        ? () => {
+                                            // Перегенерация последнего сообщения
+                                            const lastUserMessage = messages
+                                              .slice(0, -1)
+                                              .reverse()
+                                              .find((m) => m.role === "user");
+                                            if (lastUserMessage) {
+                                              sendMessage(
+                                                lastUserMessage.content,
+                                              );
+                                            }
+                                          }
+                                        : undefined
+                                    }
+                                  />
+                                </Box>
+                              )}
                             </>
                           )}
                         </Box>
@@ -331,8 +516,9 @@ export default function Chat() {
         >
           <Box maxW="1200px" mx="auto">
             <NeuroniumChatInput
-              onSend={sendMessage}
+              onSend={handleSendMessage}
               isLoading={isLoading}
+              hasMessages={messages.length > 0}
               placeholder={
                 messages.length === 0
                   ? "Спроси любой вопрос"

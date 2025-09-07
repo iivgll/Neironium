@@ -5,10 +5,7 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
-  ModalFooter,
   ModalBody,
-  ModalCloseButton,
   Button,
   Input,
   FormControl,
@@ -17,9 +14,14 @@ import {
   Text,
   VStack,
   useToast,
+  Flex,
+  IconButton,
+  Box,
 } from "@chakra-ui/react";
+import { MdClose } from "react-icons/md";
 import { useChatsContext } from "@/contexts/ChatsContext";
 import { useProjects } from "@/contexts/ProjectsContext";
+import { COLORS } from "@/theme/colors";
 
 interface NewChatModalProps {
   isOpen: boolean;
@@ -60,7 +62,7 @@ export default function NewChatModal({
       // Create new chat via API
       const newChat = await createChat({
         title: chatTitle.trim(),
-        project_id: selectedProject,
+        project_id: projects.length > 0 ? selectedProject : null,
         // You can add more fields here like model, temperature, system_prompt
         // model: 'gpt-4',
         // temperature: 0.7,
@@ -79,7 +81,9 @@ export default function NewChatModal({
 
       // Reset form and close modal
       setChatTitle("");
-      setSelectedProject(selectedProjectId || null);
+      setSelectedProject(
+        projects.length > 0 ? selectedProjectId || null : null,
+      );
       onClose();
     } catch (error) {
       console.error("Failed to create chat:", error);
@@ -99,130 +103,217 @@ export default function NewChatModal({
   const handleClose = () => {
     if (!isLoading) {
       setChatTitle("");
-      setSelectedProject(selectedProjectId || null);
+      setSelectedProject(
+        projects.length > 0 ? selectedProjectId || null : null,
+      );
       onClose();
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} isCentered size="md">
-      <ModalOverlay />
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
+      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" backdropFilter="blur(4px)" />
       <ModalContent
-        mx="4"
-        borderRadius="12px"
-        bg="#2a2a2a"
-        border="1px solid #404040"
-        color="white"
+        bg="#121314"
+        border="none"
+        borderRadius="55px"
+        maxW={["90vw", "680px"]}
+        mx="20px"
+        p="0"
       >
-        <ModalHeader>
-          <Text fontSize="18px" fontWeight="600" color="white">
-            Создать новый чат
-          </Text>
-        </ModalHeader>
-        <ModalCloseButton color="white" />
-
-        <ModalBody>
-          <VStack spacing="16px" align="stretch">
-            {/* Chat Title Input */}
-            <FormControl isRequired>
-              <FormLabel color="#a0a0a0" fontSize="14px" mb="8px">
-                Название чата
-              </FormLabel>
-              <Input
-                value={chatTitle}
-                onChange={(e) => setChatTitle(e.target.value)}
-                placeholder="Введите название чата"
-                bg="#1a1a1a"
-                border="1px solid #404040"
-                borderRadius="8px"
-                color="white"
-                fontSize="14px"
-                _hover={{
-                  borderColor: "#606060",
-                }}
-                _focus={{
-                  borderColor: "#0066cc",
-                  boxShadow: "0 0 0 1px #0066cc",
-                }}
-                _placeholder={{
-                  color: "#666666",
-                }}
-                disabled={isLoading}
-              />
-            </FormControl>
-
-            {/* Project Selection */}
-            <FormControl>
-              <FormLabel color="#a0a0a0" fontSize="14px" mb="8px">
-                Проект (опционально)
-              </FormLabel>
-              <Select
-                value={selectedProject || ""}
-                onChange={(e) =>
-                  setSelectedProject(
-                    e.target.value ? Number(e.target.value) : null,
-                  )
-                }
-                placeholder="Выберите проект или оставьте пустым"
-                bg="#1a1a1a"
-                border="1px solid #404040"
-                borderRadius="8px"
-                color="white"
-                fontSize="14px"
-                _hover={{
-                  borderColor: "#606060",
-                }}
-                _focus={{
-                  borderColor: "#0066cc",
-                  boxShadow: "0 0 0 1px #0066cc",
-                }}
-                disabled={isLoading}
+        <ModalBody p="40px">
+          <VStack spacing="40px" align="stretch" w="full">
+            {/* Header with Title and Close */}
+            <Flex align="center" justify="center" position="relative">
+              <Text
+                fontSize="24px"
+                fontWeight="700"
+                color={COLORS.TEXT_PRIMARY}
+                textAlign="center"
               >
-                {projects.map((project) => (
-                  <option
-                    key={project.id}
-                    value={project.id}
-                    style={{
-                      backgroundColor: "#1a1a1a",
-                      color: "white",
+                Новый чат
+              </Text>
+              <IconButton
+                aria-label="Close modal"
+                icon={<MdClose size="20px" />}
+                position="absolute"
+                right="0"
+                size="sm"
+                variant="ghost"
+                color={COLORS.TEXT_PRIMARY}
+                _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                onClick={handleClose}
+                borderRadius="full"
+              />
+            </Flex>
+
+            {/* Form Fields */}
+            <VStack spacing="24px" align="stretch">
+              {/* Chat Title Input */}
+              <VStack spacing="8px" align="stretch">
+                <Text
+                  fontSize="14px"
+                  color="rgba(255,255,255,0.6)"
+                  fontWeight="500"
+                >
+                  Название чата
+                </Text>
+                <Input
+                  value={chatTitle}
+                  onChange={(e) => setChatTitle(e.target.value)}
+                  placeholder="Привет"
+                  bg="transparent"
+                  border="1px solid rgba(255,255,255,0.2)"
+                  borderRadius="8px"
+                  h="48px"
+                  px="16px"
+                  color="white"
+                  fontSize="16px"
+                  w="100%"
+                  _placeholder={{ color: "rgba(255,255,255,0.4)" }}
+                  _hover={{ borderColor: "rgba(255,255,255,0.3)" }}
+                  _focus={{
+                    borderColor: "rgba(255,255,255,0.5)",
+                    boxShadow: "none",
+                  }}
+                  disabled={isLoading}
+                />
+              </VStack>
+
+              {/* Project Selection */}
+              {projects.length > 0 ? (
+                <VStack spacing="8px" align="stretch">
+                  <Text
+                    fontSize="14px"
+                    color="rgba(255,255,255,0.6)"
+                    fontWeight="500"
+                  >
+                    Проект (опционально)
+                  </Text>
+                  <Select
+                    value={selectedProject || ""}
+                    onChange={(e) =>
+                      setSelectedProject(
+                        e.target.value ? Number(e.target.value) : null,
+                      )
+                    }
+                    placeholder="Без проекта"
+                    bg="transparent"
+                    border="1px solid rgba(255,255,255,0.2)"
+                    borderRadius="8px"
+                    h="48px"
+                    pl="16px"
+                    pr="40px"
+                    color="white"
+                    fontSize="16px"
+                    w="100%"
+                    _placeholder={{ color: "rgba(255,255,255,0.4)" }}
+                    _hover={{ borderColor: "rgba(255,255,255,0.3)" }}
+                    _focus={{
+                      borderColor: "rgba(255,255,255,0.5)",
+                      boxShadow: "none",
+                    }}
+                    disabled={isLoading}
+                    css={{
+                      "& > option": {
+                        backgroundColor: "#121314",
+                        color: "white",
+                      },
                     }}
                   >
-                    {project.name}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
+                    {projects.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name}
+                      </option>
+                    ))}
+                  </Select>
+                </VStack>
+              ) : (
+                <VStack spacing="8px" align="stretch">
+                  <Text
+                    fontSize="14px"
+                    color="rgba(255,255,255,0.6)"
+                    fontWeight="500"
+                  >
+                    Проект
+                  </Text>
+                  <Box
+                    bg="transparent"
+                    border="1px solid rgba(255,255,255,0.2)"
+                    borderRadius="8px"
+                    h="48px"
+                    px="16px"
+                    color="rgba(255,255,255,0.4)"
+                    fontSize="16px"
+                    w="100%"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    Без проекта
+                  </Box>
+                </VStack>
+              )}
+            </VStack>
 
-            {/* Info text */}
-            <Text fontSize="12px" color="#888888">
+            {/* Info text - minimal */}
+            <Text
+              fontSize="14px"
+              color="rgba(255,255,255,0.4)"
+              textAlign="center"
+              lineHeight="1.5"
+            >
               После создания чат автоматически откроется и станет активным
             </Text>
+
+            {/* Buttons */}
+            <Flex gap="12px" justify="center">
+              <Button
+                bg="rgba(255,255,255,0.1)"
+                color={COLORS.TEXT_PRIMARY}
+                borderRadius="full"
+                h="48px"
+                px="32px"
+                fontWeight="600"
+                fontSize="16px"
+                _hover={{ bg: "rgba(255,255,255,0.15)" }}
+                _active={{ bg: "rgba(255,255,255,0.2)" }}
+                onClick={handleClose}
+                disabled={isLoading}
+              >
+                Отмена
+              </Button>
+              <Button
+                bg={
+                  !chatTitle.trim() || isLoading
+                    ? "rgba(255,255,255,0.3)"
+                    : "white"
+                }
+                color="#000"
+                borderRadius="full"
+                h="48px"
+                px="32px"
+                fontWeight="600"
+                fontSize="16px"
+                isDisabled={!chatTitle.trim() || isLoading}
+                isLoading={isLoading}
+                loadingText="Создание..."
+                _hover={
+                  chatTitle.trim() && !isLoading
+                    ? { bg: "rgba(255,255,255,0.9)" }
+                    : {}
+                }
+                _active={
+                  chatTitle.trim() && !isLoading
+                    ? { bg: "rgba(255,255,255,0.8)" }
+                    : {}
+                }
+                onClick={handleSubmit}
+              >
+                Создать чат
+              </Button>
+            </Flex>
           </VStack>
         </ModalBody>
-
-        <ModalFooter>
-          <Button
-            variant="ghost"
-            mr={3}
-            onClick={handleClose}
-            disabled={isLoading}
-            color="#a0a0a0"
-            _hover={{ bg: "#3a3a3a" }}
-          >
-            Отмена
-          </Button>
-          <Button
-            colorScheme="blue"
-            onClick={handleSubmit}
-            isLoading={isLoading}
-            loadingText="Создание..."
-            bg="#0066cc"
-            _hover={{ bg: "#0052a3" }}
-            _active={{ bg: "#004080" }}
-          >
-            Создать чат
-          </Button>
-        </ModalFooter>
       </ModalContent>
     </Modal>
   );

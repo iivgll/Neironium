@@ -42,6 +42,12 @@ export default function EditProjectModal({
   const inputRef = useRef<HTMLInputElement>(null);
   const { getAssetPath } = useAssetPath();
 
+  console.log("EditProjectModal render:", {
+    isOpen,
+    currentName,
+    currentDescription,
+  });
+
   // Update local state when props change
   useEffect(() => {
     setProjectName(currentName);
@@ -94,6 +100,7 @@ export default function EditProjectModal({
   };
 
   const handleClose = () => {
+    console.log("EditProjectModal: handleClose called");
     setProjectName(currentName);
     setDescription(currentDescription || "");
     setValidationError("");
@@ -120,8 +127,20 @@ export default function EditProjectModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
-      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" backdropFilter="blur(4px)" />
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="lg"
+      isCentered
+      closeOnOverlayClick={true}
+      closeOnEsc={true}
+      blockScrollOnMount={true}
+    >
+      <ModalOverlay
+        bg="rgba(0, 0, 0, 0.4)"
+        backdropFilter="blur(4px)"
+        onClick={handleClose}
+      />
       <ModalContent
         bg="#121314"
         border="none"
@@ -129,6 +148,7 @@ export default function EditProjectModal({
         maxW={["90vw", "680px"]}
         mx="20px"
         p="0"
+        onClick={(e) => e.stopPropagation()}
       >
         <ModalBody p={["20px", "40px"]}>
           <VStack spacing={["30px", "40px"]} align="stretch" w="full">

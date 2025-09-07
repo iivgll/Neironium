@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { MessageRead } from "@/types/api";
 import { apiClient } from "@/utils/apiClient";
 import { streamHandler, StreamEvent } from "@/utils/streamHandler";
@@ -18,8 +18,20 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
   const [hasCompletedThinking, setHasCompletedThinking] = useState(false);
   const [streamingResponse, setStreamingResponse] = useState("");
 
+  // Очищаем сообщения при изменении chatId
+  useEffect(() => {
+    if (!chatId) {
+      setMessages([]);
+      setError(null);
+      setIsStreaming(false);
+    }
+  }, [chatId]);
+
   const loadMessages = useCallback(async () => {
-    if (!chatId) return;
+    if (!chatId) {
+      setMessages([]);
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -42,12 +54,18 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
     async (message: string) => {
       if (!chatId || !message.trim()) return;
 
-      const clientMessageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const clientMessageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
       try {
         console.log("🚀 Starting sendMessage, setting isStreaming to TRUE");
         setIsStreaming(true);
         setError(null);
+        console.log(
+          "📊 Current state - isStreaming:",
+          true,
+          "messages count:",
+          messages.length,
+        );
 
         // Добавляем пользовательское сообщение сразу
         const userMessage: MessageRead = {
@@ -60,7 +78,7 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
 
         setMessages((prev) => [...prev, userMessage]);
 
-        // Создаем сообщение ассистента для отображения процесса
+        // Создаем сообщение ассистента сразу для отображения процесса
         const assistantMessage: MessageRead = {
           id: Date.now() + 1, // Временный ID
           chat_id: chatId,
@@ -74,10 +92,12 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
           console.log(
             "💭 Added assistant message, total messages:",
             newMessages.length,
+            "assistant content:",
+            assistantMessage.content || "(empty)",
           );
           return newMessages;
         });
-        console.log("💭 Starting stream immediately...");
+        console.log("💭 Starting stream after delay...");
 
         // Обрабатываем stream
         await streamHandler.handleStream(
@@ -94,6 +114,7 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
                 // Обновляем контент ассистента
                 if (event.data?.content) {
                   const newContent = event.data.content;
+                  console.log("✏️ Adding content:", newContent);
 
                   // Для всех строк добавляем сразу (упрощаем)
                   setMessages((prev) => {
@@ -104,6 +125,8 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
                       console.log(
                         "📝 Updated message content length:",
                         lastMessage.content.length,
+                        "isStreaming:",
+                        true,
                       );
                     }
                     return newMessages;
@@ -179,9 +202,12 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
 
   return {
     messages,
+    setMessages,
     isLoading,
     isStreaming,
+    setIsStreaming,
     error,
+    setError,
     model,
     setModel,
     sendMessage,

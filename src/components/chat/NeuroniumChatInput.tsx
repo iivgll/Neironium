@@ -22,6 +22,7 @@ interface NeuroniumChatInputProps {
   isLoading?: boolean;
   placeholder?: string;
   variant?: "default" | "compact";
+  hasMessages?: boolean;
 }
 
 const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
@@ -30,6 +31,7 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     isLoading = false,
     placeholder = "Спроси любой вопрос",
     variant = "default",
+    hasMessages = false,
   }) => {
     const [message, setMessage] = useState("");
     const [showDeepSearch, setShowDeepSearch] = useState(false);
@@ -354,8 +356,16 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
           </Box>
         </Box>
 
-        {/* Quick Actions Panel */}
-        <QuickActionsPanel onActionSelect={handleQuickActionSelect} />
+        {/* Quick Actions Panel with slide animation */}
+        <Box
+          overflow="hidden"
+          transition="all 0.3s ease-in-out"
+          maxHeight={hasMessages ? "0px" : "60px"}
+          opacity={hasMessages ? 0 : 1}
+          transform={hasMessages ? "translateY(-10px)" : "translateY(0)"}
+        >
+          <QuickActionsPanel onActionSelect={handleQuickActionSelect} />
+        </Box>
       </Box>
     );
   },

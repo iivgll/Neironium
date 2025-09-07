@@ -48,42 +48,49 @@ export class MessageStreamHandler {
 
           console.log("📦 Processing line:", line);
 
-          try {
-            // Предполагаем, что каждая строка - это JSON объект
-            const eventData = JSON.parse(line);
-            console.log("📦 Parsed eventData:", eventData);
-            onEvent({
-              type: eventData.type || "message_delta",
-              data: eventData.data || eventData, // Если data не существует, используем весь объект
-            });
-          } catch (parseError) {
-            console.log("📦 JSON parse failed, trying SSE format");
-            // Если не JSON, обрабатываем как обычный текст
-            if (line.startsWith("data: ")) {
-              const data = line.substring(6);
-              console.log("📦 SSE data:", data);
-              try {
-                const parsedData = JSON.parse(data);
-                console.log("📦 Parsed SSE data:", parsedData);
+          // Обрабатываем SSE формат
+          if (line.startsWith("event:")) {
+            // Это строка с типом события, пропускаем её
+            const eventType = line.substring(6).trim();
+            console.log("📦 SSE event type:", eventType);
+            continue;
+          } else if (line.startsWith("data:")) {
+            // Это строка с данными
+            const data = line.substring(5).trim();
+            console.log("📦 SSE data:", data);
+
+            try {
+              const parsedData = JSON.parse(data);
+              console.log("📦 Parsed SSE data:", parsedData);
+
+              // Обрабатываем разные типы данных от API
+              if (parsedData.delta) {
+                // Это токен с текстом
                 onEvent({
                   type: "message_delta",
-                  data: parsedData,
+                  data: { content: parsedData.delta },
                 });
-              } catch {
-                console.log("📦 Using raw SSE data as content");
-                onEvent({
-                  type: "message_delta",
-                  data: { content: data },
-                });
+              } else if (parsedData.user_message_id) {
+                // Это информация о созданном сообщении пользователя
+                console.log(
+                  "📦 User message created with ID:",
+                  parsedData.user_message_id,
+                );
+              } else if (parsedData.assistant_message_id) {
+                // Это финальная информация о сообщении ассистента
+                console.log(
+                  "📦 Assistant message completed with ID:",
+                  parsedData.assistant_message_id,
+                );
+                // Стриминг завершен
+                onEvent({ type: "message_end" });
               }
-            } else {
-              // Если это просто текст, используем как контент
-              console.log("📦 Using line as plain content");
-              onEvent({
-                type: "message_delta",
-                data: { content: line },
-              });
+            } catch (parseError) {
+              console.log("📦 Failed to parse SSE data as JSON:", parseError);
             }
+          } else {
+            // Неизвестный формат строки, игнорируем
+            console.log("📦 Unknown line format, ignoring:", line);
           }
         }
       }

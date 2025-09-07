@@ -69,7 +69,10 @@ class ApiClient {
     return false;
   }
 
-  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  async request<T>(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<T | null> {
     const url = `${this.baseURL}${endpoint}`;
 
     const headers: Record<string, string> = {
@@ -105,6 +108,18 @@ class ApiClient {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `HTTP ${response.status}`);
+    }
+
+    // Проверяем, есть ли контент для парсинга
+    const contentLength = response.headers.get("content-length");
+    const contentType = response.headers.get("content-type");
+
+    if (
+      response.status === 204 ||
+      contentLength === "0" ||
+      (!contentType?.includes("json") && !response.body)
+    ) {
+      return null;
     }
 
     return response.json();
@@ -197,7 +212,7 @@ class ApiClient {
   }
 
   async deleteChat(chatId: number): Promise<void> {
-    await this.request(`/chats/${chatId}`, {
+    await this.request<void>(`/chats/${chatId}`, {
       method: "DELETE",
     });
   }

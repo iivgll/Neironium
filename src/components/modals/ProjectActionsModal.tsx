@@ -51,6 +51,17 @@ export default function ProjectActionsModal({
 
   return (
     <>
+      {/* Backdrop to close modal on outside click */}
+      <Box
+        position="fixed"
+        top="0"
+        left="0"
+        width="100vw"
+        height="100vh"
+        zIndex={1501}
+        onClick={onClose}
+      />
+
       <Box
         position="fixed"
         left={`${position.x}px`}
