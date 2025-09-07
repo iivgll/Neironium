@@ -2,9 +2,6 @@
 
 const nextConfig = {
   reactStrictMode: false,
-  // Убираем output: 'export' для поддержки API routes
-  basePath: process.env.NODE_ENV === "production" ? "/Neironium" : "",
-  assetPrefix: process.env.NODE_ENV === "production" ? "/Neironium" : "",
   images: {
     domains: [
       "images.unsplash.com",
@@ -13,7 +10,7 @@ const nextConfig = {
     ],
     unoptimized: true,
   },
-  // Добавляем rewrites для обхода CORS
+  // Добавляем rewrites для обхода CORS (работает в dev и production)
   async rewrites() {
     return [
       {
