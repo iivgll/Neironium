@@ -61,22 +61,6 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
   const { currentProject } = useProjects();
 
-  // Load chats when authenticated (load all chats, not filtered by project)
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadChats(); // Load all chats without project filter
-    }
-  }, [isAuthenticated]);
-
-  // Load messages when active chat changes
-  useEffect(() => {
-    if (activeChatId) {
-      loadMessages(activeChatId);
-    } else {
-      setMessages([]);
-    }
-  }, [activeChatId]);
-
   const loadChats = useCallback(
     async (projectId?: number) => {
       try {
@@ -216,6 +200,22 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
       setIsLoadingMessages(false);
     }
   }, []);
+
+  // Load chats when authenticated (load all chats, not filtered by project)
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadChats(); // Load all chats without project filter
+    }
+  }, [isAuthenticated, loadChats]);
+
+  // Load messages when active chat changes
+  useEffect(() => {
+    if (activeChatId) {
+      loadMessages(activeChatId);
+    } else {
+      setMessages([]);
+    }
+  }, [activeChatId, loadMessages]);
 
   // Helper methods for filtering chats
   const getChatsByProject = useCallback(

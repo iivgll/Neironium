@@ -6,12 +6,14 @@ import { COLORS } from "@/theme/colors";
 import { Project } from "@/types/chat";
 import { useAssetPath } from "@/hooks/useAssetPath";
 
+type MinimalProject = Pick<Project, "id" | "name">;
+
 interface ProjectTooltipProps {
   isOpen: boolean;
   onClose: () => void;
   position: { x: number; y: number };
   onNewProject?: () => void;
-  projects?: Project[];
+  projects?: MinimalProject[];
   chatId?: number;
   onMoveToProject?: (chatId: number, projectId: number) => void;
   onCreateProjectAndMove?: (chatId: number) => void;

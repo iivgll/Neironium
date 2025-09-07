@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useCallback,
   ReactNode,
 } from "react";
 import { apiClient } from "@/utils/apiClient";
@@ -28,14 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const { user: telegramUser, isTelegramEnvironment } = useTelegram();
 
-  useEffect(() => {
-    // Only run auth check when Telegram data is ready (or when not in Telegram environment)
-    if (telegramUser !== undefined && isTelegramEnvironment !== undefined) {
-      checkAuthStatus();
-    }
-  }, [telegramUser, isTelegramEnvironment]);
-
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = useCallback(async () => {
     try {
       // Check if we have tokens
       const accessToken = localStorage.getItem("access_token");
@@ -65,9 +59,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [telegramUser, isTelegramEnvironment]);
 
-  const login = async () => {
+  const login = useCallback(async () => {
     if (!telegramUser || !isTelegramEnvironment) {
       setError("Telegram authentication required");
       return;
@@ -97,7 +92,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [telegramUser, isTelegramEnvironment]);
+
+  useEffect(() => {
+    // Only run auth check when Telegram data is ready (or when not in Telegram environment)
+    if (telegramUser !== undefined && isTelegramEnvironment !== undefined) {
+      checkAuthStatus();
+    }
+  }, [telegramUser, isTelegramEnvironment, checkAuthStatus]);
 
   const logout = () => {
     localStorage.removeItem("access_token");

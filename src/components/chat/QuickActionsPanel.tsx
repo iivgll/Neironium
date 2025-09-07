@@ -15,7 +15,16 @@ const QuickActionsPanel = memo<QuickActionsPanelProps>(({ onActionSelect }) => {
   };
 
   return (
-    <Flex flexWrap="wrap" gap="6px" mt="12px" justify="center" align="center">
+    <Flex
+      flexWrap="wrap"
+      gap={["4px", "6px"]}
+      mt="12px"
+      justify="center"
+      align="center"
+      w="full"
+      px={["2px", "0"]}
+      overflowX="hidden"
+    >
       {quickActions.map((action) => (
         <Button
           key={action.id}
@@ -25,9 +34,9 @@ const QuickActionsPanel = memo<QuickActionsPanelProps>(({ onActionSelect }) => {
             <Icon as={action.icon} color={action.color} boxSize="14px" />
           }
           onClick={() => handleActionClick(action)}
-          px="12px"
+          px={["8px", "12px"]}
           py="4px"
-          h="28px"
+          h={["26px", "28px"]}
           bg={COLORS.BG_HOVER}
           borderRadius="100px"
           color={COLORS.TEXT_PRIMARY}
@@ -42,9 +51,12 @@ const QuickActionsPanel = memo<QuickActionsPanelProps>(({ onActionSelect }) => {
             transform: "scale(0.98)",
           }}
           whiteSpace="nowrap"
-          fontSize="13px"
+          fontSize={["12px", "13px"]}
           fontWeight="500"
           transition="all 0.2s"
+          flex="0 0 auto"
+          minW="fit-content"
+          maxW={["calc(50% - 2px)", "none"]}
         >
           {action.label}
         </Button>

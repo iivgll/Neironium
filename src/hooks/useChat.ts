@@ -48,7 +48,7 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
     } finally {
       setIsLoading(false);
     }
-  }, [chatId, options.onError]);
+  }, [chatId, options]);
 
   const sendMessage = useCallback(
     async (message: string) => {
@@ -166,7 +166,7 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
         // setIsStreaming(false) теперь вызывается в message_end или error
       }
     },
-    [chatId, loadMessages, options.onError],
+    [chatId, options],
   );
 
   const deleteMessage = useCallback(
@@ -184,7 +184,7 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
         options.onError?.(new Error(errorMessage));
       }
     },
-    [chatId, options.onError],
+    [chatId, options],
   );
 
   const clearMessages = useCallback(() => {

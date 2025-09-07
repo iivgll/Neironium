@@ -4,6 +4,7 @@ import { Box, VStack, Text } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { COLORS } from "@/theme/colors";
 import { MOCK_TELEGRAM_USER } from "@/types/telegram";
+import dynamic from "next/dynamic";
 
 const pulse = keyframes`
   0% { opacity: 0.6; transform: scale(0.95); }
@@ -16,24 +17,21 @@ const fadeIn = keyframes`
   100% { opacity: 1; }
 `;
 
-export function LoadingScreen() {
-  const [mounted, setMounted] = useState(false);
+function LoadingScreenContent() {
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setIsClient(true);
 
     // Предзагрузка аватарки пользователя
     if (MOCK_TELEGRAM_USER.photo_url) {
       const img = new Image();
       img.src = MOCK_TELEGRAM_USER.photo_url;
     }
-
-    // Предзагрузка аватарки ассистента (логотип Nr)
-    // Если у вас есть отдельное изображение для ассистента, добавьте здесь
   }, []);
 
-  // На сервере показываем простой плейсхолдер без анимаций
-  if (!mounted) {
+  // Рендерим только на клиенте
+  if (!isClient) {
     return (
       <Box
         position="fixed"
@@ -76,7 +74,6 @@ export function LoadingScreen() {
     );
   }
 
-  // После монтирования показываем версию с анимациями
   return (
     <Box
       position="fixed"
@@ -166,3 +163,11 @@ export function LoadingScreen() {
     </Box>
   );
 }
+
+// Экспортируем динамический компонент без SSR
+export const LoadingScreen = dynamic(
+  () => Promise.resolve(LoadingScreenContent),
+  {
+    ssr: false,
+  },
+);

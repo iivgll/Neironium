@@ -125,6 +125,17 @@ class ApiClient {
     return response.json();
   }
 
+  private async requestRequired<T>(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<T> {
+    const response = await this.request<T>(endpoint, options);
+    if (response === null) {
+      throw new Error(`Request to ${endpoint} returned null`);
+    }
+    return response;
+  }
+
   // Auth methods
   async loginWithTelegram(
     authData: TelegramAuthPayload,
@@ -134,12 +145,16 @@ class ApiClient {
       body: JSON.stringify(authData),
     });
 
+    if (!response) {
+      throw new Error("Failed to authenticate with Telegram");
+    }
+
     this.saveTokensToStorage(response.access_token, response.refresh_token);
     return response;
   }
 
   async getCurrentUser(): Promise<UserRead> {
-    return this.request<UserRead>("/me");
+    return this.requestRequired<UserRead>("/me");
   }
 
   // Projects methods
@@ -150,25 +165,27 @@ class ApiClient {
     const params = new URLSearchParams({ limit: limit.toString() });
     if (cursor) params.append("cursor", cursor);
 
-    return this.request<PaginatedResponse<ProjectRead>>(`/projects?${params}`);
+    return this.requestRequired<PaginatedResponse<ProjectRead>>(
+      `/projects?${params}`,
+    );
   }
 
   async createProject(data: ProjectCreate): Promise<ProjectRead> {
-    return this.request<ProjectRead>("/projects", {
+    return this.requestRequired<ProjectRead>("/projects", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async getProject(projectId: number): Promise<ProjectRead> {
-    return this.request<ProjectRead>(`/projects/${projectId}`);
+    return this.requestRequired<ProjectRead>(`/projects/${projectId}`);
   }
 
   async updateProject(
     projectId: number,
     data: ProjectUpdate,
   ): Promise<ProjectRead> {
-    return this.request<ProjectRead>(`/projects/${projectId}`, {
+    return this.requestRequired<ProjectRead>(`/projects/${projectId}`, {
       method: "PATCH",
       body: JSON.stringify(data),
     });
@@ -190,22 +207,24 @@ class ApiClient {
     if (cursor) params.append("cursor", cursor);
     if (projectId) params.append("project_id", projectId.toString());
 
-    return this.request<PaginatedResponse<ChatRead>>(`/chats?${params}`);
+    return this.requestRequired<PaginatedResponse<ChatRead>>(
+      `/chats?${params}`,
+    );
   }
 
   async createChat(data: ChatCreate): Promise<ChatRead> {
-    return this.request<ChatRead>("/chats", {
+    return this.requestRequired<ChatRead>("/chats", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async getChat(chatId: number): Promise<ChatRead> {
-    return this.request<ChatRead>(`/chats/${chatId}`);
+    return this.requestRequired<ChatRead>(`/chats/${chatId}`);
   }
 
   async updateChat(chatId: number, data: ChatUpdate): Promise<ChatRead> {
-    return this.request<ChatRead>(`/chats/${chatId}`, {
+    return this.requestRequired<ChatRead>(`/chats/${chatId}`, {
       method: "PATCH",
       body: JSON.stringify(data),
     });
@@ -226,7 +245,7 @@ class ApiClient {
     const params = new URLSearchParams({ limit: limit.toString() });
     if (cursor) params.append("cursor", cursor);
 
-    return this.request<PaginatedResponse<MessageRead>>(
+    return this.requestRequired<PaginatedResponse<MessageRead>>(
       `/chats/${chatId}/messages?${params}`,
     );
   }

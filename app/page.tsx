@@ -86,15 +86,25 @@ export default function Chat() {
     onError: handleError,
   });
 
+  // Memoized callback to prevent infinite renders in ModelSelector
+  const handleModelChange = useCallback(
+    (newModel: string) => {
+      setModel(newModel);
+    },
+    [setModel],
+  );
+
   // Load messages when active chat changes (но не после автосоздания)
   React.useEffect(() => {
     if (activeChatId && !isAutoCreatingChat) {
       loadMessages();
     } else if (!activeChatId && !isAutoCreatingChat) {
       // Очищаем сообщения когда нет активного чата
-      setMessages([]);
+      // Проверяем, что сообщения еще не пустые, чтобы избежать лишних обновлений
+      setMessages((prev) => (prev.length > 0 ? [] : prev));
     }
-  }, [activeChatId, loadMessages, isAutoCreatingChat, setMessages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeChatId, isAutoCreatingChat]); // loadMessages и setMessages намеренно исключены
 
   // Функция для прямой отправки сообщения в новый чат
   const sendMessageDirectly = useCallback(
@@ -307,7 +317,7 @@ export default function Chat() {
       display="flex"
       flexDirection="column"
     >
-      <NeuroniumNavbar model={model} onModelChange={setModel} />
+      <NeuroniumNavbar model={model} onModelChange={handleModelChange} />
       <Box
         flex="1"
         display="flex"
@@ -365,7 +375,7 @@ export default function Chat() {
                 }}
               >
                 Привет, {displayName}
-                <br /> v 1.0.0
+                <br /> v 1.0.1
               </div>
             </Flex>
           )}

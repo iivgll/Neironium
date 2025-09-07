@@ -104,10 +104,10 @@ export interface MockTelegramUser {
 }
 
 export const MOCK_TELEGRAM_USER: MockTelegramUser = {
-  id: 123456789414,
+  id: 1234567894114,
   first_name: "Разработчик",
   last_name: "Тестовый",
-  username: "dev_user4441",
+  username: "dev_user44411",
   language_code: "ru",
   photo_url: "https://i.pravatar.cc/300?img=3",
 };

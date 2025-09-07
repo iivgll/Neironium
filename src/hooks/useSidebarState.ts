@@ -43,8 +43,12 @@ function sidebarReducer(
 ): SidebarState {
   switch (action.type) {
     case "SET_HOVERED_CHAT":
+      // Проверяем, изменилось ли значение, чтобы избежать лишних обновлений
+      if (state.hoveredChatId === action.payload) return state;
       return { ...state, hoveredChatId: action.payload };
     case "SET_HOVERED_PROJECT":
+      // Проверяем, изменилось ли значение, чтобы избежать лишних обновлений
+      if (state.hoveredProjectId === action.payload) return state;
       return { ...state, hoveredProjectId: action.payload };
     case "SET_ACTIONS_MODAL_POSITION":
       return { ...state, actionsModalPosition: action.payload };

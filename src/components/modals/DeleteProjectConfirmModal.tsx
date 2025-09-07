@@ -114,7 +114,7 @@ export default function DeleteProjectConfirmModal({
                       lineHeight="22px"
                       letterSpacing="-0.4px"
                     >
-                      Проект "{projectName}" и все связанные с ним чаты будут
+                      Проект {projectName} и все связанные с ним чаты будут
                       безвозвратно удалены. Убедитесь, что вы действительно
                       хотите продолжить.
                     </Text>

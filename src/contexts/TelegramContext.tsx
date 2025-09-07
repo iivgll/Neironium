@@ -42,14 +42,13 @@ interface TelegramProviderProps {
 export function TelegramProvider({ children }: TelegramProviderProps) {
   // Initialize states
   const [user, setUser] = useState<TelegramWebAppUser | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // Start with false to avoid hydration issues
+  const [isLoading, setIsLoading] = useState(true); // Start with true to match server/client state
   const [isTelegramEnvironment, setIsTelegramEnvironment] = useState(false);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setIsLoading(true); // Set loading after mount
 
     // In development mode, bypass Telegram check automatically
     const isDevelopment = process.env.NODE_ENV === "development";

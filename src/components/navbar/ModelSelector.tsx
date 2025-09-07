@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import {
   Box,
   Button,
@@ -30,19 +30,34 @@ interface ModelSelectorProps {
   onModelChange: (model: string) => void;
 }
 
-export default function ModelSelector({
+const ModelSelector = React.memo(function ModelSelector({
   selectedModel,
   onModelChange,
 }: ModelSelectorProps) {
-  // Dark theme colors only
-  const borderColor = "#343434"; // neuronium.border.primary
-  const textColor = "#ffffff"; // neuronium.text.primary
-  const textSecondary = "#8a8b8c"; // neuronium.text.secondary
-  const menuBg = "#2a2a2a"; // neuronium.background.tertiary
-  const hoverBg = "rgba(255, 255, 255, 0.05)"; // neuronium.background.hover
-  const activeColor = "#fafafaff"; // neuronium.accent.violet
+  // Dark theme colors only - memoized to prevent re-creation
+  const colors = useMemo(
+    () => ({
+      borderColor: "#343434", // neuronium.border.primary
+      textColor: "#ffffff", // neuronium.text.primary
+      textSecondary: "#8a8b8c", // neuronium.text.secondary
+      menuBg: "#2a2a2a", // neuronium.background.tertiary
+      hoverBg: "rgba(255, 255, 255, 0.05)", // neuronium.background.hover
+      activeColor: "#fafafaff", // neuronium.accent.violet
+    }),
+    [],
+  );
 
-  const currentModel = models.find((m) => m.id === selectedModel) || models[0];
+  const currentModel = useMemo(
+    () => models.find((m) => m.id === selectedModel) || models[0],
+    [selectedModel],
+  );
+
+  const handleModelChange = useCallback(
+    (modelId: string) => {
+      onModelChange(modelId);
+    },
+    [onModelChange],
+  );
 
   return (
     <Menu>
@@ -50,11 +65,11 @@ export default function ModelSelector({
         as={Button}
         rightIcon={<MdKeyboardArrowDown />}
         bg="transparent"
-        color={textColor}
+        color={colors.textColor}
         fontWeight="500"
         fontSize="16px"
-        _hover={{ bg: hoverBg }}
-        _active={{ bg: hoverBg }}
+        _hover={{ bg: colors.hoverBg }}
+        _active={{ bg: colors.hoverBg }}
         _focus={{ boxShadow: "none" }}
         px="12px"
         py="6px"
@@ -66,8 +81,8 @@ export default function ModelSelector({
       </MenuButton>
 
       <MenuList
-        bg={menuBg}
-        borderColor={borderColor}
+        bg={colors.menuBg}
+        borderColor={colors.borderColor}
         borderRadius="12px"
         p="8px"
         minW="240px"
@@ -75,10 +90,10 @@ export default function ModelSelector({
       >
         {models.map((model) => (
           <MenuItem
-            key={model.id + model.name}
-            onClick={() => onModelChange(model.id)}
+            key={model.id}
+            onClick={() => handleModelChange(model.id)}
             bg="transparent"
-            _hover={{ bg: hoverBg }}
+            _hover={{ bg: colors.hoverBg }}
             borderRadius="8px"
             p="12px"
             transition="all 0.2s"
@@ -86,15 +101,24 @@ export default function ModelSelector({
             <Box flex="1">
               <HStack justify="space-between" w="100%">
                 <Box>
-                  <Text color={textColor} fontWeight="500" fontSize="14px">
+                  <Text
+                    color={colors.textColor}
+                    fontWeight="500"
+                    fontSize="14px"
+                  >
                     {model.name}
                   </Text>
-                  <Text color={textSecondary} fontSize="12px" mt="2px">
+                  <Text color={colors.textSecondary} fontSize="12px" mt="2px">
                     {model.description}
                   </Text>
                 </Box>
-                {currentModel.name === model.name && (
-                  <Icon as={MdCheck} color={activeColor} w="20px" h="20px" />
+                {currentModel.id === model.id && (
+                  <Icon
+                    as={MdCheck}
+                    color={colors.activeColor}
+                    w="20px"
+                    h="20px"
+                  />
                 )}
               </HStack>
             </Box>
@@ -103,4 +127,6 @@ export default function ModelSelector({
       </MenuList>
     </Menu>
   );
-}
+});
+
+export default ModelSelector;

@@ -7,6 +7,7 @@ import React, {
   useCallback,
   memo,
   useEffect,
+  useMemo,
 } from "react";
 import { Box, Flex, Textarea, Button, HStack } from "@chakra-ui/react";
 import { useAutoResize } from "@/hooks/useAutoResize";
@@ -167,6 +168,10 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
     const handleAttachClick = useCallback(() => {
       fileInputRef.current?.click();
     }, []);
+
+    // Simple boolean calculations - no need to memoize
+    const hasMessage = message.trim().length > 0;
+    const hasAttachments = attachedFiles.length > 0;
 
     // Render compact version if specified
     if (variant === "compact") {
@@ -349,8 +354,8 @@ const NeuroniumChatInput = memo<NeuroniumChatInputProps>(
               onToggleDeepSearch={handleToggleDeepSearch}
               onSend={handleSend}
               onAttach={handleAttachClick}
-              hasMessage={message.trim().length > 0}
-              hasAttachments={attachedFiles.length > 0}
+              hasMessage={hasMessage}
+              hasAttachments={hasAttachments}
               isLoading={isLoading}
             />
           </Box>

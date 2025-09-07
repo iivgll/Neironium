@@ -52,6 +52,7 @@ export default function NewChatModal({
         status: "error",
         duration: 3000,
         isClosable: true,
+        position: "top-right",
       });
       return;
     }
@@ -77,6 +78,7 @@ export default function NewChatModal({
         status: "success",
         duration: 3000,
         isClosable: true,
+        position: "top-right",
       });
 
       // Reset form and close modal
@@ -94,6 +96,7 @@ export default function NewChatModal({
         status: "error",
         duration: 5000,
         isClosable: true,
+        position: "top-right",
       });
     } finally {
       setIsLoading(false);

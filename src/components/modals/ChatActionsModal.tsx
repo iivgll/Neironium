@@ -22,6 +22,8 @@ import { ArrowIcon } from "../icons/ArrowIcon";
 import { useEffect } from "react";
 import { useAssetPath } from "@/hooks/useAssetPath";
 
+type MinimalProject = Pick<Project, "id" | "name">;
+
 interface ChatActionsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -33,7 +35,7 @@ interface ChatActionsModalProps {
   onDeleteConfirm?: (chatTitle: string) => void;
   chatTitle?: string;
   chatId?: number;
-  projects?: Project[];
+  projects?: MinimalProject[];
   onMoveToProject?: (chatId: number, projectId: number) => void;
   onCreateProjectAndMove?: (chatId: number) => void;
 }
