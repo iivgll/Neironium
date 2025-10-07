@@ -9,7 +9,6 @@ import {
   ChatCreate,
   ChatUpdate,
   ChatRead,
-  MessageCreate,
   MessageRead,
 } from "@/types/api";
 

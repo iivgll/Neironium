@@ -1,5 +1,6 @@
 "use client";
 import React, { useRef, useCallback, useState } from "react";
+import { flushSync } from "react-dom";
 import { Box, Flex, VStack } from "@chakra-ui/react";
 import NeuroniumChatInput from "@/components/chat/NeuroniumChatInput";
 import NeuroniumNavbar from "@/components/navbar/NeuroniumNavbar";
@@ -157,19 +158,22 @@ export default function Chat() {
                   const newContent = event.data.content;
                   console.log("✏️ Adding content:", newContent);
 
-                  setMessages((prev: MessageRead[]) => {
-                    const newMessages = [...prev];
-                    const lastMessage = newMessages[newMessages.length - 1];
-                    if (lastMessage.role === "assistant") {
-                      lastMessage.content += newContent;
-                      console.log(
-                        "📝 Updated message content length:",
-                        lastMessage.content.length,
-                        "isStreaming:",
-                        true,
-                      );
-                    }
-                    return newMessages;
+                  // Используем flushSync для немедленной отрисовки каждого chunk'а
+                  flushSync(() => {
+                    setMessages((prev: MessageRead[]) => {
+                      const newMessages = [...prev];
+                      const lastMessage = newMessages[newMessages.length - 1];
+                      if (lastMessage.role === "assistant") {
+                        lastMessage.content += newContent;
+                        console.log(
+                          "📝 Updated message content length:",
+                          lastMessage.content.length,
+                          "isStreaming:",
+                          true,
+                        );
+                      }
+                      return newMessages;
+                    });
                   });
                 }
                 break;

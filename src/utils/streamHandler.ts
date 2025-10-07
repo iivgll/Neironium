@@ -43,47 +43,69 @@ export class MessageStreamHandler {
         const lines = buffer.split("\n");
         buffer = lines.pop() || ""; // Сохраняем неполную строку в буфере
 
+        let currentEvent = "";
+
         for (const line of lines) {
-          if (line.trim() === "") continue;
+          if (line.trim() === "") {
+            // Пустая строка - завершение SSE события
+            currentEvent = "";
+            continue;
+          }
 
           console.log("📦 Processing line:", line);
 
           // Обрабатываем SSE формат
           if (line.startsWith("event:")) {
-            // Это строка с типом события, пропускаем её
-            const eventType = line.substring(6).trim();
-            console.log("📦 SSE event type:", eventType);
+            // Это строка с типом события
+            currentEvent = line.substring(6).trim();
+            console.log("📦 SSE event type:", currentEvent);
             continue;
           } else if (line.startsWith("data:")) {
             // Это строка с данными
             const data = line.substring(5).trim();
-            console.log("📦 SSE data:", data);
+            console.log("📦 SSE data:", data, "event:", currentEvent);
 
             try {
               const parsedData = JSON.parse(data);
               console.log("📦 Parsed SSE data:", parsedData);
 
-              // Обрабатываем разные типы данных от API
-              if (parsedData.delta) {
-                // Это токен с текстом
-                onEvent({
-                  type: "message_delta",
-                  data: { content: parsedData.delta },
-                });
-              } else if (parsedData.user_message_id) {
-                // Это информация о созданном сообщении пользователя
-                console.log(
-                  "📦 User message created with ID:",
-                  parsedData.user_message_id,
-                );
-              } else if (parsedData.assistant_message_id) {
-                // Это финальная информация о сообщении ассистента
-                console.log(
-                  "📦 Assistant message completed with ID:",
-                  parsedData.assistant_message_id,
-                );
-                // Стриминг завершен
-                onEvent({ type: "message_end" });
+              // Обрабатываем разные типы событий от API
+              switch (currentEvent) {
+                case "message.created":
+                  // Сообщение создано
+                  console.log(
+                    "📦 User message created with ID:",
+                    parsedData.user_message_id,
+                  );
+                  onEvent({ type: "message_start" });
+                  break;
+
+                case "token":
+                  // Получен токен с текстом
+                  if (parsedData.delta) {
+                    onEvent({
+                      type: "message_delta",
+                      data: { content: parsedData.delta },
+                    });
+                  }
+                  break;
+
+                case "done":
+                  // Стриминг завершен
+                  console.log(
+                    "📦 Assistant message completed with ID:",
+                    parsedData.assistant_message_id,
+                  );
+                  onEvent({ type: "message_end" });
+                  break;
+
+                case "context":
+                  // Контекстная информация, просто логируем
+                  console.log("📦 Context:", parsedData);
+                  break;
+
+                default:
+                  console.log("📦 Unknown event type:", currentEvent);
               }
             } catch (parseError) {
               console.log("📦 Failed to parse SSE data as JSON:", parseError);

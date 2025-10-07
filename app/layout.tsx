@@ -3,6 +3,7 @@ import "@/styles/App.css";
 import "@/styles/mobile-keyboard.css";
 import AppWrappers from "./AppWrappers";
 import ClientLayout from "@/components/layout/ClientLayout";
+import Script from "next/script";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -32,6 +33,22 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AppWrappers>
           <ClientLayout>{children}</ClientLayout>
         </AppWrappers>
+
+        {/* WUUNU SNIPPET - DON'T CHANGE THIS (START) */}
+        {process.env.NODE_ENV !== "production" && (
+          <>
+            <Script id="wuunu-ws" strategy="afterInteractive">
+              {`window.__WUUNU_WS__ = "http://127.0.0.1:61476/";`}
+            </Script>
+            <Script
+              id="wuunu-widget"
+              src="https://cdn.jsdelivr.net/npm/@wuunu/widget@0.1?cacheParam=477"
+              strategy="afterInteractive"
+              crossOrigin="anonymous"
+            />
+          </>
+        )}
+        {/* WUUNU SNIPPET - DON'T CHANGE THIS (END) */}
       </body>
     </html>
   );
