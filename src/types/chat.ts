@@ -45,28 +45,27 @@ export interface ChatEvent {
   timestamp: Date;
 }
 
-// Sidebar and Project types
+// Sidebar and Chat types
+export interface ChatFileInfo {
+  id: number;
+  name: string;
+}
+
 export interface Chat {
-  id: number; // Changed from string to number
-  title?: string; // Made optional to match API
-  project_id?: number | null; // Added project_id field
-  model?: string | null; // Added model field
-  temperature?: number | null; // Added temperature field
-  created_at: string; // Added API timestamp field
-  updated_at: string; // Added API timestamp field
+  id: number;
+  title?: string;
+  parent_id?: number | null;
+  model?: string | null;
+  temperature?: number | null;
+  created_at: string;
+  updated_at: string;
   isActive?: boolean; // Keep for UI state
   lastMessage?: string; // Keep for UI state
   date?: string; // Keep for compatibility
-}
-
-export interface Project {
-  id: number; // Changed from string to number
-  name: string;
-  description?: string | null; // Added description field
-  chats: Chat[];
-  isExpanded: boolean; // Keep for UI state
-  created_at: string; // Added API timestamp field
-  updated_at: string; // Added API timestamp field
+  children?: Chat[]; // For tree structure
+  files_count?: number; // From tree API
+  description?: string; // From tree API
+  files?: ChatFileInfo[]; // From tree API
 }
 
 export interface ChatResult {

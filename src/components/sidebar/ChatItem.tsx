@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import { Flex, Text, Input, HStack, IconButton, Icon } from "@chakra-ui/react";
-import { MdMoreHoriz } from "react-icons/md";
+import { Flex, Text, Input, HStack, IconButton, Icon, Box } from "@chakra-ui/react";
+import { MdMoreHoriz, MdKeyboardArrowRight, MdKeyboardArrowDown, MdAdd } from "react-icons/md";
 import { Chat } from "@/types/chat";
 
 interface ChatItemProps {
@@ -25,6 +25,11 @@ interface ChatItemProps {
   onEditingCancel: () => void;
   onMoreActionsClick: (e: React.MouseEvent) => void;
   onAddToProjectClick?: (e: React.MouseEvent) => void;
+  onPlusClick?: (e: React.MouseEvent) => void;
+  hasChildren?: boolean;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
+  level?: number;
 }
 
 export const ChatItem = React.memo<ChatItemProps>(
@@ -44,6 +49,11 @@ export const ChatItem = React.memo<ChatItemProps>(
     onEditingCancel,
     onMoreActionsClick,
     onAddToProjectClick,
+    onPlusClick,
+    hasChildren = false,
+    isExpanded = false,
+    onToggleExpand,
+    level = 0,
   }) => {
     const isEditing = editingChatId === chat.id;
     const isHovered = hoveredChatId === chat.id;
@@ -51,7 +61,8 @@ export const ChatItem = React.memo<ChatItemProps>(
     return (
       <Flex
         h={isProjectChat ? "36px" : "40px"}
-        px="10px"
+        pl={`${10 + level * 16}px`} // Add indentation based on nesting level
+        pr="10px"
         py={isProjectChat ? "6px" : "7px"}
         bg={chat.isActive ? theme.activeBg : "transparent"}
         align="center"
@@ -64,7 +75,37 @@ export const ChatItem = React.memo<ChatItemProps>(
         onDoubleClick={onDoubleClick}
         justify="space-between"
         position="relative"
+        minW="250px" // Minimum width to prevent squishing on deep nesting
+        w="100%"
       >
+        {/* Expand/Collapse Arrow */}
+        {hasChildren && (
+          <IconButton
+            aria-label={isExpanded ? "Свернуть" : "Развернуть"}
+            icon={
+              <Icon
+                as={isExpanded ? MdKeyboardArrowDown : MdKeyboardArrowRight}
+                w="20px"
+                h="20px"
+                color={theme.textSecondary}
+              />
+            }
+            size="xs"
+            variant="ghost"
+            minW="20px"
+            h="20px"
+            mr="4px"
+            _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpand?.();
+            }}
+          />
+        )}
+
+        {/* Spacer for items without children to align with items that have children */}
+        {!hasChildren && <Box w="24px" mr="4px" />}
+
         {isEditing ? (
           <Input
             value={editingChatTitle}
@@ -110,6 +151,26 @@ export const ChatItem = React.memo<ChatItemProps>(
           transition="opacity 0.2s"
         >
           <IconButton
+            aria-label={`Добавить подчат для ${chat.title}`}
+            icon={
+              <Icon
+                as={MdAdd}
+                w={isProjectChat ? "14px" : "16px"}
+                h={isProjectChat ? "14px" : "16px"}
+                color={theme.textSecondary}
+              />
+            }
+            size="xs"
+            variant="ghost"
+            minW={isProjectChat ? "18px" : "20px"}
+            h={isProjectChat ? "18px" : "20px"}
+            _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlusClick?.(e);
+            }}
+          />
+          <IconButton
             aria-label={`Дополнительные действия для чата ${chat.title}`}
             icon={
               <Icon
@@ -126,22 +187,6 @@ export const ChatItem = React.memo<ChatItemProps>(
             _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
             onClick={onMoreActionsClick}
           />
-          {!isProjectChat && onAddToProjectClick && (
-            <IconButton
-              aria-label={`Добавить чат ${chat.title} в проект`}
-              icon={
-                <Text fontSize="16px" color={theme.textSecondary}>
-                  +
-                </Text>
-              }
-              size="xs"
-              variant="ghost"
-              minW="20px"
-              h="20px"
-              _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
-              onClick={onAddToProjectClick}
-            />
-          )}
         </HStack>
       </Flex>
     );

@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -12,28 +12,39 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import { MdKeyboardArrowDown, MdCheck } from "react-icons/md";
-
-interface ModelOption {
-  id: string;
-  name: string;
-  description: string;
-}
-
-const models: ModelOption[] = [
-  { id: "gpt-4o", name: "ChatGpt 5", description: "Описание" },
-  { id: "gpt-4", name: "ChatGpt 4", description: "Описание" },
-  { id: "gpt-3.5-turbo", name: "ChatGpt 3.5", description: "Описание" },
-];
+import { apiClient } from "@/utils/apiClient";
+import { ModelRead } from "@/types/api";
 
 interface ModelSelectorProps {
   selectedModel: string;
   onModelChange: (model: string) => void;
+  chatId?: number;
 }
 
 const ModelSelector = React.memo(function ModelSelector({
   selectedModel,
   onModelChange,
+  chatId,
 }: ModelSelectorProps) {
+  const [models, setModels] = useState<ModelRead[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load models from API
+  useEffect(() => {
+    const loadModels = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiClient.getModels();
+        setModels(response.items);
+      } catch (error) {
+        console.error("Failed to load models:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadModels();
+  }, []);
   // Dark theme colors only - memoized to prevent re-creation
   const colors = useMemo(
     () => ({
@@ -49,14 +60,24 @@ const ModelSelector = React.memo(function ModelSelector({
 
   const currentModel = useMemo(
     () => models.find((m) => m.id === selectedModel) || models[0],
-    [selectedModel],
+    [selectedModel, models],
   );
 
   const handleModelChange = useCallback(
-    (modelId: string) => {
+    async (modelId: string) => {
+      // Update model via API if chatId is provided
+      if (chatId) {
+        try {
+          await apiClient.updateChat(chatId, { model: modelId });
+        } catch (error) {
+          console.error("Failed to update chat model:", error);
+          return;
+        }
+      }
+
       onModelChange(modelId);
     },
-    [onModelChange],
+    [onModelChange, chatId],
   );
 
   return (
@@ -76,7 +97,7 @@ const ModelSelector = React.memo(function ModelSelector({
         h="auto"
       >
         <HStack spacing="8px">
-          <Text>{currentModel.name}</Text>
+          <Text>{currentModel?.display_name || "Выберите модель"}</Text>
         </HStack>
       </MenuButton>
 
@@ -106,10 +127,10 @@ const ModelSelector = React.memo(function ModelSelector({
                     fontWeight="500"
                     fontSize="14px"
                   >
-                    {model.name}
+                    {model.display_name}
                   </Text>
                   <Text color={colors.textSecondary} fontSize="12px" mt="2px">
-                    {model.description}
+                    {model.provider} • {model.context_window}
                   </Text>
                 </Box>
                 {currentModel.id === model.id && (

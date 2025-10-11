@@ -19,16 +19,15 @@ import { SidebarContext } from "@/contexts/SidebarContext";
 import Image from "next/image";
 import ChatSearchModal from "../modals/ChatSearchModal";
 import ChatActionsModal from "../modals/ChatActionsModal";
-import NewProjectModal from "../modals/NewProjectModal";
 import NewChatModal from "../modals/NewChatModal";
-import EditProjectModal from "../modals/EditProjectModal";
-import ProjectActionsModal from "../modals/ProjectActionsModal";
 import DeleteChatModal from "../modals/DeleteChatModal";
 import RenameChatModal from "../modals/RenameChatModal";
+import MoveToChatModal from "../modals/MoveToChatModal";
+import ChatDetailsModal from "../modals/ChatDetailsModal";
 import { Chat } from "@/types/chat";
 import { useChats } from "@/hooks/useChats";
 import { useChatsContext } from "@/contexts/ChatsContext";
-import { useProjects } from "@/contexts/ProjectsContext";
+import { useChatDetails } from "@/contexts/ChatDetailsContext";
 import { useSidebarState } from "@/hooks/useSidebarState";
 import { ArrowIcon } from "../icons/ArrowIcon";
 import { useAssetPath } from "@/hooks/useAssetPath";
@@ -53,11 +52,6 @@ export default function NeuroniumSidebar() {
     onClose: onChatActionsClose,
   } = useDisclosure();
   const {
-    isOpen: isNewProjectOpen,
-    onOpen: onNewProjectOpen,
-    onClose: onNewProjectClose,
-  } = useDisclosure();
-  const {
     isOpen: isDeleteChatOpen,
     onOpen: onDeleteChatOpen,
     onClose: onDeleteChatClose,
@@ -68,84 +62,67 @@ export default function NeuroniumSidebar() {
     onClose: onRenameChatClose,
   } = useDisclosure();
   const {
-    isOpen: isEditProjectOpen,
-    onOpen: onEditProjectOpen,
-    onClose: onEditProjectClose,
-  } = useDisclosure();
-  const {
-    isOpen: isProjectActionsOpen,
-    onOpen: onProjectActionsOpen,
-    onClose: onProjectActionsClose,
-  } = useDisclosure();
-  const {
     isOpen: isNewChatOpen,
     onOpen: onNewChatOpen,
     onClose: onNewChatClose,
   } = useDisclosure();
+  const {
+    isOpen: isMoveToChatOpen,
+    onOpen: onMoveToChatOpen,
+    onClose: onMoveToChatClose,
+  } = useDisclosure();
+  const {
+    isOpen: isChatDetailsOpen,
+    onOpen: onChatDetailsOpen,
+    onClose: onChatDetailsClose,
+  } = useDisclosure();
+
+  // Parent chat state for creating subchat
+  const [parentChatForNew, setParentChatForNew] = React.useState<{
+    id: number;
+    title: string;
+  } | null>(null);
+  const [chatToMove, setChatToMove] = React.useState<{
+    id: number;
+    title: string;
+  } | null>(null);
+  const [detailsChat, setDetailsChat] = React.useState<Chat | null>(null);
 
   // Consolidated UI state management
   const {
     hoveredChatId,
-    hoveredProjectId,
     actionsModalPosition,
     selectedChatId,
     chatToDelete,
     chatToRename,
-    chatToMoveToNewProject,
     editingChatId,
     editingChatTitle,
     setHoveredChatId,
-    setHoveredProjectId,
     setActionsModalPosition,
     setSelectedChatId,
     setChatToDelete,
     setChatToRename,
-    setChatToMoveToNewProject,
     setEditingChat,
   } = useSidebarState();
-
-  // Project-specific state
-  const [selectedProjectId, setSelectedProjectId] = React.useState<
-    number | null
-  >(null);
-  const [projectActionsPosition, setProjectActionsPosition] = React.useState({
-    x: 0,
-    y: 0,
-  });
-  const [projectToEdit, setProjectToEdit] = React.useState<{
-    id: number;
-    name: string;
-    description?: string;
-  } | null>(null);
 
   // Custom hooks for state management
   const { chatsList, deleteChat, setActiveChat, getChat, updateChat } =
     useChats();
-  const { getChatsByProject, getChatsWithoutProject, activeChatId } =
-    useChatsContext();
-  const {
-    projects,
-    currentProject,
-    isLoading: projectsLoading,
-    error: projectsError,
-    createProject,
-    updateProject,
-    deleteProject,
-    setCurrentProject,
-  } = useProjects();
+  const { chatsTree, activeChatId } = useChatsContext();
+  const { setSelectedDetailsChat } = useChatDetails();
 
-  // Local state for project expansion (since API projects don't have isExpanded)
-  const [expandedProjects, setExpandedProjects] = React.useState<Set<number>>(
+  // Local state for chat tree expansion
+  const [expandedChats, setExpandedChats] = React.useState<Set<number>>(
     new Set(),
   );
 
-  const toggleProjectExpansion = React.useCallback((projectId: number) => {
-    setExpandedProjects((prev) => {
+  const toggleChatExpansion = React.useCallback((chatId: number) => {
+    setExpandedChats((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(projectId)) {
-        newSet.delete(projectId);
+      if (newSet.has(chatId)) {
+        newSet.delete(chatId);
       } else {
-        newSet.add(projectId);
+        newSet.add(chatId);
       }
       return newSet;
     });
@@ -200,93 +177,6 @@ export default function NeuroniumSidebar() {
     [editingChatId, setEditingChat],
   );
 
-  // Project handlers
-  const handleProjectEdit = useCallback(() => {
-    const project = projects.find((p) => p.id === selectedProjectId);
-    if (project) {
-      setProjectToEdit({
-        id: project.id,
-        name: project.name,
-        description: project.description || undefined,
-      });
-      onEditProjectOpen();
-    }
-  }, [selectedProjectId, projects, onEditProjectOpen]);
-
-  const handleProjectDelete = useCallback(
-    async (projectName: string) => {
-      if (selectedProjectId) {
-        try {
-          await deleteProject(selectedProjectId);
-          setSelectedProjectId(null);
-        } catch (error) {
-          console.error("Failed to delete project:", error);
-          // TODO: Show error notification
-        }
-      }
-    },
-    [selectedProjectId, deleteProject],
-  );
-
-  const handleUpdateProject = useCallback(
-    async (projectName: string, description?: string) => {
-      if (projectToEdit) {
-        try {
-          await updateProject(projectToEdit.id, {
-            name: projectName,
-            description: description || undefined,
-          });
-          setProjectToEdit(null);
-        } catch (error) {
-          console.error("Failed to update project:", error);
-          // TODO: Show error notification
-        }
-      }
-    },
-    [projectToEdit, updateProject],
-  );
-
-  // Optimized chat lookup with Map for O(1) performance
-  const chatMap = useMemo(() => {
-    const map = new Map();
-
-    // Add regular chats (chats without project)
-    const chatsWithoutProject = getChatsWithoutProject();
-    chatsWithoutProject.forEach((chat) =>
-      map.set(chat.id, {
-        ...chat,
-        source: "chats",
-        // Convert to legacy Chat format for compatibility
-        title: chat.title || "Untitled Chat",
-        isActive: activeChatId === chat.id,
-      }),
-    );
-
-    // Add project chats
-    projects.forEach((project) => {
-      const projectChats = getChatsByProject(project.id);
-      projectChats.forEach((chat) =>
-        map.set(chat.id, {
-          ...chat,
-          source: "projects",
-          projectId: project.id,
-          // Convert to legacy Chat format for compatibility
-          title: chat.title || "Untitled Chat",
-          isActive: activeChatId === chat.id,
-        }),
-      );
-    });
-
-    return map;
-  }, [getChatsWithoutProject, getChatsByProject, projects, activeChatId]);
-
-  const findChatAnywhere = useCallback(
-    (chatId: number) => {
-      return chatMap.get(chatId) || null;
-    },
-    [chatMap],
-  );
-
   // Memoized theme colors
   const theme = useMemo(
     () => ({
@@ -298,6 +188,118 @@ export default function NeuroniumSidebar() {
       activeBg: "rgba(255, 255, 255, 0.1)",
     }),
     [],
+  );
+
+  // Recursive function to render chat tree
+  const renderChatTree = useCallback(
+    (chats: Chat[], level: number = 0) => {
+      return chats.map((chat) => {
+        const isExpanded = expandedChats.has(chat.id);
+        const hasChildren = chat.children && chat.children.length > 0;
+
+        return (
+          <VStack key={chat.id} spacing="4px" align="stretch">
+            <ChatItem
+              chat={{
+                id: chat.id,
+                title: chat.title || "Untitled Chat",
+                isActive: activeChatId === chat.id,
+                parent_id: chat.parent_id,
+                model: chat.model,
+                temperature: chat.temperature,
+                created_at: chat.created_at,
+                updated_at: chat.updated_at,
+              }}
+              hoveredChatId={hoveredChatId}
+              editingChatId={editingChatId}
+              editingChatTitle={editingChatTitle}
+              theme={theme}
+              onMouseEnter={() => setHoveredChatId(chat.id)}
+              onMouseLeave={() => setHoveredChatId(null)}
+              onClick={() => handleChatClick(chat.id)}
+              onDoubleClick={() =>
+                startEditingChat(chat.id, chat.title || "")
+              }
+              onEditingTitleChange={updateEditingChatTitle}
+              onEditingSave={saveEditingChat}
+              onEditingCancel={cancelEditingChat}
+              onMoreActionsClick={(e) => {
+                e.preventDefault();
+                setSelectedChatId(chat.id);
+                const rect = e.currentTarget.getBoundingClientRect();
+                setActionsModalPosition({
+                  x: rect.right + 4,
+                  y: rect.top,
+                });
+                onChatActionsOpen();
+              }}
+              onPlusClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Find root parent chat
+                const findRootParent = (chatToCheck: Chat): Chat => {
+                  if (!chatToCheck.parent_id) return chatToCheck;
+
+                  const findInTree = (chats: Chat[]): Chat | null => {
+                    for (const c of chats) {
+                      if (c.id === chatToCheck.parent_id) {
+                        return findRootParent(c);
+                      }
+                      if (c.children && c.children.length > 0) {
+                        const found = findInTree(c.children);
+                        if (found) return found;
+                      }
+                    }
+                    return null;
+                  };
+
+                  return findInTree(chatsTree) || chatToCheck;
+                };
+
+                const rootChat = findRootParent(chat);
+                setSelectedDetailsChat(rootChat);
+                setActiveChat(null); // Clear active chat to show ChatTreeView
+              }}
+              hasChildren={hasChildren}
+              isExpanded={isExpanded}
+              onToggleExpand={
+                hasChildren
+                  ? () => toggleChatExpansion(chat.id)
+                  : undefined
+              }
+              level={level}
+            />
+
+            {/* Render children if expanded */}
+            {isExpanded && hasChildren && (
+              <>{renderChatTree(chat.children!, level + 1)}</>
+            )}
+          </VStack>
+        );
+      });
+    },
+    [
+      expandedChats,
+      hoveredChatId,
+      editingChatId,
+      editingChatTitle,
+      activeChatId,
+      handleChatClick,
+      startEditingChat,
+      updateEditingChatTitle,
+      saveEditingChat,
+      cancelEditingChat,
+      setHoveredChatId,
+      setSelectedChatId,
+      setActionsModalPosition,
+      onChatActionsOpen,
+      toggleChatExpansion,
+      theme,
+      chatsTree,
+      setActiveChat,
+      setSelectedDetailsChat,
+    ],
   );
 
   return (
@@ -425,13 +427,6 @@ export default function NeuroniumSidebar() {
               theme={theme}
             />
             <ActionButton
-              icon="/icons/folder-add.svg"
-              iconAlt="New project"
-              label="Новый проект"
-              onClick={onNewProjectOpen}
-              theme={theme}
-            />
-            <ActionButton
               icon="/icons/magnifer.svg"
               iconAlt="Search"
               label="Поиск в чатах"
@@ -451,9 +446,29 @@ export default function NeuroniumSidebar() {
 
         {/* Main Content Section */}
         {!isCollapsed && (
-          <Box flex="1" overflowY="auto">
-            {/* Projects Section - показываем первыми если есть проекты */}
-            {projects.length > 0 && (
+          <Box
+            flex="1"
+            overflowY="auto"
+            overflowX="auto"
+            css={{
+              "&::-webkit-scrollbar": {
+                width: "4px",
+                height: "4px",
+              },
+              "&::-webkit-scrollbar-track": {
+                background: "transparent",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                background: "rgba(255, 255, 255, 0.2)",
+                borderRadius: "2px",
+              },
+              "&::-webkit-scrollbar-thumb:hover": {
+                background: "rgba(255, 255, 255, 0.3)",
+              },
+            }}
+          >
+            {/* Chats Tree Section */}
+            {chatsTree.length > 0 && (
               <>
                 <Text
                   fontSize="12px"
@@ -462,257 +477,12 @@ export default function NeuroniumSidebar() {
                   textTransform="uppercase"
                   letterSpacing="0.4px"
                   mb="16px"
-                >
-                  ПРОЕКТЫ
-                </Text>
-                <VStack spacing="8px" align="stretch" mb="24px">
-                  {projects.map((project) => {
-                    const isExpanded = expandedProjects.has(project.id);
-                    return (
-                      <VStack key={project.id} spacing="4px" align="stretch">
-                        {/* Project Header */}
-                        <Flex
-                          h="40px"
-                          px="10px"
-                          py="7px"
-                          align="center"
-                          cursor="pointer"
-                          _hover={{ bg: theme.hoverBg }}
-                          borderRadius="10px"
-                          onMouseEnter={() => setHoveredProjectId(project.id)}
-                          onMouseLeave={() => setHoveredProjectId(null)}
-                          onClick={() => {
-                            toggleProjectExpansion(project.id);
-                            setCurrentProject(project);
-                          }}
-                        >
-                          <Image
-                            src={getAssetPath("/icons/folder.svg")}
-                            alt="Project"
-                            width={16}
-                            height={16}
-                          />
-                          <Text
-                            fontSize="16px"
-                            color={theme.textPrimary}
-                            ml="8px"
-                            noOfLines={1}
-                            flex="1"
-                          >
-                            {project.name}
-                          </Text>
-                          {/* Action buttons - visible on hover */}
-                          {hoveredProjectId === project.id && (
-                            <Flex gap="4px">
-                              {/* Dropdown Arrow */}
-                              <IconButton
-                                aria-label={`${isExpanded ? "Свернуть" : "Развернуть"} проект ${project.name}`}
-                                icon={
-                                  <ArrowIcon
-                                    direction={isExpanded ? "up" : "down"}
-                                    color={theme.textSecondary}
-                                    w="16px"
-                                    h="16px"
-                                  />
-                                }
-                                size="xs"
-                                variant="ghost"
-                                minW="20px"
-                                h="20px"
-                                _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleProjectExpansion(project.id);
-                                }}
-                              />
-                              {/* Three dots menu button */}
-                              <IconButton
-                                aria-label={`Действия для проекта ${project.name}`}
-                                icon={
-                                  <Box
-                                    as="svg"
-                                    width="16px"
-                                    height="16px"
-                                    viewBox="0 0 16 16"
-                                    fill="none"
-                                  >
-                                    <circle
-                                      cx="3"
-                                      cy="8"
-                                      r="1.5"
-                                      fill={theme.textSecondary}
-                                    />
-                                    <circle
-                                      cx="8"
-                                      cy="8"
-                                      r="1.5"
-                                      fill={theme.textSecondary}
-                                    />
-                                    <circle
-                                      cx="13"
-                                      cy="8"
-                                      r="1.5"
-                                      fill={theme.textSecondary}
-                                    />
-                                  </Box>
-                                }
-                                size="xs"
-                                variant="ghost"
-                                minW="20px"
-                                h="20px"
-                                _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedProjectId(project.id);
-                                  const rect =
-                                    e.currentTarget.getBoundingClientRect();
-                                  setProjectActionsPosition({
-                                    x: rect.right + 4,
-                                    y: rect.top,
-                                  });
-                                  onProjectActionsOpen();
-                                }}
-                              />
-                            </Flex>
-                          )}
-                          {/* Show only arrow when expanded but not hovered */}
-                          {!hoveredProjectId && isExpanded && (
-                            <IconButton
-                              aria-label={`${isExpanded ? "Свернуть" : "Развернуть"} проект ${project.name}`}
-                              icon={
-                                <ArrowIcon
-                                  direction={isExpanded ? "up" : "down"}
-                                  color={theme.textSecondary}
-                                  w="16px"
-                                  h="16px"
-                                />
-                              }
-                              size="xs"
-                              variant="ghost"
-                              minW="20px"
-                              h="20px"
-                              _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleProjectExpansion(project.id);
-                              }}
-                            />
-                          )}
-                        </Flex>
-
-                        {/* Project Chats - shown when expanded */}
-                        {isExpanded && (
-                          <VStack spacing="4px" align="stretch" pl="24px">
-                            {getChatsByProject(project.id).length === 0 ? (
-                              <Text
-                                fontSize="12px"
-                                color={theme.textSecondary}
-                                fontStyle="italic"
-                              >
-                                Нет чатов в этом проекте
-                              </Text>
-                            ) : (
-                              getChatsByProject(project.id).map((chat) => (
-                                <ChatItem
-                                  key={chat.id}
-                                  chat={{
-                                    id: chat.id,
-                                    title: chat.title || "Untitled Chat",
-                                    isActive: activeChatId === chat.id,
-                                    project_id: chat.project_id,
-                                    model: chat.model,
-                                    temperature: chat.temperature,
-                                    created_at: chat.created_at,
-                                    updated_at: chat.updated_at,
-                                  }}
-                                  hoveredChatId={hoveredChatId}
-                                  editingChatId={editingChatId}
-                                  editingChatTitle={editingChatTitle}
-                                  theme={theme}
-                                  onMouseEnter={() => setHoveredChatId(chat.id)}
-                                  onMouseLeave={() => setHoveredChatId(null)}
-                                  onClick={() => handleChatClick(chat.id)}
-                                  onDoubleClick={() =>
-                                    startEditingChat(chat.id, chat.title || "")
-                                  }
-                                  onEditingTitleChange={updateEditingChatTitle}
-                                  onEditingSave={saveEditingChat}
-                                  onEditingCancel={cancelEditingChat}
-                                  onMoreActionsClick={(e) => {
-                                    e.preventDefault();
-                                    setSelectedChatId(chat.id);
-                                    const rect =
-                                      e.currentTarget.getBoundingClientRect();
-                                    setActionsModalPosition({
-                                      x: rect.right + 4,
-                                      y: rect.top,
-                                    });
-                                    onChatActionsOpen();
-                                  }}
-                                />
-                              ))
-                            )}
-                          </VStack>
-                        )}
-                      </VStack>
-                    );
-                  })}
-                </VStack>
-              </>
-            )}
-
-            {/* Chats Section - показываем только чаты без проекта */}
-            {getChatsWithoutProject().length > 0 && (
-              <>
-                <Text
-                  fontSize="12px"
-                  fontWeight="400"
-                  color={theme.textSecondary}
-                  textTransform="uppercase"
-                  letterSpacing="0.4px"
-                  mb="16px"
+                  flexShrink={0}
                 >
                   ЧАТЫ
                 </Text>
-                <VStack spacing="8px" align="stretch">
-                  {getChatsWithoutProject().map((chat) => (
-                    <ChatItem
-                      key={chat.id}
-                      chat={{
-                        id: chat.id,
-                        title: chat.title || "Untitled Chat",
-                        isActive: activeChatId === chat.id,
-                        project_id: chat.project_id,
-                        model: chat.model,
-                        temperature: chat.temperature,
-                        created_at: chat.created_at,
-                        updated_at: chat.updated_at,
-                      }}
-                      hoveredChatId={hoveredChatId}
-                      editingChatId={editingChatId}
-                      editingChatTitle={editingChatTitle}
-                      theme={theme}
-                      onMouseEnter={() => setHoveredChatId(chat.id)}
-                      onMouseLeave={() => setHoveredChatId(null)}
-                      onClick={() => handleChatClick(chat.id)}
-                      onDoubleClick={() =>
-                        startEditingChat(chat.id, chat.title || "")
-                      }
-                      onEditingTitleChange={updateEditingChatTitle}
-                      onEditingSave={saveEditingChat}
-                      onEditingCancel={cancelEditingChat}
-                      onMoreActionsClick={(e) => {
-                        e.preventDefault();
-                        setSelectedChatId(chat.id);
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setActionsModalPosition({
-                          x: rect.right + 4,
-                          y: rect.top,
-                        });
-                        onChatActionsOpen();
-                      }}
-                    />
-                  ))}
+                <VStack spacing="8px" align="stretch" minW="100%" w="max-content">
+                  {renderChatTree(chatsTree)}
                 </VStack>
               </>
             )}
@@ -730,55 +500,38 @@ export default function NeuroniumSidebar() {
         onClose={onChatActionsClose}
         position={actionsModalPosition}
         chatTitle={
-          (selectedChatId ? findChatAnywhere(selectedChatId) : null)?.title ||
-          "Чат"
+          chatsList.find((c) => c.id === selectedChatId)?.title || "Чат"
         }
         chatId={selectedChatId || undefined}
         onRename={() => {
-          const chat = selectedChatId ? findChatAnywhere(selectedChatId) : null;
+          const chat = chatsList.find((c) => c.id === selectedChatId);
           if (chat) {
             setChatToRename({ id: chat.id, title: chat.title || "" });
             onRenameChatOpen();
             onChatActionsClose();
           }
         }}
-        onAddToProject={() => console.log("Add to project")}
         onCopy={() => console.log("Copy chat")}
-        onNewProject={() => {
-          onNewProjectOpen();
-          onChatActionsClose();
+        onCreateSubchat={() => {
+          const chat = chatsList.find((c) => c.id === selectedChatId);
+          if (chat) {
+            setParentChatForNew({ id: chat.id, title: chat.title || "Чат" });
+            onNewChatOpen();
+            onChatActionsClose();
+          }
+        }}
+        onMoveToChat={() => {
+          const chat = chatsList.find((c) => c.id === selectedChatId);
+          if (chat) {
+            setChatToMove({ id: chat.id, title: chat.title || "Чат" });
+            onMoveToChatOpen();
+            onChatActionsClose();
+          }
         }}
         onDeleteConfirm={(chatTitle) => {
           if (selectedChatId) {
             setChatToDelete({ id: selectedChatId, title: chatTitle });
             onDeleteChatOpen();
-          }
-        }}
-        projects={projects.map((p) => ({ id: p.id, name: p.name }))}
-        onMoveToProject={(chatId, projectId) => {
-          updateChat(chatId, { project_id: projectId });
-          onChatActionsClose();
-        }}
-        onCreateProjectAndMove={(chatId) => {
-          setChatToMoveToNewProject(chatId);
-          onNewProjectOpen();
-          onChatActionsClose();
-        }}
-      />
-      <NewProjectModal
-        isOpen={isNewProjectOpen}
-        onClose={() => {
-          setChatToMoveToNewProject(null);
-          onNewProjectClose();
-        }}
-        onCreateProject={async (projectName) => {
-          try {
-            await createProject(projectName);
-            setChatToMoveToNewProject(null);
-            console.log("Created project:", projectName);
-          } catch (error) {
-            console.error("Failed to create project:", error);
-            // TODO: Show error notification to user
           }
         }}
       />
@@ -808,28 +561,69 @@ export default function NeuroniumSidebar() {
           }
         }}
       />
-      <EditProjectModal
-        isOpen={isEditProjectOpen}
+      <NewChatModal
+        isOpen={isNewChatOpen}
         onClose={() => {
-          setProjectToEdit(null);
-          onEditProjectClose();
+          setParentChatForNew(null);
+          onNewChatClose();
         }}
-        currentName={projectToEdit?.name || ""}
-        currentDescription={projectToEdit?.description}
-        onUpdateProject={handleUpdateProject}
+        parentChatId={parentChatForNew?.id}
+        parentChatTitle={parentChatForNew?.title}
       />
-      <ProjectActionsModal
-        isOpen={isProjectActionsOpen}
-        onClose={onProjectActionsClose}
-        position={projectActionsPosition}
-        projectName={
-          projects.find((p) => p.id === selectedProjectId)?.name || ""
-        }
-        projectId={selectedProjectId || 0}
-        onEdit={handleProjectEdit}
-        onDeleteConfirm={handleProjectDelete}
+      <MoveToChatModal
+        isOpen={isMoveToChatOpen}
+        onClose={() => {
+          setChatToMove(null);
+          onMoveToChatClose();
+        }}
+        currentChatId={chatToMove?.id || 0}
+        currentChatTitle={chatToMove?.title || ""}
+        allChats={chatsTree}
+        onMove={(targetChatId) => {
+          if (chatToMove) {
+            updateChat(chatToMove.id, { parent_id: targetChatId });
+            setChatToMove(null);
+          }
+        }}
       />
-      <NewChatModal isOpen={isNewChatOpen} onClose={onNewChatClose} />
+      <ChatDetailsModal
+        isOpen={isChatDetailsOpen}
+        onClose={() => {
+          setDetailsChat(null);
+          onChatDetailsClose();
+        }}
+        chat={detailsChat}
+        onRename={() => {
+          if (detailsChat) {
+            setChatToRename({ id: detailsChat.id, title: detailsChat.title || "" });
+            onRenameChatOpen();
+          }
+        }}
+        onMove={() => {
+          if (detailsChat) {
+            setChatToMove({ id: detailsChat.id, title: detailsChat.title || "Чат" });
+            onMoveToChatOpen();
+          }
+        }}
+        onDelete={() => {
+          if (detailsChat) {
+            setChatToDelete({ id: detailsChat.id, title: detailsChat.title || "" });
+            onDeleteChatOpen();
+          }
+        }}
+        onCreateSubchat={() => {
+          if (detailsChat) {
+            setParentChatForNew({ id: detailsChat.id, title: detailsChat.title || "Чат" });
+            onNewChatOpen();
+          }
+        }}
+        onCopy={() => {
+          console.log("Copy chat:", detailsChat?.id);
+        }}
+        onChildChatClick={(chatId) => {
+          setActiveChat(chatId);
+        }}
+      />
     </Box>
   );
 }
@@ -850,11 +644,6 @@ export function NeuroniumSidebarResponsive() {
     onClose: onChatActionsClose,
   } = useDisclosure();
   const {
-    isOpen: isNewProjectOpen,
-    onOpen: onNewProjectOpen,
-    onClose: onNewProjectClose,
-  } = useDisclosure();
-  const {
     isOpen: isDeleteChatOpen,
     onOpen: onDeleteChatOpen,
     onClose: onDeleteChatClose,
@@ -865,89 +654,71 @@ export function NeuroniumSidebarResponsive() {
     onClose: onRenameChatClose,
   } = useDisclosure();
   const {
-    isOpen: isEditProjectOpen,
-    onOpen: onEditProjectOpen,
-    onClose: onEditProjectClose,
-  } = useDisclosure();
-  const {
-    isOpen: isProjectActionsOpen,
-    onOpen: onProjectActionsOpen,
-    onClose: onProjectActionsClose,
-  } = useDisclosure();
-  const {
     isOpen: isMobileNewChatOpen,
     onOpen: onMobileNewChatOpen,
     onClose: onMobileNewChatClose,
   } = useDisclosure();
+  const {
+    isOpen: isMobileMoveToChatOpen,
+    onOpen: onMobileMoveToChatOpen,
+    onClose: onMobileMoveToChatClose,
+  } = useDisclosure();
+  const {
+    isOpen: isMobileChatDetailsOpen,
+    onOpen: onMobileChatDetailsOpen,
+    onClose: onMobileChatDetailsClose,
+  } = useDisclosure();
+
+  // Parent chat state for creating subchat
+  const [mobileParentChatForNew, setMobileParentChatForNew] = React.useState<{
+    id: number;
+    title: string;
+  } | null>(null);
+  const [mobileChatToMove, setMobileChatToMove] = React.useState<{
+    id: number;
+    title: string;
+  } | null>(null);
+  const [mobileDetailsChat, setMobileDetailsChat] = React.useState<Chat | null>(null);
 
   // Consolidated UI state management - same as desktop
   const {
     hoveredChatId,
-    hoveredProjectId,
     actionsModalPosition,
     selectedChatId,
     chatToDelete,
     chatToRename,
-    chatToMoveToNewProject,
     editingChatId,
     editingChatTitle,
     setHoveredChatId,
-    setHoveredProjectId,
     setActionsModalPosition,
     setSelectedChatId,
     setChatToDelete,
     setChatToRename,
-    setChatToMoveToNewProject,
     setEditingChat,
   } = useSidebarState();
-
-  // Mobile project-specific state - same as desktop
-  const [mobileSelectedProjectId, setMobileSelectedProjectId] = React.useState<
-    number | null
-  >(null);
-  const [mobileProjectActionsPosition, setMobileProjectActionsPosition] =
-    React.useState({ x: 0, y: 0 });
-  const [mobileProjectToEdit, setMobileProjectToEdit] = React.useState<{
-    id: number;
-    name: string;
-    description?: string;
-  } | null>(null);
 
   // Custom hooks for state management - same as desktop version
   const { chatsList, deleteChat, setActiveChat, getChat, updateChat } =
     useChats();
-  const { getChatsByProject, getChatsWithoutProject, activeChatId } =
-    useChatsContext();
-  const {
-    projects,
-    currentProject,
-    isLoading: projectsLoading,
-    error: projectsError,
-    createProject,
-    updateProject,
-    deleteProject,
-    setCurrentProject,
-  } = useProjects();
+  const { chatsTree, activeChatId } = useChatsContext();
+  const { setSelectedDetailsChat: setMobileSelectedDetailsChat } = useChatDetails();
 
-  // Local state for project expansion - same as desktop version
-  const [mobileExpandedProjects, setMobileExpandedProjects] = React.useState<
+  // Local state for chat tree expansion - same as desktop version
+  const [mobileExpandedChats, setMobileExpandedChats] = React.useState<
     Set<number>
   >(new Set());
 
-  const mobileToggleProjectExpansion = React.useCallback(
-    (projectId: number) => {
-      setMobileExpandedProjects((prev) => {
-        const newSet = new Set(prev);
-        if (newSet.has(projectId)) {
-          newSet.delete(projectId);
-        } else {
-          newSet.add(projectId);
-        }
-        return newSet;
-      });
-    },
-    [],
-  );
+  const mobileToggleChatExpansion = React.useCallback((chatId: number) => {
+    setMobileExpandedChats((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(chatId)) {
+        newSet.delete(chatId);
+      } else {
+        newSet.add(chatId);
+      }
+      return newSet;
+    });
+  }, []);
 
   // Event handlers - same as desktop version
   const handleDeleteChat = useCallback(
@@ -996,95 +767,8 @@ export function NeuroniumSidebarResponsive() {
     [editingChatId, setEditingChat],
   );
 
-  // Mobile project handlers - same as desktop
-  const mobileHandleProjectEdit = useCallback(() => {
-    const project = projects.find((p) => p.id === mobileSelectedProjectId);
-    if (project) {
-      setMobileProjectToEdit({
-        id: project.id,
-        name: project.name,
-        description: project.description || undefined,
-      });
-      onEditProjectOpen();
-    }
-  }, [mobileSelectedProjectId, projects, onEditProjectOpen]);
-
-  const mobileHandleProjectDelete = useCallback(
-    async (projectName: string) => {
-      if (mobileSelectedProjectId) {
-        try {
-          await deleteProject(mobileSelectedProjectId);
-          setMobileSelectedProjectId(null);
-        } catch (error) {
-          console.error("Failed to delete project:", error);
-          // TODO: Show error notification
-        }
-      }
-    },
-    [mobileSelectedProjectId, deleteProject],
-  );
-
-  const mobileHandleUpdateProject = useCallback(
-    async (projectName: string, description?: string) => {
-      if (mobileProjectToEdit) {
-        try {
-          await updateProject(mobileProjectToEdit.id, {
-            name: projectName,
-            description: description || undefined,
-          });
-          setMobileProjectToEdit(null);
-        } catch (error) {
-          console.error("Failed to update project:", error);
-          // TODO: Show error notification
-        }
-      }
-    },
-    [mobileProjectToEdit, updateProject],
-  );
-
-  // Optimized chat lookup with Map for O(1) performance - same as desktop
-  const mobileChatMap = useMemo(() => {
-    const map = new Map();
-
-    // Add regular chats (chats without project)
-    const chatsWithoutProject = getChatsWithoutProject();
-    chatsWithoutProject.forEach((chat) =>
-      map.set(chat.id, {
-        ...chat,
-        source: "chats",
-        // Convert to legacy Chat format for compatibility
-        title: chat.title || "Untitled Chat",
-        isActive: activeChatId === chat.id,
-      }),
-    );
-
-    // Add project chats
-    projects.forEach((project) => {
-      const projectChats = getChatsByProject(project.id);
-      projectChats.forEach((chat) =>
-        map.set(chat.id, {
-          ...chat,
-          source: "projects",
-          projectId: project.id,
-          // Convert to legacy Chat format for compatibility
-          title: chat.title || "Untitled Chat",
-          isActive: activeChatId === chat.id,
-        }),
-      );
-    });
-
-    return map;
-  }, [getChatsWithoutProject, getChatsByProject, projects, activeChatId]);
-
-  const findChatAnywhere = useCallback(
-    (chatId: number) => {
-      return mobileChatMap.get(chatId) || null;
-    },
-    [mobileChatMap],
-  );
-
-  // Theme colors - same as desktop
-  const theme = useMemo(
+  // Mobile theme colors
+  const mobileTheme = useMemo(
     () => ({
       bgColor: "#1e1e1e",
       borderColor: "#343434",
@@ -1095,6 +779,120 @@ export function NeuroniumSidebarResponsive() {
       menuColor: "#ffffff",
     }),
     [],
+  );
+
+  // Recursive function to render chat tree for mobile
+  const renderMobileChatTree = useCallback(
+    (chats: Chat[], level: number = 0) => {
+      return chats.map((chat) => {
+        const isExpanded = mobileExpandedChats.has(chat.id);
+        const hasChildren = chat.children && chat.children.length > 0;
+
+        return (
+          <VStack key={chat.id} spacing="4px" align="stretch">
+            <ChatItem
+              chat={{
+                id: chat.id,
+                title: chat.title || "Untitled Chat",
+                isActive: activeChatId === chat.id,
+                parent_id: chat.parent_id,
+                model: chat.model,
+                temperature: chat.temperature,
+                created_at: chat.created_at,
+                updated_at: chat.updated_at,
+              }}
+              hoveredChatId={hoveredChatId}
+              editingChatId={editingChatId}
+              editingChatTitle={editingChatTitle}
+              theme={mobileTheme}
+              onMouseEnter={() => setHoveredChatId(chat.id)}
+              onMouseLeave={() => setHoveredChatId(null)}
+              onClick={() => handleChatClick(chat.id)}
+              onDoubleClick={() =>
+                startEditingChat(chat.id, chat.title || "")
+              }
+              onEditingTitleChange={updateEditingChatTitle}
+              onEditingSave={saveEditingChat}
+              onEditingCancel={cancelEditingChat}
+              onMoreActionsClick={(e) => {
+                e.preventDefault();
+                setSelectedChatId(chat.id);
+                const rect = e.currentTarget.getBoundingClientRect();
+                setActionsModalPosition({
+                  x: rect.right + 4,
+                  y: rect.top,
+                });
+                onChatActionsOpen();
+              }}
+              onPlusClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Find root parent chat
+                const findRootParent = (chatToCheck: Chat): Chat => {
+                  if (!chatToCheck.parent_id) return chatToCheck;
+
+                  const findInTree = (chats: Chat[]): Chat | null => {
+                    for (const c of chats) {
+                      if (c.id === chatToCheck.parent_id) {
+                        return findRootParent(c);
+                      }
+                      if (c.children && c.children.length > 0) {
+                        const found = findInTree(c.children);
+                        if (found) return found;
+                      }
+                    }
+                    return null;
+                  };
+
+                  return findInTree(chatsTree) || chatToCheck;
+                };
+
+                const rootChat = findRootParent(chat);
+                setMobileSelectedDetailsChat(rootChat);
+                setActiveChat(null); // Clear active chat to show ChatTreeView
+                onClose(); // Close sidebar drawer on mobile
+              }}
+              hasChildren={hasChildren}
+              isExpanded={isExpanded}
+              onToggleExpand={
+                hasChildren
+                  ? () => mobileToggleChatExpansion(chat.id)
+                  : undefined
+              }
+              level={level}
+            />
+
+            {/* Render children if expanded */}
+            {isExpanded && hasChildren && (
+              <>{renderMobileChatTree(chat.children!, level + 1)}</>
+            )}
+          </VStack>
+        );
+      });
+    },
+    [
+      mobileExpandedChats,
+      hoveredChatId,
+      editingChatId,
+      editingChatTitle,
+      activeChatId,
+      handleChatClick,
+      startEditingChat,
+      updateEditingChatTitle,
+      saveEditingChat,
+      cancelEditingChat,
+      setHoveredChatId,
+      setSelectedChatId,
+      setActionsModalPosition,
+      onChatActionsOpen,
+      mobileToggleChatExpansion,
+      mobileTheme,
+      chatsTree,
+      onClose,
+      setActiveChat,
+      setMobileSelectedDetailsChat,
+    ],
   );
 
   return (
@@ -1112,7 +910,7 @@ export function NeuroniumSidebarResponsive() {
           }
           onClick={onOpen}
           variant="ghost"
-          color={theme.menuColor}
+          color={mobileTheme.menuColor}
           size="md"
         />
       </Flex>
@@ -1120,13 +918,13 @@ export function NeuroniumSidebarResponsive() {
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
         <DrawerContent
-          bg={theme.bgColor}
+          bg={mobileTheme.bgColor}
           maxW="300px"
           borderRight="1px solid"
-          borderColor={theme.borderColor}
+          borderColor={mobileTheme.borderColor}
         >
           <DrawerCloseButton
-            color={theme.textPrimary}
+            color={mobileTheme.textPrimary}
             position="absolute"
             top="20px"
             right="20px"
@@ -1170,21 +968,14 @@ export function NeuroniumSidebarResponsive() {
                 iconAlt="New chat"
                 label="Новый чат"
                 onClick={onMobileNewChatOpen}
-                theme={theme}
-              />
-              <ActionButton
-                icon="/icons/folder-add.svg"
-                iconAlt="New project"
-                label="Новый проект"
-                onClick={onNewProjectOpen}
-                theme={theme}
+                theme={mobileTheme}
               />
               <ActionButton
                 icon="/icons/magnifer.svg"
                 iconAlt="Search"
                 label="Поиск в чатах"
                 onClick={onSearchModalOpen}
-                theme={theme}
+                theme={mobileTheme}
               />
               {/* Telegram Debug */}
               <ActionButton
@@ -1192,310 +983,48 @@ export function NeuroniumSidebarResponsive() {
                 iconAlt="Telegram Debug"
                 label="Telegram Debug"
                 onClick={() => router.push("/telegram-debug")}
-                theme={theme}
+                theme={mobileTheme}
               />
             </VStack>
 
             {/* Main Content Section */}
-            <Box flex="1" overflowY="auto">
-              {/* Projects Section - показываем первыми если есть проекты */}
-              {projects.length > 0 && (
+            <Box
+              flex="1"
+              overflowY="auto"
+              overflowX="auto"
+              css={{
+                "&::-webkit-scrollbar": {
+                  width: "4px",
+                  height: "4px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "rgba(255, 255, 255, 0.2)",
+                  borderRadius: "2px",
+                },
+                "&::-webkit-scrollbar-thumb:hover": {
+                  background: "rgba(255, 255, 255, 0.3)",
+                },
+              }}
+            >
+              {/* Chats Tree Section */}
+              {chatsTree.length > 0 && (
                 <>
                   <Text
                     fontSize="12px"
                     fontWeight="400"
-                    color={theme.textSecondary}
+                    color={mobileTheme.textSecondary}
                     textTransform="uppercase"
                     letterSpacing="0.4px"
                     mb="16px"
-                  >
-                    ПРОЕКТЫ
-                  </Text>
-                  <VStack spacing="8px" align="stretch" mb="24px">
-                    {projects.map((project) => {
-                      const isExpanded = mobileExpandedProjects.has(project.id);
-                      return (
-                        <VStack key={project.id} spacing="4px" align="stretch">
-                          {/* Project Header */}
-                          <Flex
-                            h="40px"
-                            px="10px"
-                            py="7px"
-                            align="center"
-                            cursor="pointer"
-                            _hover={{ bg: theme.hoverBg }}
-                            borderRadius="10px"
-                            onMouseEnter={() => setHoveredProjectId(project.id)}
-                            onMouseLeave={() => setHoveredProjectId(null)}
-                            onClick={() => {
-                              mobileToggleProjectExpansion(project.id);
-                              setCurrentProject(project);
-                            }}
-                          >
-                            <Image
-                              src={getAssetPath("/icons/folder.svg")}
-                              alt="Project"
-                              width={16}
-                              height={16}
-                            />
-                            <Text
-                              fontSize="16px"
-                              color={theme.textPrimary}
-                              ml="8px"
-                              noOfLines={1}
-                              flex="1"
-                            >
-                              {project.name}
-                            </Text>
-                            {/* Action buttons - visible on hover */}
-                            {hoveredProjectId === project.id && (
-                              <Flex gap="4px">
-                                {/* Dropdown Arrow */}
-                                <IconButton
-                                  aria-label="Toggle project"
-                                  icon={
-                                    <Box
-                                      as="svg"
-                                      width="16px"
-                                      height="16px"
-                                      viewBox="0 0 16 16"
-                                      fill="none"
-                                      transform={
-                                        isExpanded
-                                          ? "rotate(180deg)"
-                                          : "rotate(0deg)"
-                                      }
-                                      transition="transform 0.2s"
-                                    >
-                                      <path
-                                        d="M4 6L8 10L12 6"
-                                        stroke={theme.textSecondary}
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                      />
-                                    </Box>
-                                  }
-                                  size="xs"
-                                  variant="ghost"
-                                  minW="20px"
-                                  h="20px"
-                                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    mobileToggleProjectExpansion(project.id);
-                                  }}
-                                />
-                                {/* Three dots menu button */}
-                                <IconButton
-                                  aria-label={`Действия для проекта ${project.name}`}
-                                  icon={
-                                    <Box
-                                      as="svg"
-                                      width="16px"
-                                      height="16px"
-                                      viewBox="0 0 16 16"
-                                      fill="none"
-                                    >
-                                      <circle
-                                        cx="3"
-                                        cy="8"
-                                        r="1.5"
-                                        fill={theme.textSecondary}
-                                      />
-                                      <circle
-                                        cx="8"
-                                        cy="8"
-                                        r="1.5"
-                                        fill={theme.textSecondary}
-                                      />
-                                      <circle
-                                        cx="13"
-                                        cy="8"
-                                        r="1.5"
-                                        fill={theme.textSecondary}
-                                      />
-                                    </Box>
-                                  }
-                                  size="xs"
-                                  variant="ghost"
-                                  minW="20px"
-                                  h="20px"
-                                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setMobileSelectedProjectId(project.id);
-                                    const rect =
-                                      e.currentTarget.getBoundingClientRect();
-                                    setMobileProjectActionsPosition({
-                                      x: rect.right + 4,
-                                      y: rect.top,
-                                    });
-                                    onProjectActionsOpen();
-                                  }}
-                                />
-                              </Flex>
-                            )}
-                            {/* Show only arrow when expanded but not hovered */}
-                            {!hoveredProjectId && isExpanded && (
-                              <IconButton
-                                aria-label="Toggle project"
-                                icon={
-                                  <Box
-                                    as="svg"
-                                    width="16px"
-                                    height="16px"
-                                    viewBox="0 0 16 16"
-                                    fill="none"
-                                    transform={
-                                      isExpanded
-                                        ? "rotate(180deg)"
-                                        : "rotate(0deg)"
-                                    }
-                                    transition="transform 0.2s"
-                                  >
-                                    <path
-                                      d="M4 6L8 10L12 6"
-                                      stroke={theme.textSecondary}
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </Box>
-                                }
-                                size="xs"
-                                variant="ghost"
-                                minW="20px"
-                                h="20px"
-                                _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  mobileToggleProjectExpansion(project.id);
-                                }}
-                              />
-                            )}
-                          </Flex>
-
-                          {/* Project Chats - shown when expanded */}
-                          {isExpanded && (
-                            <VStack spacing="4px" align="stretch" pl="24px">
-                              {getChatsByProject(project.id).length === 0 ? (
-                                <Text
-                                  fontSize="12px"
-                                  color={theme.textSecondary}
-                                  fontStyle="italic"
-                                >
-                                  Нет чатов в этом проекте
-                                </Text>
-                              ) : (
-                                getChatsByProject(project.id).map((chat) => (
-                                  <ChatItem
-                                    key={chat.id}
-                                    chat={{
-                                      id: chat.id,
-                                      title: chat.title || "Untitled Chat",
-                                      isActive: activeChatId === chat.id,
-                                      project_id: chat.project_id,
-                                      model: chat.model,
-                                      temperature: chat.temperature,
-                                      created_at: chat.created_at,
-                                      updated_at: chat.updated_at,
-                                    }}
-                                    hoveredChatId={hoveredChatId}
-                                    editingChatId={editingChatId}
-                                    editingChatTitle={editingChatTitle}
-                                    theme={theme}
-                                    onMouseEnter={() =>
-                                      setHoveredChatId(chat.id)
-                                    }
-                                    onMouseLeave={() => setHoveredChatId(null)}
-                                    onClick={() => handleChatClick(chat.id)}
-                                    onDoubleClick={() =>
-                                      startEditingChat(
-                                        chat.id,
-                                        chat.title || "",
-                                      )
-                                    }
-                                    onEditingTitleChange={
-                                      updateEditingChatTitle
-                                    }
-                                    onEditingSave={saveEditingChat}
-                                    onEditingCancel={cancelEditingChat}
-                                    onMoreActionsClick={(e) => {
-                                      e.preventDefault();
-                                      setSelectedChatId(chat.id);
-                                      const rect =
-                                        e.currentTarget.getBoundingClientRect();
-                                      setActionsModalPosition({
-                                        x: rect.right + 4,
-                                        y: rect.top,
-                                      });
-                                      onChatActionsOpen();
-                                    }}
-                                  />
-                                ))
-                              )}
-                            </VStack>
-                          )}
-                        </VStack>
-                      );
-                    })}
-                  </VStack>
-                </>
-              )}
-
-              {/* Chats Section - показываем только чаты без проекта */}
-              {getChatsWithoutProject().length > 0 && (
-                <>
-                  <Text
-                    fontSize="12px"
-                    fontWeight="400"
-                    color={theme.textSecondary}
-                    textTransform="uppercase"
-                    letterSpacing="0.4px"
-                    mb="16px"
+                    flexShrink={0}
                   >
                     ЧАТЫ
                   </Text>
-                  <VStack spacing="8px" align="stretch">
-                    {getChatsWithoutProject().map((chat) => (
-                      <ChatItem
-                        key={chat.id}
-                        chat={{
-                          id: chat.id,
-                          title: chat.title || "Untitled Chat",
-                          isActive: activeChatId === chat.id,
-                          project_id: chat.project_id,
-                          model: chat.model,
-                          temperature: chat.temperature,
-                          created_at: chat.created_at,
-                          updated_at: chat.updated_at,
-                        }}
-                        hoveredChatId={hoveredChatId}
-                        editingChatId={editingChatId}
-                        editingChatTitle={editingChatTitle}
-                        theme={theme}
-                        onMouseEnter={() => setHoveredChatId(chat.id)}
-                        onMouseLeave={() => setHoveredChatId(null)}
-                        onClick={() => handleChatClick(chat.id)}
-                        onDoubleClick={() =>
-                          startEditingChat(chat.id, chat.title || "")
-                        }
-                        onEditingTitleChange={updateEditingChatTitle}
-                        onEditingSave={saveEditingChat}
-                        onEditingCancel={cancelEditingChat}
-                        onMoreActionsClick={(e) => {
-                          e.preventDefault();
-                          setSelectedChatId(chat.id);
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          setActionsModalPosition({
-                            x: rect.right + 4,
-                            y: rect.top,
-                          });
-                          onChatActionsOpen();
-                        }}
-                      />
-                    ))}
+                  <VStack spacing="8px" align="stretch" minW="100%" w="max-content">
+                    {renderMobileChatTree(chatsTree)}
                   </VStack>
                 </>
               )}
@@ -1514,55 +1043,38 @@ export function NeuroniumSidebarResponsive() {
         onClose={onChatActionsClose}
         position={actionsModalPosition}
         chatTitle={
-          (selectedChatId ? findChatAnywhere(selectedChatId) : null)?.title ||
-          "Чат"
+          chatsList.find((c) => c.id === selectedChatId)?.title || "Чат"
         }
         chatId={selectedChatId || undefined}
         onRename={() => {
-          const chat = selectedChatId ? findChatAnywhere(selectedChatId) : null;
+          const chat = chatsList.find((c) => c.id === selectedChatId);
           if (chat) {
             setChatToRename({ id: chat.id, title: chat.title || "" });
             onRenameChatOpen();
             onChatActionsClose();
           }
         }}
-        onAddToProject={() => console.log("Add to project")}
         onCopy={() => console.log("Copy chat")}
-        onNewProject={() => {
-          onNewProjectOpen();
-          onChatActionsClose();
+        onCreateSubchat={() => {
+          const chat = chatsList.find((c) => c.id === selectedChatId);
+          if (chat) {
+            setMobileParentChatForNew({ id: chat.id, title: chat.title || "Чат" });
+            onMobileNewChatOpen();
+            onChatActionsClose();
+          }
+        }}
+        onMoveToChat={() => {
+          const chat = chatsList.find((c) => c.id === selectedChatId);
+          if (chat) {
+            setMobileChatToMove({ id: chat.id, title: chat.title || "Чат" });
+            onMobileMoveToChatOpen();
+            onChatActionsClose();
+          }
         }}
         onDeleteConfirm={(chatTitle) => {
           if (selectedChatId) {
             setChatToDelete({ id: selectedChatId, title: chatTitle });
             onDeleteChatOpen();
-          }
-        }}
-        projects={projects.map((p) => ({ id: p.id, name: p.name }))}
-        onMoveToProject={(chatId, projectId) => {
-          updateChat(chatId, { project_id: projectId });
-          onChatActionsClose();
-        }}
-        onCreateProjectAndMove={(chatId) => {
-          setChatToMoveToNewProject(chatId);
-          onNewProjectOpen();
-          onChatActionsClose();
-        }}
-      />
-      <NewProjectModal
-        isOpen={isNewProjectOpen}
-        onClose={() => {
-          setChatToMoveToNewProject(null);
-          onNewProjectClose();
-        }}
-        onCreateProject={async (projectName) => {
-          try {
-            await createProject(projectName);
-            setChatToMoveToNewProject(null);
-            console.log("Created project:", projectName);
-          } catch (error) {
-            console.error("Failed to create project:", error);
-            // TODO: Show error notification to user
           }
         }}
       />
@@ -1592,30 +1104,68 @@ export function NeuroniumSidebarResponsive() {
           }
         }}
       />
-      <EditProjectModal
-        isOpen={isEditProjectOpen}
-        onClose={() => {
-          setMobileProjectToEdit(null);
-          onEditProjectClose();
-        }}
-        currentName={mobileProjectToEdit?.name || ""}
-        currentDescription={mobileProjectToEdit?.description}
-        onUpdateProject={mobileHandleUpdateProject}
-      />
-      <ProjectActionsModal
-        isOpen={isProjectActionsOpen}
-        onClose={onProjectActionsClose}
-        position={mobileProjectActionsPosition}
-        projectName={
-          projects.find((p) => p.id === mobileSelectedProjectId)?.name || ""
-        }
-        projectId={mobileSelectedProjectId || 0}
-        onEdit={mobileHandleProjectEdit}
-        onDeleteConfirm={mobileHandleProjectDelete}
-      />
       <NewChatModal
         isOpen={isMobileNewChatOpen}
-        onClose={onMobileNewChatClose}
+        onClose={() => {
+          setMobileParentChatForNew(null);
+          onMobileNewChatClose();
+        }}
+        parentChatId={mobileParentChatForNew?.id}
+        parentChatTitle={mobileParentChatForNew?.title}
+      />
+      <MoveToChatModal
+        isOpen={isMobileMoveToChatOpen}
+        onClose={() => {
+          setMobileChatToMove(null);
+          onMobileMoveToChatClose();
+        }}
+        currentChatId={mobileChatToMove?.id || 0}
+        currentChatTitle={mobileChatToMove?.title || ""}
+        allChats={chatsTree}
+        onMove={(targetChatId) => {
+          if (mobileChatToMove) {
+            updateChat(mobileChatToMove.id, { parent_id: targetChatId });
+            setMobileChatToMove(null);
+          }
+        }}
+      />
+      <ChatDetailsModal
+        isOpen={isMobileChatDetailsOpen}
+        onClose={() => {
+          setMobileDetailsChat(null);
+          onMobileChatDetailsClose();
+        }}
+        chat={mobileDetailsChat}
+        onRename={() => {
+          if (mobileDetailsChat) {
+            setChatToRename({ id: mobileDetailsChat.id, title: mobileDetailsChat.title || "" });
+            onRenameChatOpen();
+          }
+        }}
+        onMove={() => {
+          if (mobileDetailsChat) {
+            setMobileChatToMove({ id: mobileDetailsChat.id, title: mobileDetailsChat.title || "Чат" });
+            onMobileMoveToChatOpen();
+          }
+        }}
+        onDelete={() => {
+          if (mobileDetailsChat) {
+            setChatToDelete({ id: mobileDetailsChat.id, title: mobileDetailsChat.title || "" });
+            onDeleteChatOpen();
+          }
+        }}
+        onCreateSubchat={() => {
+          if (mobileDetailsChat) {
+            setMobileParentChatForNew({ id: mobileDetailsChat.id, title: mobileDetailsChat.title || "Чат" });
+            onMobileNewChatOpen();
+          }
+        }}
+        onCopy={() => {
+          console.log("Copy chat:", mobileDetailsChat?.id);
+        }}
+        onChildChatClick={(chatId) => {
+          setActiveChat(chatId);
+        }}
       />
     </>
   );

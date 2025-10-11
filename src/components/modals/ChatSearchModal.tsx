@@ -21,7 +21,6 @@ import { COLORS } from "@/theme/colors";
 import { ChatResult } from "@/types/chat";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useChats } from "@/hooks/useChats";
-import { useProjects } from "@/hooks/useProjects";
 import { useAssetPath } from "@/hooks/useAssetPath";
 
 interface ChatSearchModalProps {
@@ -50,7 +49,6 @@ export default function ChatSearchModal({
 
   // Get data from hooks
   const { chatsList, setActiveChat } = useChats();
-  const { projects, setActiveChatInProjects } = useProjects();
 
   // Debounce search query by 300ms for better performance
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -59,20 +57,13 @@ export default function ChatSearchModal({
   const allChatResults = React.useMemo(() => {
     const results: ChatResult[] = [];
 
-    // Add regular chats
+    // Add all chats
     chatsList.forEach((chat) => {
       results.push(convertChatToResult(chat, "Чаты"));
     });
 
-    // Add chats from projects
-    projects.forEach((project) => {
-      project.chats.forEach((chat) => {
-        results.push(convertChatToResult(chat, `Проект: ${project.name}`));
-      });
-    });
-
     return results;
-  }, [chatsList, projects]);
+  }, [chatsList]);
 
   // Handle search with debounced value and error handling
   React.useEffect(() => {
@@ -96,7 +87,7 @@ export default function ChatSearchModal({
 
   const handleChatSelect = (chatId: number) => {
     try {
-      // Try to set active chat in regular chats first
+      // Set active chat
       const regularChat = chatsList.find((chat) => chat.id === chatId);
       if (regularChat) {
         setActiveChat(chatId);
@@ -104,8 +95,7 @@ export default function ChatSearchModal({
         return;
       }
 
-      // If not found in regular chats, try projects
-      setActiveChatInProjects(chatId);
+      console.warn("Chat not found:", chatId);
       onClose();
     } catch (error) {
       console.error("Error selecting chat:", error);

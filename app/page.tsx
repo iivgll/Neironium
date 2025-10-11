@@ -1,9 +1,10 @@
 "use client";
-import React, { useRef, useCallback, useState } from "react";
+import React, { useRef, useCallback, useState, useEffect } from "react";
 import { flushSync } from "react-dom";
 import { Box, Flex, VStack } from "@chakra-ui/react";
 import NeuroniumChatInput from "@/components/chat/NeuroniumChatInput";
 import NeuroniumNavbar from "@/components/navbar/NeuroniumNavbar";
+import ChatTreeView from "@/components/chat/ChatTreeView";
 import MessageBoxChat from "@/components/messages/MessageBox";
 import UserMessage from "@/components/messages/UserMessage";
 import ThinkingProcess from "@/components/chat/ThinkingProcess";
@@ -14,8 +15,15 @@ import { useKeyboardHandler } from "@/hooks/useKeyboardHandler";
 import { COLORS } from "@/theme/colors";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { useChatsContext } from "@/contexts/ChatsContext";
+import { useChatDetails } from "@/contexts/ChatDetailsContext";
 import { streamHandler, StreamEvent } from "@/utils/streamHandler";
-import { MessageRead } from "@/types/api";
+import { MessageRead, FileRead } from "@/types/api";
+import { apiClient } from "@/utils/apiClient";
+import { useDisclosure } from "@chakra-ui/react";
+import DeleteChatModal from "@/components/modals/DeleteChatModal";
+import RenameChatModal from "@/components/modals/RenameChatModal";
+import NewChatModal from "@/components/modals/NewChatModal";
+import AddFileModal from "@/components/modals/AddFileModal";
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -26,11 +34,89 @@ export default function Chat() {
     activeChatId,
     loadMessages: loadChatMessages,
     createChat,
+    chatsTree,
+    updateChat: updateChatInContext,
+    deleteChat: deleteChatInContext,
+    setActiveChat,
   } = useChatsContext();
+  const { selectedDetailsChat, setSelectedDetailsChat } = useChatDetails();
   const [messageThinkingStates, setMessageThinkingStates] = useState<{
     [key: number]: boolean;
   }>({});
   const [isAutoCreatingChat, setIsAutoCreatingChat] = useState(false);
+
+  // Modal states for chat details actions
+  const {
+    isOpen: isDeleteChatOpen,
+    onOpen: onDeleteChatOpen,
+    onClose: onDeleteChatClose,
+  } = useDisclosure();
+  const {
+    isOpen: isRenameChatOpen,
+    onOpen: onRenameChatOpen,
+    onClose: onRenameChatClose,
+  } = useDisclosure();
+  const {
+    isOpen: isNewChatOpen,
+    onOpen: onNewChatOpen,
+    onClose: onNewChatClose,
+  } = useDisclosure();
+  const {
+    isOpen: isAddFileOpen,
+    onOpen: onAddFileOpen,
+    onClose: onAddFileClose,
+  } = useDisclosure();
+
+  const [parentChatForNew, setParentChatForNew] = useState<{ id: number; title: string } | null>(null);
+  const [chatToRename, setChatToRename] = useState<{ id: number; title: string } | null>(null);
+  const [chatToDelete, setChatToDelete] = useState<{ id: number; title: string } | null>(null);
+
+  // Files state
+  const [chatFiles, setChatFiles] = useState<FileRead[]>([]);
+
+  // Load chat files when modal opens or active chat changes
+  const loadChatFiles = useCallback(async () => {
+    if (activeChatId) {
+      try {
+        const response = await apiClient.getChatFiles(activeChatId);
+        setChatFiles(response.items);
+      } catch (error) {
+        console.error("Failed to load chat files:", error);
+        setChatFiles([]);
+      }
+    }
+  }, [activeChatId]);
+
+  // Load files when active chat changes
+  useEffect(() => {
+    loadChatFiles();
+  }, [loadChatFiles]);
+
+  // File upload handler
+  const handleFileUpload = useCallback(async (files: FileList) => {
+    if (!activeChatId) return;
+
+    try {
+      await apiClient.uploadChatFiles(activeChatId, files);
+      await loadChatFiles();
+    } catch (error) {
+      console.error("Failed to upload files:", error);
+      throw error;
+    }
+  }, [activeChatId, loadChatFiles]);
+
+  // File delete handler
+  const handleFileDelete = useCallback(async (fileId: number) => {
+    if (!activeChatId) return;
+
+    try {
+      await apiClient.deleteChatFile(activeChatId, fileId);
+      await loadChatFiles();
+    } catch (error) {
+      console.error("Failed to delete file:", error);
+      throw error;
+    }
+  }, [activeChatId, loadChatFiles]);
 
   // Используем хук для управления клавиатурой
   const { getFixedBottomStyle, getContainerStyle, isKeyboardVisible } =
@@ -95,14 +181,32 @@ export default function Chat() {
     [setModel],
   );
 
-  // Load messages when active chat changes (но не после автосоздания)
+  // Load messages and chat info when active chat changes (но не после автосоздания)
   React.useEffect(() => {
     if (activeChatId && !isAutoCreatingChat) {
       loadMessages();
+
+      // Load chat info to get current model
+      const loadChatInfo = async () => {
+        try {
+          const chatInfo = await apiClient.getChat(activeChatId);
+          if (chatInfo.model) {
+            setModel(chatInfo.model);
+          }
+        } catch (error) {
+          console.error("Failed to load chat info:", error);
+        }
+      };
+      loadChatInfo();
+
+      // Скрываем детали чата при переключении на другой чат
+      setSelectedDetailsChat(null);
     } else if (!activeChatId && !isAutoCreatingChat) {
       // Очищаем сообщения когда нет активного чата
       // Проверяем, что сообщения еще не пустые, чтобы избежать лишних обновлений
       setMessages((prev) => (prev.length > 0 ? [] : prev));
+      // НЕ закрываем детали чата - они могут быть открыты намеренно (клик на плюсик)
+      // setSelectedDetailsChat(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChatId, isAutoCreatingChat]); // loadMessages и setMessages намеренно исключены
@@ -321,7 +425,61 @@ export default function Chat() {
       display="flex"
       flexDirection="column"
     >
-      <NeuroniumNavbar model={model} onModelChange={handleModelChange} />
+      <NeuroniumNavbar
+        model={model}
+        onModelChange={handleModelChange}
+        onAddFile={onAddFileOpen}
+        chatId={activeChatId || undefined}
+        onToggleChatDetails={() => {
+          if (selectedDetailsChat) {
+            // Если детали уже открыты - закрываем
+            console.log("Closing chat details");
+            setSelectedDetailsChat(null);
+          } else if (activeChatId) {
+            console.log("Active chat ID:", activeChatId);
+            console.log("Chats tree:", chatsTree);
+
+            // Функция для поиска чата в дереве
+            const findChat = (chats: any[], id: number): any => {
+              for (const chat of chats) {
+                if (chat.id === id) return chat;
+                if (chat.children) {
+                  const found = findChat(chat.children, id);
+                  if (found) return found;
+                }
+              }
+              return null;
+            };
+
+            // Функция для поиска корневого родителя - ищет в каком корневом чате находится целевой ID
+            const findRootParent = (chats: any[], targetId: number): any => {
+              for (const rootChat of chats) {
+                // Проверяем, находится ли целевой чат в этом дереве
+                const foundInTree = findChat([rootChat], targetId);
+                if (foundInTree) {
+                  // Если нашли - возвращаем корневой чат
+                  return rootChat;
+                }
+              }
+              return null;
+            };
+
+            // Ищем корневого родителя для активного чата
+            const rootParent = findRootParent(chatsTree, activeChatId);
+            console.log("Found root parent:", rootParent);
+
+            if (rootParent) {
+              setSelectedDetailsChat(rootParent);
+              console.log("Set selected details chat to:", rootParent);
+            } else {
+              console.log("No root parent found for chat ID:", activeChatId);
+            }
+          } else {
+            console.log("No active chat ID");
+          }
+        }}
+        isChatDetailsVisible={!!selectedDetailsChat}
+      />
       <Box
         flex="1"
         display="flex"
@@ -358,31 +516,95 @@ export default function Chat() {
             },
           }}
         >
-          {/* Welcome Screen - показывается когда нет сообщений */}
-          {messages.length === 0 && (
-            <Flex
-              h="100%"
-              direction="column"
-              align="center"
-              justify="center"
-              textAlign="center"
-            >
-              <div
-                style={{
-                  fontSize: "2.25rem",
-                  marginBottom: "12px",
-                  backgroundImage: COLORS.GRADIENT_PRIMARY,
-                  backgroundClip: "text",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  fontWeight: 700,
-                }}
-              >
-                Привет, {displayName}
-                <br /> v 1.0.1
-              </div>
-            </Flex>
-          )}
+          {/* Welcome Screen / Chat Tree */}
+          {selectedDetailsChat ? (
+            // Показываем дерево чатов когда нажали на кнопку (независимо от сообщений)
+            <ChatTreeView
+                  rootChat={selectedDetailsChat}
+                  onChatClick={(chatId: number) => {
+                    setActiveChat(chatId);
+                  }}
+                  onRenameChat={(chatId: number) => {
+                    const findChat = (chats: any[], id: number): any => {
+                      for (const chat of chats) {
+                        if (chat.id === id) return chat;
+                        if (chat.children) {
+                          const found = findChat(chat.children, id);
+                          if (found) return found;
+                        }
+                      }
+                      return null;
+                    };
+                    const chat = findChat(chatsTree, chatId);
+                    if (chat) {
+                      setChatToRename({ id: chat.id, title: chat.title || "" });
+                      onRenameChatOpen();
+                    }
+                  }}
+                  onDeleteChat={(chatId: number) => {
+                    const findChat = (chats: any[], id: number): any => {
+                      for (const chat of chats) {
+                        if (chat.id === id) return chat;
+                        if (chat.children) {
+                          const found = findChat(chat.children, id);
+                          if (found) return found;
+                        }
+                      }
+                      return null;
+                    };
+                    const chat = findChat(chatsTree, chatId);
+                    if (chat) {
+                      setChatToDelete({ id: chat.id, title: chat.title || "" });
+                      onDeleteChatOpen();
+                    }
+                  }}
+                  onCreateSubchat={(parentChatId: number) => {
+                    const findChat = (chats: any[], id: number): any => {
+                      for (const chat of chats) {
+                        if (chat.id === id) return chat;
+                        if (chat.children) {
+                          const found = findChat(chat.children, id);
+                          if (found) return found;
+                        }
+                      }
+                      return null;
+                    };
+                    const chat = findChat(chatsTree, parentChatId);
+                    if (chat) {
+                      setParentChatForNew({
+                        id: chat.id,
+                        title: chat.title || "Чат",
+                      });
+                      onNewChatOpen();
+                    }
+                  }}
+                  activeChatId={activeChatId}
+                />
+              ) : messages.length === 0 && (
+                // Показываем приветствие только если нет сообщений и детали закрыты
+                <Flex
+                  h="100%"
+                  direction="column"
+                  align="center"
+                  justify="center"
+                  textAlign="center"
+                >
+                  <div
+                    style={{
+                      fontSize: "2.25rem",
+                      marginBottom: "12px",
+                      backgroundImage: COLORS.GRADIENT_PRIMARY,
+                      backgroundClip: "text",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Привет, {displayName}
+                    <br /> v 1.0.2
+                  </div>
+                </Flex>
+              )}
 
           {/* Messages Area */}
           {messages.length > 0 && (
@@ -542,6 +764,67 @@ export default function Chat() {
           </Box>
         </Box>
       </Box>
+
+      {/* Modals for chat details actions */}
+      {selectedDetailsChat && (
+        <>
+          <DeleteChatModal
+            isOpen={isDeleteChatOpen}
+            onClose={() => {
+              setChatToDelete(null);
+              onDeleteChatClose();
+            }}
+            chatTitle={chatToDelete?.title || ""}
+            onConfirm={async () => {
+              if (chatToDelete) {
+                await deleteChatInContext(chatToDelete.id);
+                setChatToDelete(null);
+                setSelectedDetailsChat(null);
+              }
+              onDeleteChatClose();
+            }}
+          />
+          <RenameChatModal
+            isOpen={isRenameChatOpen}
+            onClose={() => {
+              setChatToRename(null);
+              onRenameChatClose();
+            }}
+            currentName={chatToRename?.title || ""}
+            onRename={async (newTitle) => {
+              if (chatToRename) {
+                await updateChatInContext(chatToRename.id, { title: newTitle });
+                setChatToRename(null);
+              }
+              onRenameChatClose();
+            }}
+          />
+          <NewChatModal
+            isOpen={isNewChatOpen}
+            onClose={() => {
+              setParentChatForNew(null);
+              onNewChatClose();
+            }}
+            parentChatId={parentChatForNew?.id}
+            parentChatTitle={parentChatForNew?.title}
+          />
+        </>
+      )}
+
+      {/* Add File Modal */}
+      <AddFileModal
+        isOpen={isAddFileOpen}
+        onClose={onAddFileClose}
+        chatId={activeChatId || undefined}
+        files={chatFiles}
+        onFilesChange={loadChatFiles}
+        onFileUpload={handleFileUpload}
+        onFileDelete={handleFileDelete}
+        onUrlAdd={(url) => {
+          console.log("URL added:", url);
+          // TODO: Implement URL add logic
+        }}
+      />
     </Box>
   );
 }

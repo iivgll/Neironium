@@ -20,27 +20,49 @@ const NeuroniumAvatar: React.FC<NeuroniumAvatarProps> = ({
     fetch("/animation/neuronium.json")
       .then((response) => response.json())
       .then((data) => {
-        console.log("✅ Lottie animation loaded");
         setAnimationData(data);
       })
       .catch((error) => console.error("❌ Failed to load animation:", error));
   }, []);
+
+  // Управляем seamless loop - играем только кадры 0-109, пропускаем кадр 110
+  useEffect(() => {
+    if (!lottieRef.current || !animationData || !isReady) return;
+
+    const animationInstance = (lottieRef.current as any).animationItem;
+    if (!animationInstance) return;
+
+    const handleEnterFrame = () => {
+      const currentFrame = animationInstance.currentFrame;
+      // Когда достигаем кадра 108, плавно переходим к 0 для бесшовного цикла
+      if (currentFrame >= 108) {
+        animationInstance.goToAndPlay(0, true);
+      }
+    };
+
+    animationInstance.addEventListener("enterFrame", handleEnterFrame);
+
+    // Запускаем воспроизведение
+    animationInstance.goToAndPlay(0, true);
+
+    return () => {
+      animationInstance.removeEventListener("enterFrame", handleEnterFrame);
+    };
+  }, [animationData, isReady]);
 
   // Управляем анимацией когда она готова
   useEffect(() => {
     if (!lottieRef.current || !isReady) return;
 
     if (isAnimating) {
-      console.log("▶️ Starting animation");
       lottieRef.current.play();
     } else {
-      console.log("⏸️ Pausing animation");
       lottieRef.current.pause();
     }
   }, [isAnimating, isReady]);
 
   if (!animationData) {
-    return null; // Не показываем ничего пока анимация не загрузилась
+    return null;
   }
 
   return (
@@ -48,15 +70,16 @@ const NeuroniumAvatar: React.FC<NeuroniumAvatarProps> = ({
       <Lottie
         lottieRef={lottieRef}
         animationData={animationData}
-        loop={true}
+        loop={false}
         autoplay={true}
         style={{ width: size, height: size }}
-        onComplete={() => console.log("🔄 Animation loop complete")}
-        onLoopComplete={() => console.log("🔁 Loop iteration complete")}
+        rendererSettings={{
+          preserveAspectRatio: "xMidYMid slice",
+          progressiveLoad: false,
+          hideOnTransparent: true,
+        }}
         onDOMLoaded={() => {
-          console.log("🎬 Lottie DOM loaded");
           setIsReady(true);
-          // Запускаем анимацию сразу если нужно
           if (isAnimating && lottieRef.current) {
             lottieRef.current.play();
           }

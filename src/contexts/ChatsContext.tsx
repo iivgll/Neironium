@@ -8,29 +8,32 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-import { ChatRead, ChatCreate, ChatUpdate, MessageRead } from "@/types/api";
+import {
+  ChatRead,
+  ChatCreate,
+  ChatUpdate,
+  MessageRead,
+  ChatTreeItem,
+} from "@/types/api";
 import { apiClient } from "@/utils/apiClient";
 import { useAuth } from "./AuthContext";
-import { useProjects } from "./ProjectsContext";
+import { Chat } from "@/types/chat";
 
 interface ChatsContextType {
   // State
-  chats: ChatRead[];
+  chats: Chat[];
+  chatsTree: Chat[];
   activeChat: ChatRead | null;
   activeChatId: number | null;
   isLoading: boolean;
   error: string | null;
 
   // Chat management
-  loadChats: (projectId?: number) => Promise<void>;
+  loadChats: () => Promise<void>;
   createChat: (data: ChatCreate) => Promise<ChatRead>;
   updateChat: (id: number, data: ChatUpdate) => Promise<void>;
   deleteChat: (id: number) => Promise<void>;
   setActiveChat: (chatId: number | null) => void;
-
-  // Helper methods
-  getChatsByProject: (projectId: number | null) => ChatRead[];
-  getChatsWithoutProject: () => ChatRead[];
 
   // Messages management
   messages: MessageRead[];
@@ -41,7 +44,8 @@ interface ChatsContextType {
 const ChatsContext = createContext<ChatsContextType | null>(null);
 
 export function ChatsProvider({ children }: { children: ReactNode }) {
-  const [chats, setChats] = useState<ChatRead[]>([]);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [chatsTree, setChatsTree] = useState<Chat[]>([]);
   const [activeChat, setActiveChatState] = useState<ChatRead | null>(null);
   const [activeChatId, setActiveChatId] = useState<number | null>(() => {
     // Restore active chat from localStorage
@@ -59,38 +63,63 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
   const { isAuthenticated } = useAuth();
-  const { currentProject } = useProjects();
 
-  const loadChats = useCallback(
-    async (projectId?: number) => {
-      try {
-        setIsLoading(true);
-        setError(null);
+  const buildChatTree = useCallback((items: ChatTreeItem[]): Chat[] => {
+    // Recursively convert ChatTreeItem to Chat
+    const convertItem = (item: ChatTreeItem): Chat => ({
+      id: item.id,
+      title: item.title || undefined,
+      parent_id: item.parent_id,
+      created_at: "",
+      updated_at: "",
+      description: item.description || undefined,
+      files_count: item.files_count,
+      files: item.files, // Copy files from API
+      children: item.children.map(convertItem),
+    });
 
-        const response = await apiClient.getChats(50, undefined, projectId);
-        setChats(response.items);
+    return items.map(convertItem);
+  }, []);
 
-        // If we had an active chat and it's still in the list, keep it active
-        if (activeChatId) {
-          const stillExists = response.items.find(
-            (chat) => chat.id === activeChatId,
-          );
-          if (!stillExists) {
-            setActiveChatId(null);
-            setActiveChatState(null);
+  const loadChats = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const treeResponse = await apiClient.getChatsTree();
+      const tree = buildChatTree(treeResponse.items);
+      setChatsTree(tree);
+
+      // Flatten tree for backward compatibility
+      const flatChats: Chat[] = [];
+      const flatten = (chats: Chat[]) => {
+        chats.forEach((chat) => {
+          flatChats.push(chat);
+          if (chat.children && chat.children.length > 0) {
+            flatten(chat.children);
           }
+        });
+      };
+      flatten(tree);
+      setChats(flatChats);
+
+      // If we had an active chat and it's still in the list, keep it active
+      if (activeChatId) {
+        const stillExists = flatChats.find((chat) => chat.id === activeChatId);
+        if (!stillExists) {
+          setActiveChatId(null);
+          setActiveChatState(null);
         }
-      } catch (error) {
-        console.error("Failed to load chats:", error);
-        setError(
-          error instanceof Error ? error.message : "Failed to load chats",
-        );
-      } finally {
-        setIsLoading(false);
       }
-    },
-    [activeChatId],
-  );
+    } catch (error) {
+      console.error("Failed to load chats:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to load chats",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [activeChatId, buildChatTree]);
 
   const createChat = useCallback(
     async (data: ChatCreate): Promise<ChatRead> => {
@@ -98,8 +127,19 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
         setError(null);
         const newChat = await apiClient.createChat(data);
 
+        // Convert ChatRead to Chat for local state
+        const chatForState: Chat = {
+          id: newChat.id,
+          title: newChat.title || undefined,
+          parent_id: newChat.parent_id,
+          model: newChat.model,
+          temperature: newChat.temperature,
+          created_at: newChat.created_at,
+          updated_at: newChat.updated_at,
+        };
+
         // Add to local state
-        setChats((prev) => [newChat, ...prev]);
+        setChats((prev) => [chatForState, ...prev]);
 
         // Automatically set as active chat
         setActiveChatId(newChat.id);
@@ -123,13 +163,27 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
         setError(null);
         const updatedChat = await apiClient.updateChat(id, data);
 
+        // Convert ChatRead to Chat for local state
+        const chatForState: Chat = {
+          id: updatedChat.id,
+          title: updatedChat.title || undefined,
+          parent_id: updatedChat.parent_id,
+          model: updatedChat.model,
+          temperature: updatedChat.temperature,
+          created_at: updatedChat.created_at,
+          updated_at: updatedChat.updated_at,
+        };
+
         setChats((prev) =>
-          prev.map((chat) => (chat.id === id ? updatedChat : chat)),
+          prev.map((chat) => (chat.id === id ? chatForState : chat)),
         );
 
         if (activeChatId === id) {
           setActiveChatState(updatedChat);
         }
+
+        // Reload tree to reflect changes (rename, move, etc.)
+        await loadChats();
       } catch (error) {
         console.error("Failed to update chat:", error);
         setError(
@@ -138,7 +192,7 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
         throw error;
       }
     },
-    [activeChatId],
+    [activeChatId, loadChats],
   );
 
   const deleteChat = useCallback(
@@ -201,10 +255,10 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Load chats when authenticated (load all chats, not filtered by project)
+  // Load chats when authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      loadChats(); // Load all chats without project filter
+      loadChats();
     }
   }, [isAuthenticated, loadChats]);
 
@@ -217,22 +271,9 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
     }
   }, [activeChatId, loadMessages]);
 
-  // Helper methods for filtering chats
-  const getChatsByProject = useCallback(
-    (projectId: number | null) => {
-      return chats.filter((chat) => chat.project_id === projectId);
-    },
-    [chats],
-  );
-
-  const getChatsWithoutProject = useCallback(() => {
-    return chats.filter(
-      (chat) => chat.project_id === null || chat.project_id === undefined,
-    );
-  }, [chats]);
-
   const value: ChatsContextType = {
     chats,
+    chatsTree,
     activeChat,
     activeChatId,
     isLoading,
@@ -242,8 +283,6 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
     updateChat,
     deleteChat,
     setActiveChat,
-    getChatsByProject,
-    getChatsWithoutProject,
     messages,
     loadMessages,
     isLoadingMessages,

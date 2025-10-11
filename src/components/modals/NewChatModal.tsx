@@ -8,40 +8,33 @@ import {
   ModalBody,
   Button,
   Input,
-  FormControl,
-  FormLabel,
-  Select,
   Text,
   VStack,
   useToast,
   Flex,
   IconButton,
-  Box,
 } from "@chakra-ui/react";
 import { MdClose } from "react-icons/md";
 import { useChatsContext } from "@/contexts/ChatsContext";
-import { useProjects } from "@/contexts/ProjectsContext";
 import { COLORS } from "@/theme/colors";
 
 interface NewChatModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedProjectId?: number | null; // Pre-select a project if opened from project context
+  parentChatId?: number | null;
+  parentChatTitle?: string;
 }
 
 export default function NewChatModal({
   isOpen,
   onClose,
-  selectedProjectId,
+  parentChatId = null,
+  parentChatTitle,
 }: NewChatModalProps) {
   const [chatTitle, setChatTitle] = useState("");
-  const [selectedProject, setSelectedProject] = useState<number | null>(
-    selectedProjectId || null,
-  );
   const [isLoading, setIsLoading] = useState(false);
 
   const { createChat, setActiveChat } = useChatsContext();
-  const { projects } = useProjects();
   const toast = useToast();
 
   const handleSubmit = async () => {
@@ -63,7 +56,7 @@ export default function NewChatModal({
       // Create new chat via API
       const newChat = await createChat({
         title: chatTitle.trim(),
-        project_id: projects.length > 0 ? selectedProject : null,
+        parent_id: parentChatId,
         // You can add more fields here like model, temperature, system_prompt
         // model: 'gpt-4',
         // temperature: 0.7,
@@ -83,9 +76,6 @@ export default function NewChatModal({
 
       // Reset form and close modal
       setChatTitle("");
-      setSelectedProject(
-        projects.length > 0 ? selectedProjectId || null : null,
-      );
       onClose();
     } catch (error) {
       console.error("Failed to create chat:", error);
@@ -106,9 +96,6 @@ export default function NewChatModal({
   const handleClose = () => {
     if (!isLoading) {
       setChatTitle("");
-      setSelectedProject(
-        projects.length > 0 ? selectedProjectId || null : null,
-      );
       onClose();
     }
   };
@@ -128,14 +115,25 @@ export default function NewChatModal({
           <VStack spacing="40px" align="stretch" w="full">
             {/* Header with Title and Close */}
             <Flex align="center" justify="center" position="relative">
-              <Text
-                fontSize="24px"
-                fontWeight="700"
-                color={COLORS.TEXT_PRIMARY}
-                textAlign="center"
-              >
-                Новый чат
-              </Text>
+              <VStack spacing="4px">
+                <Text
+                  fontSize="24px"
+                  fontWeight="700"
+                  color={COLORS.TEXT_PRIMARY}
+                  textAlign="center"
+                >
+                  Новый чат
+                </Text>
+                {parentChatTitle && (
+                  <Text
+                    fontSize="14px"
+                    color="rgba(255, 255, 255, 0.6)"
+                    textAlign="center"
+                  >
+                    в чате &quot;{parentChatTitle}&quot;
+                  </Text>
+                )}
+              </VStack>
               <IconButton
                 aria-label="Close modal"
                 icon={<MdClose size="20px" />}
@@ -182,80 +180,6 @@ export default function NewChatModal({
                   disabled={isLoading}
                 />
               </VStack>
-
-              {/* Project Selection */}
-              {projects.length > 0 ? (
-                <VStack spacing="8px" align="stretch">
-                  <Text
-                    fontSize="14px"
-                    color="rgba(255,255,255,0.6)"
-                    fontWeight="500"
-                  >
-                    Проект (опционально)
-                  </Text>
-                  <Select
-                    value={selectedProject || ""}
-                    onChange={(e) =>
-                      setSelectedProject(
-                        e.target.value ? Number(e.target.value) : null,
-                      )
-                    }
-                    placeholder="Без проекта"
-                    bg="transparent"
-                    border="1px solid rgba(255,255,255,0.2)"
-                    borderRadius="8px"
-                    h="48px"
-                    pl="16px"
-                    pr="40px"
-                    color="white"
-                    fontSize="16px"
-                    w="100%"
-                    _placeholder={{ color: "rgba(255,255,255,0.4)" }}
-                    _hover={{ borderColor: "rgba(255,255,255,0.3)" }}
-                    _focus={{
-                      borderColor: "rgba(255,255,255,0.5)",
-                      boxShadow: "none",
-                    }}
-                    disabled={isLoading}
-                    css={{
-                      "& > option": {
-                        backgroundColor: "#121314",
-                        color: "white",
-                      },
-                    }}
-                  >
-                    {projects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </Select>
-                </VStack>
-              ) : (
-                <VStack spacing="8px" align="stretch">
-                  <Text
-                    fontSize="14px"
-                    color="rgba(255,255,255,0.6)"
-                    fontWeight="500"
-                  >
-                    Проект
-                  </Text>
-                  <Box
-                    bg="transparent"
-                    border="1px solid rgba(255,255,255,0.2)"
-                    borderRadius="8px"
-                    h="48px"
-                    px="16px"
-                    color="rgba(255,255,255,0.4)"
-                    fontSize="16px"
-                    w="100%"
-                    display="flex"
-                    alignItems="center"
-                  >
-                    Без проекта
-                  </Box>
-                </VStack>
-              )}
             </VStack>
 
             {/* Info text - minimal */}

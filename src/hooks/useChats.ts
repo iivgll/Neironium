@@ -23,7 +23,7 @@ export function useChats() {
       (chat): Chat => ({
         id: chat.id,
         title: chat.title || "Untitled Chat",
-        project_id: chat.project_id,
+        parent_id: chat.parent_id,
         model: chat.model,
         temperature: chat.temperature,
         created_at: chat.created_at,
@@ -44,7 +44,7 @@ export function useChats() {
     async (chat: Omit<Chat, "id">) => {
       const chatData: ChatCreate = {
         title: chat.title,
-        project_id: chat.project_id,
+        parent_id: chat.parent_id,
         model: chat.model,
         temperature: chat.temperature,
       };
@@ -60,8 +60,8 @@ export function useChats() {
       const updateData: ChatUpdate = {};
 
       if (updates.title !== undefined) updateData.title = updates.title;
-      if (updates.project_id !== undefined)
-        updateData.project_id = updates.project_id;
+      if (updates.parent_id !== undefined)
+        updateData.parent_id = updates.parent_id;
       if (updates.model !== undefined) updateData.model = updates.model;
       if (updates.temperature !== undefined)
         updateData.temperature = updates.temperature;
@@ -85,7 +85,7 @@ export function useChats() {
     return {
       id: activeChat.id,
       title: activeChat.title || "Untitled Chat",
-      project_id: activeChat.project_id,
+      parent_id: activeChat.parent_id,
       model: activeChat.model,
       temperature: activeChat.temperature,
       created_at: activeChat.created_at,

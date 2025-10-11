@@ -166,7 +166,7 @@ export const useChat = (chatId?: number, options: UseChatOptions = {}) => {
         // setIsStreaming(false) теперь вызывается в message_end или error
       }
     },
-    [chatId, options],
+    [chatId, messages.length, options],
   );
 
   const deleteMessage = useCallback(

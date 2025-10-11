@@ -2,14 +2,15 @@ import {
   TelegramAuthPayload,
   AuthTokenResponse,
   UserRead,
-  ProjectCreate,
-  ProjectUpdate,
-  ProjectRead,
   PaginatedResponse,
   ChatCreate,
   ChatUpdate,
   ChatRead,
   MessageRead,
+  ChatTreeResponse,
+  FilesResponse,
+  FileRead,
+  ModelsResponse,
 } from "@/types/api";
 
 class ApiClient {
@@ -101,6 +102,13 @@ class ApiClient {
           ...options,
           headers,
         });
+      } else {
+        // If refresh failed, clear tokens and reload to re-authenticate via Telegram
+        if (typeof window !== "undefined") {
+          this.clearTokensFromStorage();
+          window.location.reload();
+        }
+        throw new Error("Authentication failed. Please re-authenticate.");
       }
     }
 
@@ -156,55 +164,22 @@ class ApiClient {
     return this.requestRequired<UserRead>("/me");
   }
 
-  // Projects methods
-  async getProjects(
-    limit = 20,
-    cursor?: string,
-  ): Promise<PaginatedResponse<ProjectRead>> {
-    const params = new URLSearchParams({ limit: limit.toString() });
-    if (cursor) params.append("cursor", cursor);
-
-    return this.requestRequired<PaginatedResponse<ProjectRead>>(
-      `/projects?${params}`,
-    );
-  }
-
-  async createProject(data: ProjectCreate): Promise<ProjectRead> {
-    return this.requestRequired<ProjectRead>("/projects", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async getProject(projectId: number): Promise<ProjectRead> {
-    return this.requestRequired<ProjectRead>(`/projects/${projectId}`);
-  }
-
-  async updateProject(
-    projectId: number,
-    data: ProjectUpdate,
-  ): Promise<ProjectRead> {
-    return this.requestRequired<ProjectRead>(`/projects/${projectId}`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteProject(projectId: number): Promise<void> {
-    await this.request(`/projects/${projectId}`, {
-      method: "DELETE",
-    });
+  // Models methods
+  async getModels(): Promise<ModelsResponse> {
+    return this.requestRequired<ModelsResponse>("/models");
   }
 
   // Chats methods
+  async getChatsTree(): Promise<ChatTreeResponse> {
+    return this.requestRequired<ChatTreeResponse>("/chats/tree");
+  }
+
   async getChats(
     limit = 20,
     cursor?: string,
-    projectId?: number,
   ): Promise<PaginatedResponse<ChatRead>> {
     const params = new URLSearchParams({ limit: limit.toString() });
     if (cursor) params.append("cursor", cursor);
-    if (projectId) params.append("project_id", projectId.toString());
 
     return this.requestRequired<PaginatedResponse<ChatRead>>(
       `/chats?${params}`,
@@ -278,7 +253,7 @@ class ApiClient {
       headers["Authorization"] = `Bearer ${this.accessToken}`;
     }
 
-    const response = await fetch(url, {
+    let response = await fetch(url, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -286,6 +261,33 @@ class ApiClient {
         client_message_id: clientMessageId,
       }),
     });
+
+    // If 401 or 403 and we have refresh token, try to refresh
+    if (
+      (response.status === 401 || response.status === 403) &&
+      this.refreshToken
+    ) {
+      const refreshed = await this.refreshAccessToken();
+
+      if (refreshed && this.accessToken) {
+        headers["Authorization"] = `Bearer ${this.accessToken}`;
+        response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            content,
+            client_message_id: clientMessageId,
+          }),
+        });
+      } else {
+        // If refresh failed, clear tokens and reload to re-authenticate via Telegram
+        if (typeof window !== "undefined") {
+          this.clearTokensFromStorage();
+          window.location.reload();
+        }
+        throw new Error("Authentication failed. Please re-authenticate.");
+      }
+    }
 
     if (!response.ok) {
       throw new Error(`Streaming failed: ${response.status}`);
@@ -296,6 +298,74 @@ class ApiClient {
     }
 
     return response.body;
+  }
+
+  // Files methods
+  async getChatFiles(chatId: number): Promise<FilesResponse> {
+    return this.requestRequired<FilesResponse>(`/chats/${chatId}/files`);
+  }
+
+  async uploadChatFiles(chatId: number, files: FileList): Promise<FilesResponse> {
+    const url = `${this.baseURL}/chats/${chatId}/files`;
+
+    const formData = new FormData();
+    Array.from(files).forEach((file) => {
+      formData.append("files", file);
+    });
+
+    const headers: Record<string, string> = {};
+
+    if (this.accessToken) {
+      headers["Authorization"] = `Bearer ${this.accessToken}`;
+    }
+
+    let response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    // If 401 or 403 and we have refresh token, try to refresh
+    if (
+      (response.status === 401 || response.status === 403) &&
+      this.refreshToken
+    ) {
+      const refreshed = await this.refreshAccessToken();
+
+      if (refreshed && this.accessToken) {
+        headers["Authorization"] = `Bearer ${this.accessToken}`;
+        response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: formData,
+        });
+      } else {
+        // If refresh failed, clear tokens and reload to re-authenticate via Telegram
+        if (typeof window !== "undefined") {
+          this.clearTokensFromStorage();
+          window.location.reload();
+        }
+        throw new Error("Authentication failed. Please re-authenticate.");
+      }
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "Unknown error");
+      console.error("File upload error:", {
+        status: response.status,
+        error: errorText,
+        url,
+      });
+      throw new Error(`File upload failed: ${response.status} - ${errorText}`);
+    }
+
+    return response.json();
+  }
+
+  async deleteChatFile(chatId: number, fileId: number): Promise<void> {
+    await this.request(`/chats/${chatId}/files/${fileId}`, {
+      method: "DELETE",
+    });
   }
 }
 

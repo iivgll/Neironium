@@ -24,7 +24,7 @@
     "@heroicons/react": "^2.0.17",
     "framer-motion": "^4.1.17",
     "lottie-react": "^2.4.1",
-    "next": "^15.1.6",
+    "next": "^15.5.4",
     "react": "^19.0.0-rc.1",
     "react-dom": "^19.0.0-rc.1",
     "react-icons": "^4.12.0",

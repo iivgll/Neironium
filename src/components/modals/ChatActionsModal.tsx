@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Flex,
@@ -16,31 +16,21 @@ import {
 import Image from "next/image";
 import { MdClose } from "react-icons/md";
 import { COLORS } from "@/theme/colors";
-import { Project } from "@/types/chat";
-import ProjectTooltip from "../tooltips/ProjectTooltip";
-import { ArrowIcon } from "../icons/ArrowIcon";
 import { useEffect } from "react";
 import { useAssetPath } from "@/hooks/useAssetPath";
-
-type MinimalProject = Pick<Project, "id" | "name">;
 
 interface ChatActionsModalProps {
   isOpen: boolean;
   onClose: () => void;
   position: { x: number; y: number };
   onRename?: () => void;
-  onAddToProject?: () => void;
   onCopy?: () => void;
-  onNewProject?: () => void;
   onDeleteConfirm?: (chatTitle: string) => void;
+  onCreateSubchat?: () => void;
+  onMoveToChat?: () => void;
   chatTitle?: string;
   chatId?: number;
-  projects?: MinimalProject[];
-  onMoveToProject?: (chatId: number, projectId: number) => void;
-  onCreateProjectAndMove?: (chatId: number) => void;
 }
-
-// ProjectTooltip component moved to separate file
 
 export default function ChatActionsModal({
   isOpen,
@@ -48,15 +38,12 @@ export default function ChatActionsModal({
   position,
   onRename,
   onCopy,
-  onNewProject,
   onDeleteConfirm,
-  chatTitle = "Создание статей для Хабра",
+  onCreateSubchat,
+  onMoveToChat,
+  chatTitle = "Чат",
   chatId,
-  projects = [],
-  onMoveToProject,
-  onCreateProjectAndMove,
 }: ChatActionsModalProps) {
-  const [showProjectTooltip, setShowProjectTooltip] = useState(false);
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const { getAssetPath } = useAssetPath();
 
@@ -83,23 +70,6 @@ export default function ChatActionsModal({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-
-  const handleNewProject = () => {
-    setShowProjectTooltip(false);
-    // В мобильной версии всегда открываем NewProjectModal
-    // и, если есть chatId, устанавливаем его для перемещения в новый проект
-    if (chatId && onCreateProjectAndMove) {
-      onCreateProjectAndMove(chatId); // Уже содержит onClose()
-    } else {
-      onNewProject?.();
-      onClose();
-    }
-  };
-
-  // Close tooltip only when mouse leaves the entire tooltip area
-  const handleTooltipAreaLeave = () => {
-    setShowProjectTooltip(false);
-  };
 
   if (isMobile) {
     // Mobile version - full screen modal
@@ -187,132 +157,93 @@ export default function ChatActionsModal({
                   </Text>
                 </Flex>
 
-                {/* Add to Project */}
-                <Box>
-                  <Flex
-                    px="16px"
-                    py="12px"
-                    align="center"
-                    cursor="pointer"
-                    borderRadius="12px"
-                    bg="rgba(255, 255, 255, 0.05)"
-                    _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
-                    _focus={{
-                      bg: "rgba(255, 255, 255, 0.1)",
-                      outline: "2px solid white",
-                    }}
-                    onClick={() => {
-                      setShowProjectTooltip(!showProjectTooltip);
-                    }}
-                    tabIndex={0}
-                    role="button"
-                    aria-label="Добавить в проект"
-                    aria-expanded={showProjectTooltip}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setShowProjectTooltip(!showProjectTooltip);
-                      }
-                    }}
-                    justify="space-between"
+                {/* Create Subchat */}
+                <Flex
+                  px="16px"
+                  py="12px"
+                  align="center"
+                  cursor="pointer"
+                  borderRadius="12px"
+                  bg="rgba(255, 255, 255, 0.05)"
+                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                  _focus={{
+                    bg: "rgba(255, 255, 255, 0.1)",
+                    outline: "2px solid white",
+                  }}
+                  onClick={() => {
+                    onCreateSubchat?.();
+                    onClose();
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Создать подчат"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onCreateSubchat?.();
+                      onClose();
+                    }
+                  }}
+                >
+                  <Image
+                    src={getAssetPath("/icons/folder-add.svg")}
+                    alt="Create subchat"
+                    width={20}
+                    height={20}
+                  />
+                  <Text
+                    ml="12px"
+                    fontSize="16px"
+                    color={COLORS.TEXT_PRIMARY}
+                    fontWeight="500"
                   >
-                    <Flex align="center">
-                      <Image
-                        src={getAssetPath("/icons/folder.svg")}
-                        alt="Add to project"
-                        width={20}
-                        height={20}
-                      />
-                      <Text
-                        ml="12px"
-                        fontSize="16px"
-                        color={COLORS.TEXT_PRIMARY}
-                        fontWeight="500"
-                      >
-                        Добавить в проект
-                      </Text>
-                    </Flex>
-                    <ArrowIcon
-                      transform={
-                        showProjectTooltip ? "rotate(90deg)" : "rotate(270deg)"
-                      }
-                    />
-                  </Flex>
+                    Создать подчат
+                  </Text>
+                </Flex>
 
-                  {/* Project Selection - shown when expanded */}
-                  {showProjectTooltip && (
-                    <VStack
-                      spacing="8px"
-                      align="stretch"
-                      mt="8px"
-                      ml="16px"
-                      mr="16px"
-                    >
-                      {/* New Project Option */}
-                      <Flex
-                        px="16px"
-                        py="10px"
-                        align="center"
-                        cursor="pointer"
-                        borderRadius="8px"
-                        bg="rgba(255, 255, 255, 0.03)"
-                        _hover={{ bg: "rgba(255, 255, 255, 0.08)" }}
-                        onClick={handleNewProject}
-                      >
-                        <Image
-                          src={getAssetPath("/icons/folder-add.svg")}
-                          alt="New project"
-                          width={16}
-                          height={16}
-                        />
-                        <Text
-                          ml="8px"
-                          fontSize="14px"
-                          color={COLORS.TEXT_PRIMARY}
-                        >
-                          Новый проект
-                        </Text>
-                      </Flex>
-
-                      {projects.length > 0 && <Divider borderColor="#343434" />}
-
-                      {/* Existing Projects */}
-                      {projects.map((project) => (
-                        <Flex
-                          key={project.id}
-                          px="16px"
-                          py="10px"
-                          align="center"
-                          cursor="pointer"
-                          borderRadius="8px"
-                          bg="rgba(255, 255, 255, 0.03)"
-                          _hover={{ bg: "rgba(255, 255, 255, 0.08)" }}
-                          onClick={() => {
-                            if (chatId && onMoveToProject) {
-                              onMoveToProject(chatId, project.id);
-                            }
-                            onClose();
-                          }}
-                        >
-                          <Image
-                            src={getAssetPath("/icons/folder.svg")}
-                            alt="Project"
-                            width={16}
-                            height={16}
-                          />
-                          <Text
-                            ml="8px"
-                            fontSize="14px"
-                            color={COLORS.TEXT_PRIMARY}
-                            noOfLines={1}
-                          >
-                            {project.name}
-                          </Text>
-                        </Flex>
-                      ))}
-                    </VStack>
-                  )}
-                </Box>
+                {/* Move to Chat */}
+                <Flex
+                  px="16px"
+                  py="12px"
+                  align="center"
+                  cursor="pointer"
+                  borderRadius="12px"
+                  bg="rgba(255, 255, 255, 0.05)"
+                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                  _focus={{
+                    bg: "rgba(255, 255, 255, 0.1)",
+                    outline: "2px solid white",
+                  }}
+                  onClick={() => {
+                    onMoveToChat?.();
+                    onClose();
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Переместить в чат"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onMoveToChat?.();
+                      onClose();
+                    }
+                  }}
+                >
+                  <Image
+                    src={getAssetPath("/icons/folder.svg")}
+                    alt="Move to chat"
+                    width={20}
+                    height={20}
+                  />
+                  <Text
+                    ml="12px"
+                    fontSize="16px"
+                    color={COLORS.TEXT_PRIMARY}
+                    fontWeight="500"
+                  >
+                    Переместить в чат
+                  </Text>
+                </Flex>
 
                 {/* Copy */}
                 <Flex
@@ -456,46 +387,62 @@ export default function ChatActionsModal({
               </Text>
             </Flex>
 
-            {/* Add to Project */}
+            {/* Create Subchat */}
             <Flex
               px="10px"
               py="6px"
               align="center"
-              justify="space-between"
               cursor="pointer"
               borderRadius="5px"
-              bg={showProjectTooltip ? "#434343" : "#343434"}
-              _hover={{ bg: "#434343" }}
+              _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}
               onClick={() => {
-                console.log(
-                  "🖱️ Desktop: Добавить в проект clicked, showProjectTooltip:",
-                  showProjectTooltip,
-                );
-                setShowProjectTooltip(!showProjectTooltip);
+                onCreateSubchat?.();
+                onClose();
               }}
             >
-              <Flex align="center">
-                <Image
-                  src={getAssetPath("/icons/folder.svg")}
-                  alt="Add to project"
-                  width={16}
-                  height={16}
-                />
-                <Text
-                  ml="5px"
-                  fontSize="12px"
-                  color={COLORS.TEXT_PRIMARY}
-                  letterSpacing="0.24px"
-                >
-                  Добавить в проект
-                </Text>
-              </Flex>
-              <ArrowIcon
-                direction={showProjectTooltip ? "down" : "right"}
-                color={COLORS.TEXT_SECONDARY}
-                w="16px"
-                h="16px"
+              <Image
+                src={getAssetPath("/icons/folder-add.svg")}
+                alt="Create subchat"
+                width={16}
+                height={16}
               />
+              <Text
+                ml="5px"
+                fontSize="12px"
+                color={COLORS.TEXT_PRIMARY}
+                letterSpacing="0.24px"
+              >
+                Создать подчат
+              </Text>
+            </Flex>
+
+            {/* Move to Chat */}
+            <Flex
+              px="10px"
+              py="6px"
+              align="center"
+              cursor="pointer"
+              borderRadius="5px"
+              _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}
+              onClick={() => {
+                onMoveToChat?.();
+                onClose();
+              }}
+            >
+              <Image
+                src={getAssetPath("/icons/folder.svg")}
+                alt="Move to chat"
+                width={16}
+                height={16}
+              />
+              <Text
+                ml="5px"
+                fontSize="12px"
+                color={COLORS.TEXT_PRIMARY}
+                letterSpacing="0.24px"
+              >
+                Переместить в чат
+              </Text>
             </Flex>
 
             {/* Copy */}
@@ -560,18 +507,6 @@ export default function ChatActionsModal({
           </VStack>
         </Box>
       </Box>
-
-      {/* Project Tooltip */}
-      <ProjectTooltip
-        isOpen={showProjectTooltip}
-        onClose={handleTooltipAreaLeave}
-        position={position}
-        onNewProject={handleNewProject}
-        projects={projects}
-        chatId={chatId}
-        onMoveToProject={onMoveToProject}
-        onCreateProjectAndMove={onCreateProjectAndMove}
-      />
     </>
   );
 }

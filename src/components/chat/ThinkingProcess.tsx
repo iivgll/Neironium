@@ -69,27 +69,34 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
     }
   }, [getAssetPath, animationData]);
 
-  // Force animation restart when thinking state changes or component mounts
+  // Управляем seamless loop - играем только кадры 0-108, пропускаем проблемные кадры
   useEffect(() => {
-    if (animationData) {
-      // Force restart animation
-      setAnimationKey((prev) => prev + 1);
+    if (!lottieRef.current || !animationData) return;
 
-      // Additional retry mechanism for Android
-      const retryAnimation = setTimeout(() => {
-        if (lottieRef.current) {
-          try {
-            lottieRef.current.play();
-          } catch (e) {
-            console.log("Retrying animation play");
-            setAnimationKey((prev) => prev + 1);
-          }
-        }
-      }, 200);
+    const animationInstance = (lottieRef.current as any)?.anim;
+    if (!animationInstance) return;
 
-      return () => clearTimeout(retryAnimation);
-    }
-  }, [isThinking, animationData]);
+    const handleEnterFrame = () => {
+      const currentFrame = animationInstance.currentFrame;
+      // Когда достигаем кадра 108, плавно переходим к 0 для бесшовного цикла
+      if (currentFrame >= 108) {
+        animationInstance.goToAndPlay(0, true);
+      }
+    };
+
+    animationInstance.addEventListener("enterFrame", handleEnterFrame);
+
+    // Запускаем воспроизведение с начала
+    setTimeout(() => {
+      if (animationInstance) {
+        animationInstance.goToAndPlay(0, true);
+      }
+    }, 100);
+
+    return () => {
+      animationInstance.removeEventListener("enterFrame", handleEnterFrame);
+    };
+  }, [animationData, animationKey]);
 
   // Animate thinking text character by character (like Claude web)
   React.useEffect(() => {
@@ -190,13 +197,12 @@ const ThinkingProcess: React.FC<ThinkingProcessProps> = ({
               ref={lottieRef}
               animationData={animationData}
               play={true}
-              loop={true}
+              loop={false}
               speed={1}
               rendererSettings={{
                 preserveAspectRatio: "xMidYMid slice",
                 progressiveLoad: false,
-                hideOnTransparent: false,
-                clearCanvas: true,
+                hideOnTransparent: true,
               }}
               style={{
                 width: "100%",

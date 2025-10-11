@@ -37,32 +37,13 @@ export interface UserRead {
   gmt_offset?: number | null;
 }
 
-// Project types
-export interface ProjectCreate {
-  name: string;
-  description?: string | null;
-}
-
-export interface ProjectUpdate {
-  name?: string | null;
-  description?: string | null;
-}
-
-export interface ProjectRead {
-  id: number;
-  name: string;
-  description?: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
 // Chat types
 export interface ChatCreate {
   title?: string | null;
   system_prompt?: string | null;
   model?: string | null;
   temperature?: number | null;
-  project_id?: number | null;
+  parent_id?: number | null;
 }
 
 export interface ChatUpdate {
@@ -70,17 +51,49 @@ export interface ChatUpdate {
   system_prompt?: string | null;
   model?: string | null;
   temperature?: number | null;
-  project_id?: number | null;
+  parent_id?: number | null;
 }
 
 export interface ChatRead {
   id: number;
-  project_id?: number | null;
+  parent_id?: number | null;
   title?: string | null;
   model?: string | null;
   temperature?: number | null;
   created_at: string;
   updated_at: string;
+}
+
+// Model types
+export interface ModelRead {
+  id: string;
+  provider: string;
+  context_window: string;
+  display_name: string;
+}
+
+export interface ModelsResponse {
+  items: ModelRead[];
+}
+
+// Chat tree types
+export interface ChatFileInfo {
+  id: number;
+  name: string;
+}
+
+export interface ChatTreeItem {
+  id: number;
+  parent_id: number | null;
+  title: string;
+  description: string | null;
+  files_count: number;
+  files: ChatFileInfo[];
+  children: ChatTreeItem[];
+}
+
+export interface ChatTreeResponse {
+  items: ChatTreeItem[];
 }
 
 // Message types
@@ -110,4 +123,18 @@ export interface StreamingResponse {
   type: "message" | "error" | "done";
   data?: any;
   error?: string;
+}
+
+// File types
+export interface FileRead {
+  id: number;
+  name: string;
+  size_bytes: number;
+  mime: string;
+  chunk_count: number;
+  created_at: string;
+}
+
+export interface FilesResponse {
+  items: FileRead[];
 }

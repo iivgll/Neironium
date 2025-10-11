@@ -1,11 +1,11 @@
 "use client";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import "@/styles/App.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import { TelegramProvider, useTelegram } from "@/contexts/TelegramContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { ProjectsProvider } from "@/contexts/ProjectsContext";
 import { ChatsProvider } from "@/contexts/ChatsContext";
+import { ChatDetailsProvider } from "@/contexts/ChatDetailsContext";
 import { LoadingScreen } from "@/components/screens/LoadingScreen";
 import { UnauthorizedScreen } from "@/components/screens/UnauthorizedScreen";
 import { LoginScreen } from "@/components/screens/LoginScreen";
@@ -14,8 +14,18 @@ import theme from "@/theme/theme";
 function AppContent({ children }: { children: ReactNode }) {
   const { isLoading: telegramLoading, isUnauthorized } = useTelegram();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Show loading screen while initializing Telegram or auth
+  // Fix hydration error by waiting for client-side mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Show loading screen while mounting or initializing
+  if (!isMounted) {
+    return null; // Return null to avoid hydration mismatch
+  }
+
   if (telegramLoading || authLoading) {
     return <LoadingScreen />;
   }
@@ -38,11 +48,11 @@ export default function AppWrappers({ children }: { children: ReactNode }) {
     <ChakraProvider theme={theme} cssVarsRoot="body" resetCSS>
       <TelegramProvider>
         <AuthProvider>
-          <ProjectsProvider>
-            <ChatsProvider>
+          <ChatsProvider>
+            <ChatDetailsProvider>
               <AppContent>{children}</AppContent>
-            </ChatsProvider>
-          </ProjectsProvider>
+            </ChatDetailsProvider>
+          </ChatsProvider>
         </AuthProvider>
       </TelegramProvider>
     </ChakraProvider>
